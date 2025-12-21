@@ -84,25 +84,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    return { error };
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      return { error };
+    } catch (err) {
+      console.error('Sign in error:', err);
+      return {
+        error: {
+          message: 'Unable to connect to the server. Please check your internet connection or try again later.'
+        }
+      };
+    }
   };
 
   const signUp = async (email: string, password: string, fullName: string) => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: fullName,
-          role: 'viewer',
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+            role: 'viewer',
+          },
         },
-      },
-    });
-    return { error };
+      });
+      return { error };
+    } catch (err) {
+      console.error('Sign up error:', err);
+      return {
+        error: {
+          message: 'Unable to connect to the server. Please check your internet connection or try again later.'
+        }
+      };
+    }
   };
 
   const signOut = async () => {
@@ -121,10 +139,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const resetPassword = async (email: string) => {
-    const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
-    return { data, error };
+    try {
+      const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      return { data, error };
+    } catch (err) {
+      console.error('Password reset error:', err);
+      return {
+        data: null,
+        error: {
+          message: 'Unable to connect to the server. Please check your internet connection or try again later.'
+        }
+      };
+    }
   };
 
   const value = {
