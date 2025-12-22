@@ -52,6 +52,7 @@ export function DataImport() {
     'Priority': 'priority',
     'Annual Salary': 'annual_salary',
     'Course': 'program',
+    'Job Title': 'program',
     'Specialisation': 'specialisation',
     'Previous Institution': 'previous_institution',
     'Years of Experience': 'experience_years',
