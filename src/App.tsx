@@ -60,8 +60,7 @@ function AppContent() {
   return (
     <NavigationContext.Provider value={{ setCurrentPage }}>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
-        {currentPage !== 'appointment' && (
-          <nav className="bg-white shadow-lg border-b border-gray-200 sticky top-0 z-50 backdrop-blur-sm bg-opacity-95">
+        <nav className="bg-white shadow-lg border-b border-gray-200 sticky top-0 z-50 backdrop-blur-sm bg-opacity-95">
             {/* Main Menu Ribbon */}
             <div className="border-b border-gray-200">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -203,33 +202,27 @@ function AppContent() {
               </div>
             )}
           </nav>
-        )}
 
-      {currentPage === 'appointment' ? (
-        <AppointmentBooking />
-      ) : (
-        <>
-          <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            {currentPage === 'dashboard' && <Dashboard />}
-            {currentPage === 'enquiry' && <EnquiryForm />}
-            {currentPage === 'support' && <SupportForm />}
-            {currentPage === 'admission' && <AdmissionForm />}
-            {currentPage === 'balance-fee' && <BalanceFeePayment />}
-            {currentPage === 'student-status' && <StudentStatusForm />}
-            {currentPage === 'courier-status' && <CourierStatus />}
-            {currentPage === 'status' && <StatusSearch />}
-            {currentPage === 'admin' && <AdminPanel />}
-          </main>
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {currentPage === 'dashboard' && <Dashboard />}
+          {currentPage === 'enquiry' && <EnquiryForm />}
+          {currentPage === 'support' && <SupportForm />}
+          {currentPage === 'appointment' && <AppointmentBooking />}
+          {currentPage === 'admission' && <AdmissionForm />}
+          {currentPage === 'balance-fee' && <BalanceFeePayment />}
+          {currentPage === 'student-status' && <StudentStatusForm />}
+          {currentPage === 'courier-status' && <CourierStatus />}
+          {currentPage === 'status' && <StatusSearch />}
+          {currentPage === 'admin' && <AdminPanel />}
+        </main>
 
-          <footer className="bg-gradient-to-r from-white via-gray-50 to-white border-t border-gray-200 mt-16 shadow-inner">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-              <p className="text-center text-gray-600 text-sm">
-                <span className="font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">Mirror</span> <span className="text-xs">(ERP-CRM)</span> <span className="text-emerald-600 font-bold">by Dr. Chetan</span> - All data is securely stored and interconnected
-              </p>
-            </div>
-          </footer>
-        </>
-      )}
+        <footer className="bg-gradient-to-r from-white via-gray-50 to-white border-t border-gray-200 mt-16 shadow-inner">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <p className="text-center text-gray-600 text-sm">
+              <span className="font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">Mirror</span> <span className="text-xs">(ERP-CRM)</span> <span className="text-emerald-600 font-bold">by Dr. Chetan</span> - All data is securely stored and interconnected
+            </p>
+          </div>
+        </footer>
       </div>
     </NavigationContext.Provider>
   );
