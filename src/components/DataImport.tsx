@@ -5,7 +5,7 @@ import { downloadEnquiryCSVTemplate, downloadStudentStatusCSVTemplate } from '..
 import { sanitizeDateValue } from '../utils/dateValidation';
 import { checkForDuplicates } from '../utils/duplicateDetection';
 
-type DataType = 'contacts' | 'enquiries' | 'appointments' | 'admissions' | 'student_status';
+type DataType = 'contacts' | 'enquiries' | 'appointments' | 'admissions' | 'student_status' | 'payments';
 
 interface ImportOption {
   id: DataType;
@@ -26,6 +26,7 @@ export function DataImport() {
     { id: 'enquiries', name: 'Enquiries', description: 'Import enquiry records' },
     { id: 'appointments', name: 'Appointments', description: 'Import appointment records' },
     { id: 'admissions', name: 'Admissions', description: 'Import admission records' },
+    { id: 'payments', name: 'Fee Payment Form', description: 'Import payment records' },
     { id: 'student_status', name: 'Student Status', description: 'Import student status records' },
   ];
 
@@ -376,6 +377,8 @@ export function DataImport() {
             enquiries: ['date_of_birth'],
             appointments: ['appointment_date'],
             admissions: [],
+            payments: ['payment_date'],
+            student_status: [],
           };
 
           const fieldsToSanitize = dateFields[dataType] || [];
