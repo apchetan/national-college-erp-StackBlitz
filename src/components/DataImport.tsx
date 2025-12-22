@@ -41,6 +41,9 @@ export function DataImport() {
     'Phone Number': 'phone',
     'Date of Birth (DD-MM-YYYY)': 'date_of_birth',
     'City': 'city',
+    'Address': 'address',
+    'Gender': 'gender',
+    'Caller': 'caller',
     'Current Company/Organization': 'company',
     'How did you hear about us': 'source',
     'Enquiry Type': 'enquiry_type',
@@ -52,9 +55,12 @@ export function DataImport() {
     'Specialisation': 'specialisation',
     'Previous Institution': 'previous_institution',
     'Years of Experience': 'experience_years',
+    'Experience': 'experience_years',
+    'Expirence': 'experience_years',
     'Additional Notes': 'notes',
     'Contact Email': 'contact_email',
     'Program': 'program',
+    'Status': 'status',
     'Courseware Exam Status': 'courseware_exam_status',
     'Degree Status': 'degree_status',
     'Degree Issued': 'degree_issued',
@@ -100,10 +106,10 @@ export function DataImport() {
 
   const getTargetColumns = (dataType: DataType): string[] => {
     const columnsByType: Record<DataType, string[]> = {
-      contacts: ['first_name', 'last_name', 'email', 'phone', 'date_of_birth', 'city', 'company', 'source', 'status'],
+      contacts: ['first_name', 'last_name', 'email', 'phone', 'date_of_birth', 'city', 'address', 'gender', 'company', 'caller', 'source', 'status'],
       enquiries: ['contact_id', 'subject', 'message', 'enquiry_type', 'priority', 'annual_salary', 'program', 'specialisation', 'previous_institution', 'experience_years', 'notes', 'status'],
       appointments: ['contact_id', 'appointment_date', 'appointment_time', 'purpose', 'notes', 'status', 'attendance'],
-      admissions: ['contact_id', 'program', 'specialisation', 'admission_status', 'previous_institution', 'qualifications', 'notes'],
+      admissions: ['contact_id', 'program', 'specialisation', 'admission_status', 'previous_institution', 'qualifications', 'notes', 'status'],
       payments: ['contact_id', 'amount', 'payment_date', 'payment_method', 'transaction_id', 'payment_status', 'notes', 'receipt_url'],
       student_status: ['contact_id', 'program', 'specialisation', 'courseware_exam_status', 'degree_status', 'degree_issued', 'degree_courier_docket', 'enrolment_no_status', 'enrolment_no_value', 'exam_status', 'lor_status', 'lor_issued', 'lor_courier_docket', 'ms_hard_copy_status', 'ms_hard_copy_issued', 'ms_hard_copy_courier_docket', 'ms_hard_copy_courier_status', 'ms_scan_status', 'ms_scan_issued', 'ms_scan_courier_docket', 'provisional_degree_status', 'provisional_degree_issued', 'provisional_degree_courier_docket', 'provisional_degree_courier_status', 'recommendation_letter_status', 'recommendation_letter_issued', 'recommendation_letter_courier_docket', 'result_status', 'roll_no_status', 'university_phd_offer_letter_status', 'university_phd_offer_letter_issued', 'university_phd_offer_letter_courier_docket', 'university_visit_status', 'university_visit1_status', 'university_visit2_status', 'university_visit3_status', 'viva_status', 'wes_status', 'wes_issued', 'wes_courier_docket', 'notes'],
     };
@@ -302,7 +308,7 @@ export function DataImport() {
       });
 
       if (selectedType === 'enquiries') {
-        const contactFields = new Set(['first_name', 'last_name', 'email', 'phone', 'date_of_birth', 'city', 'company', 'source']);
+        const contactFields = new Set(['first_name', 'last_name', 'email', 'phone', 'date_of_birth', 'city', 'address', 'gender', 'company', 'caller', 'source']);
         const enquiryFields = new Set(['subject', 'message', 'enquiry_type', 'priority', 'annual_salary', 'program', 'specialisation', 'previous_institution', 'experience_years', 'notes']);
         let successCount = 0;
         const skipped: string[] = [];
@@ -453,7 +459,7 @@ export function DataImport() {
         }
         setSuccess(message);
       } else if (selectedType === 'contacts') {
-        const validContactFields = new Set(['first_name', 'last_name', 'email', 'phone', 'date_of_birth', 'city', 'company', 'source', 'status']);
+        const validContactFields = new Set(['first_name', 'last_name', 'email', 'phone', 'date_of_birth', 'city', 'address', 'gender', 'company', 'caller', 'source', 'status']);
 
         const filteredData = cleanedData.map(row => {
           const filtered: any = {};
