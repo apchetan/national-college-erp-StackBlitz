@@ -220,7 +220,7 @@ export function CourierStatus() {
             </h2>
 
             <ContactSearch
-              onContactSelect={setSelectedContact}
+              onSelectContact={setSelectedContact}
               selectedContact={selectedContact}
             />
 
