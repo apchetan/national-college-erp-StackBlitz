@@ -21,6 +21,23 @@ interface Admission {
   contacts: Contact;
 }
 
+interface CourierEntry {
+  id: string;
+  created_at: string;
+  received_from_student_apply_forms: string[] | null;
+  received_from_student_docket_no: string | null;
+  received_from_student_date: string | null;
+  sent_to_student_apply_forms: string[] | null;
+  sent_to_student_docket_no: string | null;
+  sent_to_student_date: string | null;
+  sent_to_university_apply_forms: string[] | null;
+  sent_to_university_docket_no: string | null;
+  sent_to_university_date: string | null;
+  received_from_university_apply_forms: string[] | null;
+  received_from_university_docket_no: string | null;
+  received_from_university_date: string | null;
+}
+
 interface StatusFieldConfig {
   key: string;
   label: string;
@@ -93,6 +110,7 @@ export function StudentStatusForm() {
   const [searchResults, setSearchResults] = useState<Admission[]>([]);
   const [selectedAdmission, setSelectedAdmission] = useState<Admission | null>(null);
   const [searching, setSearching] = useState(false);
+  const [courierEntries, setCourierEntries] = useState<CourierEntry[]>([]);
 
   const [statusData, setStatusData] = useState<Record<string, string | null>>({});
   const [notes, setNotes] = useState('');
@@ -179,6 +197,23 @@ export function StudentStatusForm() {
     }
   };
 
+  const fetchCourierEntries = async (contactId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('courier_status')
+        .select('*')
+        .eq('contact_id', contactId)
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      if (error) throw error;
+      setCourierEntries(data || []);
+    } catch (err) {
+      console.error('Error fetching courier entries:', err);
+      setCourierEntries([]);
+    }
+  };
+
   const loadExistingStatus = async (admissionId: string) => {
     try {
       const { data, error } = await supabase
@@ -233,6 +268,7 @@ export function StudentStatusForm() {
     setSearchResults([]);
     setSearchQuery('');
     loadExistingStatus(admission.id);
+    fetchCourierEntries(admission.contact_id);
   };
 
   useEffect(() => {
@@ -428,15 +464,84 @@ export function StudentStatusForm() {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="flex justify-between items-start">
+            <div className="bg-gradient-to-r from-blue-50 to-gray-50 p-6 rounded-lg border border-blue-100 mb-6">
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900">
+                    {selectedAdmission.program}
+                  </h3>
+                  {selectedAdmission.specialisation && (
+                    <p className="text-base text-gray-700 mt-1">{selectedAdmission.specialisation}</p>
+                  )}
+                </div>
+                {courierEntries.length > 0 && (
+                  <p className="text-sm text-gray-600">
+                    Created: {new Date(courierEntries[0].created_at).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                  </p>
+                )}
+              </div>
+
+              {enrolmentNoValue && (
+                <div className="bg-white p-4 rounded-lg border border-gray-200 mb-4">
+                  <p className="text-sm font-semibold text-gray-700 mb-1">Enrolment Number:</p>
+                  <p className="text-lg font-mono text-gray-900">{enrolmentNoValue}</p>
+                </div>
+              )}
+
+              {courierEntries.length > 0 && (
+                <div className="space-y-3">
+                  <h4 className="text-sm font-semibold text-gray-800 flex items-center gap-2">
+                    <span className="w-2 h-2 bg-blue-600 rounded-full"></span>
+                    Courier Status Report
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {courierEntries.slice(0, 3).map((entry, index) => (
+                      <div key={entry.id} className="bg-white p-3 rounded-lg border border-gray-200">
+                        <div className="flex justify-between items-start mb-2">
+                          <span className="text-xs font-medium text-blue-600">Entry #{index + 1}</span>
+                          <span className="text-xs text-gray-500">
+                            {new Date(entry.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                          </span>
+                        </div>
+                        <div className="space-y-1 text-xs">
+                          {entry.received_from_student_apply_forms && entry.received_from_student_apply_forms.length > 0 && (
+                            <div>
+                              <span className="font-medium text-gray-700">From Student:</span>
+                              <span className="text-gray-600 ml-1">{entry.received_from_student_apply_forms.join(', ')}</span>
+                            </div>
+                          )}
+                          {entry.sent_to_student_apply_forms && entry.sent_to_student_apply_forms.length > 0 && (
+                            <div>
+                              <span className="font-medium text-gray-700">To Student:</span>
+                              <span className="text-gray-600 ml-1">{entry.sent_to_student_apply_forms.join(', ')}</span>
+                            </div>
+                          )}
+                          {entry.sent_to_university_apply_forms && entry.sent_to_university_apply_forms.length > 0 && (
+                            <div>
+                              <span className="font-medium text-gray-700">To University:</span>
+                              <span className="text-gray-600 ml-1">{entry.sent_to_university_apply_forms.join(', ')}</span>
+                            </div>
+                          )}
+                          {entry.received_from_university_apply_forms && entry.received_from_university_apply_forms.length > 0 && (
+                            <div>
+                              <span className="font-medium text-gray-700">From University:</span>
+                              <span className="text-gray-600 ml-1">{entry.received_from_university_apply_forms.join(', ')}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-between items-start mb-4">
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">
                   {selectedAdmission.contacts.first_name} {selectedAdmission.contacts.last_name}
                 </h3>
                 <p className="text-sm text-gray-600">{selectedAdmission.contacts.email}</p>
-                <p className="text-sm text-gray-500 mt-1">
-                  {selectedAdmission.program} {selectedAdmission.specialisation ? `- ${selectedAdmission.specialisation}` : ''}
-                </p>
               </div>
               <button
                 type="button"
@@ -444,6 +549,7 @@ export function StudentStatusForm() {
                   setSelectedAdmission(null);
                   setStatusData({});
                   setNotes('');
+                  setCourierEntries([]);
                   setRollNoValues(Array(8).fill(''));
                   setRollNoCheckboxes(Array(8).fill(false));
                   setMsScanCheckboxes(Array(8).fill(false));
