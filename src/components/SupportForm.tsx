@@ -188,7 +188,7 @@ export function SupportForm() {
           first_name: formData.firstName,
           last_name: formData.lastName,
           email: formData.email,
-          phone: formData.phone || null,
+          phone: formData.phone,
           date_of_birth: sanitizeDateValue(formData.dateOfBirth),
           city: formData.city || null,
           company: formData.company || null,
@@ -486,11 +486,12 @@ export function SupportForm() {
 
                 <div>
                   <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                    Phone Number
+                    Phone Number *
                   </label>
                   <input
                     type="tel"
                     id="phone"
+                    required
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
