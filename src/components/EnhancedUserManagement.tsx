@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { Users, Plus, Edit2, Trash2, CheckCircle, X, Shield, UserCog, Eye, EyeOff } from 'lucide-react';
+import { Users, Plus, Edit2, Trash2, CheckCircle, X, Shield, UserCog, Eye, EyeOff, AlertCircle } from 'lucide-react';
 
 interface Profile {
   id: string;
@@ -39,6 +39,16 @@ export function EnhancedUserManagement() {
     loadUsers();
   }, []);
 
+  useEffect(() => {
+    if (error || success) {
+      const timer = setTimeout(() => {
+        setError('');
+        setSuccess('');
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error, success]);
+
   const loadUsers = async () => {
     try {
       const { data, error } = await supabase
@@ -67,6 +77,17 @@ export function EnhancedUserManagement() {
     const role = formData.get('role') as string;
 
     try {
+      // Check if email already exists in profiles
+      const { data: existingUser } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('email', email)
+        .maybeSingle();
+
+      if (existingUser) {
+        throw new Error('A user with this email address already exists. Please use a different email.');
+      }
+
       // Get current session for authorization
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
@@ -147,6 +168,7 @@ export function EnhancedUserManagement() {
     } catch (err: any) {
       console.error('Full error:', err);
       setError(err.message || 'Unknown error occurred');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -282,7 +304,8 @@ export function EnhancedUserManagement() {
       </div>
 
       {error && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+        <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
+          <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
           <p className="text-sm text-red-600">{error}</p>
         </div>
       )}
