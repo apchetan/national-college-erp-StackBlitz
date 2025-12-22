@@ -187,6 +187,49 @@ Deno.serve(async (req: Request) => {
       );
     }
 
+    // RESET PASSWORD
+    if (method === 'POST' && path.endsWith('/reset-password')) {
+      const body = await req.json();
+      const { user_id, new_password } = body;
+
+      console.log('Resetting password for user:', user_id);
+
+      // Check target user's role
+      const { data: targetProfile } = await adminClient
+        .from('profiles')
+        .select('role')
+        .eq('id', user_id)
+        .single();
+
+      if (profile.role === 'admin' && targetProfile && ['admin', 'super_admin'].includes(targetProfile.role)) {
+        return new Response(
+          JSON.stringify({ error: 'Admins cannot reset passwords for admin or super_admin users' }),
+          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Reset password using admin API
+      const { error: resetError } = await adminClient.auth.admin.updateUserById(
+        user_id,
+        { password: new_password }
+      );
+
+      if (resetError) {
+        console.error('Password reset error:', resetError);
+        return new Response(
+          JSON.stringify({ error: resetError.message }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      console.log('Password reset successful for user:', user_id);
+
+      return new Response(
+        JSON.stringify({ success: true }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     return new Response(
       JSON.stringify({ error: 'Not found' }),
       { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { Users, Plus, Edit2, Trash2, CheckCircle, X, Shield, UserCog, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { Users, Plus, Edit2, Trash2, CheckCircle, X, Shield, UserCog, Eye, EyeOff, AlertCircle, Key } from 'lucide-react';
 
 interface Profile {
   id: string;
@@ -34,6 +34,7 @@ export function EnhancedUserManagement() {
   const [editingUser, setEditingUser] = useState<Profile | null>(null);
   const [editingPermissions, setEditingPermissions] = useState<string | null>(null);
   const [deletingUser, setDeletingUser] = useState<string | null>(null);
+  const [resettingPassword, setResettingPassword] = useState<Profile | null>(null);
 
   useEffect(() => {
     loadUsers();
@@ -212,16 +213,75 @@ export function EnhancedUserManagement() {
     setSuccess('');
 
     try {
-      const { error } = await supabase.auth.admin.deleteUser(userId);
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('Not authenticated');
+      }
 
-      if (error) throw error;
+      const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-user-management/delete`;
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ user_id: userId }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to delete user');
+      }
 
       setSuccess('User deleted successfully');
       setDeletingUser(null);
       loadUsers();
     } catch (err: any) {
-      setError(err.message || 'Failed to delete user. Note: User deletion requires service role key.');
+      setError(err.message || 'Failed to delete user');
       setDeletingUser(null);
+    }
+  };
+
+  const handleResetPassword = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!resettingPassword) return;
+
+    setError('');
+    setSuccess('');
+
+    const formData = new FormData(e.currentTarget);
+    const newPassword = formData.get('new_password') as string;
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('Not authenticated');
+      }
+
+      const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-user-management/reset-password`;
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: resettingPassword.id,
+          new_password: newPassword,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to reset password');
+      }
+
+      setSuccess('Password reset successfully');
+      setResettingPassword(null);
+    } catch (err: any) {
+      setError(err.message || 'Failed to reset password');
     }
   };
 
@@ -538,6 +598,13 @@ export function EnhancedUserManagement() {
                               <Shield className="w-4 h-4" />
                             </button>
                             <button
+                              onClick={() => setResettingPassword(user)}
+                              className="p-1.5 text-green-600 hover:bg-green-50 rounded transition"
+                              title="Reset Password"
+                            >
+                              <Key className="w-4 h-4" />
+                            </button>
+                            <button
                               onClick={() => toggleUserStatus(user.id, user.is_active)}
                               className="p-1.5 text-gray-600 hover:bg-gray-100 rounded transition"
                               title={user.is_active ? 'Deactivate' : 'Activate'}
@@ -601,6 +668,52 @@ export function EnhancedUserManagement() {
                 Cancel
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {resettingPassword && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-green-100 rounded-lg">
+                <Key className="w-6 h-6 text-green-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">Reset Password</h3>
+                <p className="text-sm text-gray-600">Set a new password for {resettingPassword.full_name}</p>
+              </div>
+            </div>
+            <form onSubmit={handleResetPassword}>
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  New Password *
+                </label>
+                <input
+                  type="password"
+                  name="new_password"
+                  required
+                  minLength={6}
+                  placeholder="Enter new password (min 6 characters)"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
+                />
+              </div>
+              <div className="flex gap-3">
+                <button
+                  type="submit"
+                  className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition"
+                >
+                  Reset Password
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setResettingPassword(null)}
+                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
