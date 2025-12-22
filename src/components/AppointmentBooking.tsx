@@ -731,8 +731,7 @@ export function AppointmentBooking() {
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                 >
                   <option value="">Select appointment type</option>
-                  <option value="PhD">PhD</option>
-                  <option value="One-on-One">One-on-One</option>
+                  <option value="PhD, One-on-One">PhD, One-on-One</option>
                   <option value="SRP meeting">SRP meeting</option>
                   <option value="PhD Webinar">PhD Webinar</option>
                   <option value="Other Webinar">Other Webinar</option>
