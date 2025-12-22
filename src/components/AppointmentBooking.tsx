@@ -22,6 +22,7 @@ interface FormData {
   highestQualification: string;
   yearOfPassing: string;
   employmentStatus: string;
+  appointmentType: string;
   preferredDate: string;
   timeSlot: string;
 }
@@ -59,6 +60,7 @@ export function AppointmentBooking() {
     highestQualification: '',
     yearOfPassing: '',
     employmentStatus: '',
+    appointmentType: '',
     preferredDate: '',
     timeSlot: '',
   });
@@ -164,6 +166,10 @@ export function AppointmentBooking() {
     }
     if (!formData.employmentStatus) {
       setError('Please select your employment status');
+      return false;
+    }
+    if (!formData.appointmentType) {
+      setError('Please select an appointment type');
       return false;
     }
     if (!formData.preferredDate) {
@@ -372,6 +378,7 @@ export function AppointmentBooking() {
                   highestQualification: '',
                   yearOfPassing: '',
                   employmentStatus: '',
+                  appointmentType: '',
                   preferredDate: '',
                   timeSlot: '',
                 });
@@ -711,6 +718,25 @@ export function AppointmentBooking() {
                   <Calendar className="w-6 h-6 text-blue-900" />
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900">Appointment Date & Time</h3>
+              </div>
+
+              <div>
+                <label htmlFor="appointmentType" className="block text-sm font-medium text-gray-700 mb-2">
+                  Appointment Type <span className="text-red-500">*</span>
+                </label>
+                <select
+                  id="appointmentType"
+                  value={formData.appointmentType}
+                  onChange={(e) => setFormData({ ...formData, appointmentType: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                >
+                  <option value="">Select appointment type</option>
+                  <option value="PhD">PhD</option>
+                  <option value="One-on-One">One-on-One</option>
+                  <option value="SRP meeting">SRP meeting</option>
+                  <option value="PhD Webinar">PhD Webinar</option>
+                  <option value="Other Webinar">Other Webinar</option>
+                </select>
               </div>
 
               <div>
