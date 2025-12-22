@@ -5,14 +5,15 @@ import { AppointmentBooking } from './components/AppointmentBooking';
 import { AdmissionForm } from './components/AdmissionForm';
 import { BalanceFeePayment } from './components/BalanceFeePayment';
 import { StudentStatusForm } from './components/StudentStatusForm';
+import { CourierStatus } from './components/CourierStatus';
 import { Dashboard } from './components/Dashboard';
 import { AdminPanel } from './components/AdminPanel';
 import { StatusSearch } from './components/StatusSearch';
 import { Login } from './components/Login';
 import { useAuth } from './contexts/AuthContext';
-import { LayoutDashboard, FileText, Calendar, GraduationCap, Menu, X, Shield, LogOut, User, ListChecks, Wallet, HeadphonesIcon, ClipboardCheck } from 'lucide-react';
+import { LayoutDashboard, FileText, Calendar, GraduationCap, Menu, X, Shield, LogOut, User, ListChecks, Wallet, HeadphonesIcon, ClipboardCheck, Truck } from 'lucide-react';
 
-type Page = 'dashboard' | 'enquiry' | 'support' | 'appointment' | 'admission' | 'admin' | 'status' | 'balance-fee' | 'student-status';
+type Page = 'dashboard' | 'enquiry' | 'support' | 'appointment' | 'admission' | 'admin' | 'status' | 'balance-fee' | 'student-status' | 'courier-status';
 
 interface NavigationContextType {
   setCurrentPage: (page: Page) => void;
@@ -53,6 +54,7 @@ function AppContent() {
     { name: 'Admission Form', icon: GraduationCap, id: 'admission' as Page },
     { name: 'Fee Payment', icon: Wallet, id: 'balance-fee' as Page },
     { name: 'Update Status Form', icon: ClipboardCheck, id: 'student-status' as Page },
+    { name: 'Courier Status', icon: Truck, id: 'courier-status' as Page },
   ];
 
   return (
@@ -214,6 +216,7 @@ function AppContent() {
             {currentPage === 'admission' && <AdmissionForm />}
             {currentPage === 'balance-fee' && <BalanceFeePayment />}
             {currentPage === 'student-status' && <StudentStatusForm />}
+            {currentPage === 'courier-status' && <CourierStatus />}
             {currentPage === 'status' && <StatusSearch />}
             {currentPage === 'admin' && <AdminPanel />}
           </main>
