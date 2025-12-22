@@ -2,6 +2,7 @@ import { useState, FormEvent, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Truck, ArrowLeft, AlertCircle, CheckCircle, Package } from 'lucide-react';
 import { ContactSearch } from './ContactSearch';
+import { MultiSelectDropdown } from './MultiSelectDropdown';
 import { sanitizeDateValue } from '../utils/dateValidation';
 import { useNavigation } from '../App';
 
@@ -41,14 +42,18 @@ export function CourierStatus() {
   const [formData, setFormData] = useState({
     receivedFromStudentDocketNo: '',
     receivedFromStudentDate: '',
+    receivedFromStudentApplyForms: [] as string[],
     sentToStudentDocketNo: '',
     sentToStudentDate: '',
+    sentToStudentApplyForms: [] as string[],
     receivedByStudentDocketNo: '',
     receivedByStudentDate: '',
     receivedFromUniversityDocketNo: '',
     receivedFromUniversityDate: '',
+    receivedFromUniversityApplyForms: [] as string[],
     sentToUniversityDocketNo: '',
     sentToUniversityDate: '',
+    sentToUniversityApplyForms: [] as string[],
     receivedByUniversityDocketNo: '',
     receivedByUniversityDate: '',
   });
@@ -119,14 +124,18 @@ export function CourierStatus() {
         contact_id: selectedContact!.id,
         received_from_student_docket_no: formData.receivedFromStudentDocketNo || null,
         received_from_student_date: sanitizeDateValue(formData.receivedFromStudentDate),
+        received_from_student_apply_forms: formData.receivedFromStudentApplyForms,
         sent_to_student_docket_no: formData.sentToStudentDocketNo || null,
         sent_to_student_date: sanitizeDateValue(formData.sentToStudentDate),
+        sent_to_student_apply_forms: formData.sentToStudentApplyForms,
         received_by_student_docket_no: formData.receivedByStudentDocketNo || null,
         received_by_student_date: sanitizeDateValue(formData.receivedByStudentDate),
         received_from_university_docket_no: formData.receivedFromUniversityDocketNo || null,
         received_from_university_date: sanitizeDateValue(formData.receivedFromUniversityDate),
+        received_from_university_apply_forms: formData.receivedFromUniversityApplyForms,
         sent_to_university_docket_no: formData.sentToUniversityDocketNo || null,
         sent_to_university_date: sanitizeDateValue(formData.sentToUniversityDate),
+        sent_to_university_apply_forms: formData.sentToUniversityApplyForms,
         received_by_university_docket_no: formData.receivedByUniversityDocketNo || null,
         received_by_university_date: sanitizeDateValue(formData.receivedByUniversityDate),
       };
@@ -141,14 +150,18 @@ export function CourierStatus() {
       setFormData({
         receivedFromStudentDocketNo: '',
         receivedFromStudentDate: '',
+        receivedFromStudentApplyForms: [],
         sentToStudentDocketNo: '',
         sentToStudentDate: '',
+        sentToStudentApplyForms: [],
         receivedByStudentDocketNo: '',
         receivedByStudentDate: '',
         receivedFromUniversityDocketNo: '',
         receivedFromUniversityDate: '',
+        receivedFromUniversityApplyForms: [],
         sentToUniversityDocketNo: '',
         sentToUniversityDate: '',
+        sentToUniversityApplyForms: [],
         receivedByUniversityDocketNo: '',
         receivedByUniversityDate: '',
       });
@@ -300,29 +313,47 @@ export function CourierStatus() {
                   <span className="flex items-center justify-center w-6 h-6 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">A</span>
                   Received from Student
                 </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Docket No.
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.receivedFromStudentDocketNo}
-                      onChange={(e) => setFormData({ ...formData, receivedFromStudentDocketNo: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Enter docket number"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Date
-                    </label>
-                    <input
-                      type="date"
-                      value={formData.receivedFromStudentDate}
-                      onChange={(e) => setFormData({ ...formData, receivedFromStudentDate: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
+                <div className="space-y-4">
+                  <MultiSelectDropdown
+                    label="Apply Form"
+                    options={[
+                      'Degree',
+                      'MS/Degree Correction',
+                      'Original Migration',
+                      'Original Leaving',
+                      'Original NOC',
+                      'LOR',
+                      'WES',
+                      'Verification'
+                    ]}
+                    selectedValues={formData.receivedFromStudentApplyForms}
+                    onChange={(values) => setFormData({ ...formData, receivedFromStudentApplyForms: values })}
+                    placeholder="Select apply forms"
+                  />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Docket No.
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.receivedFromStudentDocketNo}
+                        onChange={(e) => setFormData({ ...formData, receivedFromStudentDocketNo: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Enter docket number"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Date
+                      </label>
+                      <input
+                        type="date"
+                        value={formData.receivedFromStudentDate}
+                        onChange={(e) => setFormData({ ...formData, receivedFromStudentDate: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -332,29 +363,46 @@ export function CourierStatus() {
                   <span className="flex items-center justify-center w-6 h-6 bg-green-100 text-green-700 rounded-full text-xs font-bold">B</span>
                   Sent to Student
                 </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Docket No.
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.sentToStudentDocketNo}
-                      onChange={(e) => setFormData({ ...formData, sentToStudentDocketNo: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Enter docket number"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Date
-                    </label>
-                    <input
-                      type="date"
-                      value={formData.sentToStudentDate}
-                      onChange={(e) => setFormData({ ...formData, sentToStudentDate: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
+                <div className="space-y-4">
+                  <MultiSelectDropdown
+                    label="Apply Form"
+                    options={[
+                      'Degree',
+                      'MS',
+                      'Provisional Degree',
+                      'Migration',
+                      'LOR',
+                      'WES',
+                      'Verification'
+                    ]}
+                    selectedValues={formData.sentToStudentApplyForms}
+                    onChange={(values) => setFormData({ ...formData, sentToStudentApplyForms: values })}
+                    placeholder="Select apply forms"
+                  />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Docket No.
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.sentToStudentDocketNo}
+                        onChange={(e) => setFormData({ ...formData, sentToStudentDocketNo: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Enter docket number"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Date
+                      </label>
+                      <input
+                        type="date"
+                        value={formData.sentToStudentDate}
+                        onChange={(e) => setFormData({ ...formData, sentToStudentDate: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -402,29 +450,49 @@ export function CourierStatus() {
                   <span className="flex items-center justify-center w-6 h-6 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">D</span>
                   Received from University
                 </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Docket No.
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.receivedFromUniversityDocketNo}
-                      onChange={(e) => setFormData({ ...formData, receivedFromUniversityDocketNo: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Enter docket number"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Date
-                    </label>
-                    <input
-                      type="date"
-                      value={formData.receivedFromUniversityDate}
-                      onChange={(e) => setFormData({ ...formData, receivedFromUniversityDate: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
+                <div className="space-y-4">
+                  <MultiSelectDropdown
+                    label="Apply Form"
+                    options={[
+                      'MS',
+                      'Degree',
+                      'Provisional',
+                      'Original Migration',
+                      'Original Leaving',
+                      'Original NOC',
+                      'MS/Degree Correction',
+                      'LOR',
+                      'WES',
+                      'Verification'
+                    ]}
+                    selectedValues={formData.receivedFromUniversityApplyForms}
+                    onChange={(values) => setFormData({ ...formData, receivedFromUniversityApplyForms: values })}
+                    placeholder="Select apply forms"
+                  />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Docket No.
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.receivedFromUniversityDocketNo}
+                        onChange={(e) => setFormData({ ...formData, receivedFromUniversityDocketNo: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Enter docket number"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Date
+                      </label>
+                      <input
+                        type="date"
+                        value={formData.receivedFromUniversityDate}
+                        onChange={(e) => setFormData({ ...formData, receivedFromUniversityDate: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -434,29 +502,49 @@ export function CourierStatus() {
                   <span className="flex items-center justify-center w-6 h-6 bg-green-100 text-green-700 rounded-full text-xs font-bold">E</span>
                   Sent to University
                 </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Docket No.
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.sentToUniversityDocketNo}
-                      onChange={(e) => setFormData({ ...formData, sentToUniversityDocketNo: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Enter docket number"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Date
-                    </label>
-                    <input
-                      type="date"
-                      value={formData.sentToUniversityDate}
-                      onChange={(e) => setFormData({ ...formData, sentToUniversityDate: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
+                <div className="space-y-4">
+                  <MultiSelectDropdown
+                    label="Apply Form"
+                    options={[
+                      'Apply Form for Degree',
+                      'Apply for migration.',
+                      'Original Migration',
+                      'Original Leaving',
+                      'Original NOC',
+                      'MS Correction',
+                      'Degree Correction',
+                      'LOR',
+                      'WES',
+                      'Verification'
+                    ]}
+                    selectedValues={formData.sentToUniversityApplyForms}
+                    onChange={(values) => setFormData({ ...formData, sentToUniversityApplyForms: values })}
+                    placeholder="Select apply forms"
+                  />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Docket No.
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.sentToUniversityDocketNo}
+                        onChange={(e) => setFormData({ ...formData, sentToUniversityDocketNo: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Enter docket number"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Date
+                      </label>
+                      <input
+                        type="date"
+                        value={formData.sentToUniversityDate}
+                        onChange={(e) => setFormData({ ...formData, sentToUniversityDate: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
