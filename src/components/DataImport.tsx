@@ -20,6 +20,10 @@ export function DataImport() {
   const [error, setError] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [skippedRecords, setSkippedRecords] = useState<string[]>([]);
+  const [showMapping, setShowMapping] = useState(false);
+  const [fileHeaders, setFileHeaders] = useState<string[]>([]);
+  const [previewData, setPreviewData] = useState<any[]>([]);
+  const [customMapping, setCustomMapping] = useState<Record<string, string>>({});
 
   const importOptions: ImportOption[] = [
     { id: 'contacts', name: 'Contacts', description: 'Import contact records' },
@@ -94,6 +98,18 @@ export function DataImport() {
     return columnMapping[header] || header.toLowerCase().replace(/\s+/g, '_');
   };
 
+  const getTargetColumns = (dataType: DataType): string[] => {
+    const columnsByType: Record<DataType, string[]> = {
+      contacts: ['first_name', 'last_name', 'email', 'phone', 'date_of_birth', 'city', 'company', 'source', 'status'],
+      enquiries: ['contact_id', 'subject', 'message', 'enquiry_type', 'priority', 'annual_salary', 'program', 'specialisation', 'previous_institution', 'experience_years', 'notes', 'status'],
+      appointments: ['contact_id', 'appointment_date', 'appointment_time', 'purpose', 'notes', 'status', 'attendance'],
+      admissions: ['contact_id', 'program', 'specialisation', 'admission_status', 'previous_institution', 'qualifications', 'notes'],
+      payments: ['contact_id', 'amount', 'payment_date', 'payment_method', 'transaction_id', 'payment_status', 'notes', 'receipt_url'],
+      student_status: ['contact_id', 'program', 'specialisation', 'courseware_exam_status', 'degree_status', 'degree_issued', 'degree_courier_docket', 'enrolment_no_status', 'enrolment_no_value', 'exam_status', 'lor_status', 'lor_issued', 'lor_courier_docket', 'ms_hard_copy_status', 'ms_hard_copy_issued', 'ms_hard_copy_courier_docket', 'ms_hard_copy_courier_status', 'ms_scan_status', 'ms_scan_issued', 'ms_scan_courier_docket', 'provisional_degree_status', 'provisional_degree_issued', 'provisional_degree_courier_docket', 'provisional_degree_courier_status', 'recommendation_letter_status', 'recommendation_letter_issued', 'recommendation_letter_courier_docket', 'result_status', 'roll_no_status', 'university_phd_offer_letter_status', 'university_phd_offer_letter_issued', 'university_phd_offer_letter_courier_docket', 'university_visit_status', 'university_visit1_status', 'university_visit2_status', 'university_visit3_status', 'viva_status', 'wes_status', 'wes_issued', 'wes_courier_docket', 'notes'],
+    };
+    return columnsByType[dataType] || [];
+  };
+
   const parseCSV = (text: string): any[] => {
     const lines = text.split('\n').filter(line => line.trim());
     if (lines.length === 0) return [];
@@ -145,14 +161,61 @@ export function DataImport() {
     return data;
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      setFile(selectedFile);
-      setError('');
-      setSuccess('');
-      setSkippedRecords([]);
+    if (!selectedFile) return;
+
+    setFile(selectedFile);
+    setError('');
+    setSuccess('');
+    setSkippedRecords([]);
+
+    try {
+      const text = await selectedFile.text();
+      let headers: string[] = [];
+      let preview: any[] = [];
+
+      if (selectedFile.name.endsWith('.json')) {
+        const jsonData = JSON.parse(text);
+        if (Array.isArray(jsonData) && jsonData.length > 0) {
+          headers = Object.keys(jsonData[0]);
+          preview = jsonData.slice(0, 3);
+        }
+      } else if (selectedFile.name.endsWith('.csv')) {
+        const lines = text.split('\n').filter(line => line.trim());
+        if (lines.length > 0) {
+          headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+          const fullData = parseCSV(text);
+          preview = fullData.slice(0, 3);
+        }
+      }
+
+      setFileHeaders(headers);
+      setPreviewData(preview);
+
+      const initialMapping: Record<string, string> = {};
+      headers.forEach(header => {
+        const mapped = mapColumnName(header);
+        initialMapping[header] = mapped;
+      });
+      setCustomMapping(initialMapping);
+      setShowMapping(true);
+    } catch (err: any) {
+      setError(`Failed to parse file: ${err.message}`);
     }
+  };
+
+  const applyCustomMapping = (data: any[]): any[] => {
+    return data.map(row => {
+      const mapped: any = {};
+      Object.keys(row).forEach(sourceKey => {
+        const targetKey = customMapping[sourceKey] || sourceKey;
+        if (targetKey && targetKey !== 'skip') {
+          mapped[targetKey] = row[sourceKey];
+        }
+      });
+      return mapped;
+    });
   };
 
   const handleImport = async () => {
@@ -165,15 +228,61 @@ export function DataImport() {
     setError('');
     setSuccess('');
     setSkippedRecords([]);
+    setShowMapping(false);
 
     try {
       const text = await file.text();
       let data: any[];
 
       if (file.name.endsWith('.json')) {
-        data = JSON.parse(text);
+        const jsonData = JSON.parse(text);
+        data = applyCustomMapping(jsonData);
       } else if (file.name.endsWith('.csv')) {
-        data = parseCSV(text);
+        const lines = text.split('\n').filter(line => line.trim());
+        if (lines.length === 0) throw new Error('Empty file');
+
+        const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+        const rawData: any[] = [];
+
+        for (let i = 1; i < lines.length; i++) {
+          const values: string[] = [];
+          let currentValue = '';
+          let inQuotes = false;
+
+          for (let char of lines[i]) {
+            if (char === '"') {
+              inQuotes = !inQuotes;
+            } else if (char === ',' && !inQuotes) {
+              values.push(currentValue.trim().replace(/^"|"$/g, ''));
+              currentValue = '';
+            } else {
+              currentValue += char;
+            }
+          }
+          values.push(currentValue.trim().replace(/^"|"$/g, ''));
+
+          if (values.length === headers.length) {
+            const row: any = {};
+            headers.forEach((header, index) => {
+              let value: any = values[index];
+              if (value === '' || value === 'null' || value === 'undefined') {
+                value = null;
+              } else if (value === 'true') {
+                value = true;
+              } else if (value === 'false') {
+                value = false;
+              } else if (!isNaN(Number(value)) && value !== '') {
+                value = Number(value);
+              } else if (value.includes(';')) {
+                value = value.split(';').map((v: string) => v.trim());
+              }
+              row[header] = value;
+            });
+            rawData.push(row);
+          }
+        }
+
+        data = applyCustomMapping(rawData);
       } else {
         throw new Error('Unsupported file format. Please use CSV or JSON.');
       }
@@ -456,6 +565,10 @@ export function DataImport() {
       }
 
       setFile(null);
+      setShowMapping(false);
+      setFileHeaders([]);
+      setPreviewData([]);
+      setCustomMapping({});
       const fileInput = document.getElementById('file-input') as HTMLInputElement;
       if (fileInput) fileInput.value = '';
     } catch (err: any) {
@@ -463,6 +576,16 @@ export function DataImport() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCancelMapping = () => {
+    setFile(null);
+    setShowMapping(false);
+    setFileHeaders([]);
+    setPreviewData([]);
+    setCustomMapping({});
+    const fileInput = document.getElementById('file-input') as HTMLInputElement;
+    if (fileInput) fileInput.value = '';
   };
 
   return (
@@ -563,9 +686,97 @@ export function DataImport() {
         </div>
       </div>
 
+      {showMapping && fileHeaders.length > 0 && (
+        <div className="border border-gray-300 rounded-lg p-6 bg-gray-50">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h4 className="text-lg font-semibold text-gray-900">Map Your Columns</h4>
+              <p className="text-sm text-gray-600 mt-1">
+                Match your file columns to the database fields. Select "Skip" to ignore a column.
+              </p>
+            </div>
+            <button
+              onClick={handleCancelMapping}
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+            >
+              Cancel & Choose Different File
+            </button>
+          </div>
+
+          <div className="space-y-3 max-h-96 overflow-y-auto">
+            {fileHeaders.map((header, index) => (
+              <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center bg-white p-4 rounded-lg border border-gray-200">
+                <div className="flex flex-col">
+                  <label className="text-xs font-medium text-gray-500 mb-1">Your Column</label>
+                  <div className="text-sm font-medium text-gray-900">{header}</div>
+                  {previewData[0] && (
+                    <div className="text-xs text-gray-500 mt-1 truncate" title={previewData[0][header]}>
+                      Example: {previewData[0][header] || '(empty)'}
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-center text-gray-400">→</div>
+
+                <div className="flex flex-col">
+                  <label className="text-xs font-medium text-gray-500 mb-1">Maps To</label>
+                  <select
+                    value={customMapping[header] || 'skip'}
+                    onChange={(e) => {
+                      setCustomMapping({
+                        ...customMapping,
+                        [header]: e.target.value,
+                      });
+                    }}
+                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm"
+                  >
+                    <option value="skip">Skip this column</option>
+                    {getTargetColumns(selectedType).map((col) => (
+                      <option key={col} value={col}>
+                        {col.replace(/_/g, ' ')}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {previewData.length > 0 && (
+            <div className="mt-4 pt-4 border-t border-gray-300">
+              <h5 className="text-sm font-medium text-gray-700 mb-2">Preview (First {previewData.length} rows)</h5>
+              <div className="overflow-x-auto">
+                <table className="min-w-full text-xs border border-gray-200">
+                  <thead className="bg-gray-100">
+                    <tr>
+                      {fileHeaders.map((header, idx) => (
+                        <th key={idx} className="px-3 py-2 text-left font-medium text-gray-700 border-b">
+                          {header}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {previewData.map((row, rowIdx) => (
+                      <tr key={rowIdx} className="border-b">
+                        {fileHeaders.map((header, colIdx) => (
+                          <td key={colIdx} className="px-3 py-2 text-gray-600">
+                            {String(row[header] || '')}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       <button
         onClick={handleImport}
-        disabled={!file || loading}
+        disabled={!file || loading || !showMapping}
         className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <Upload className="w-5 h-5" />
