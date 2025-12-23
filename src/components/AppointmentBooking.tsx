@@ -50,6 +50,7 @@ export function AppointmentBooking() {
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [previousEnquiries, setPreviousEnquiries] = useState<number>(0);
   const [previousAppointments, setPreviousAppointments] = useState<Array<{ id: string; created_at: string; attendance: string | null }>>([]);
+  const [emailStatus, setEmailStatus] = useState<{ sent: boolean; message: string } | null>(null);
 
   const [formData, setFormData] = useState<FormData>({
     fullName: '',
@@ -242,7 +243,7 @@ export function AppointmentBooking() {
         contactId = contact!.id;
       }
 
-      const { error: appointmentError } = await supabase
+      const { data: appointment, error: appointmentError } = await supabase
         .from('appointments')
         .insert({
           contact_id: contactId,
@@ -253,9 +254,66 @@ export function AppointmentBooking() {
           duration_minutes: 60,
           status: 'scheduled',
           location: 'National College Campus',
-        });
+        })
+        .select()
+        .maybeSingle();
 
       if (appointmentError) throw appointmentError;
+
+      if (appointment) {
+        try {
+          const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-appointment-emails`;
+          const headers = {
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+            'Content-Type': 'application/json',
+          };
+
+          const nameParts = formData.fullName.trim().split(' ');
+          const firstName = nameParts[0];
+          const lastName = nameParts.slice(1).join(' ') || '';
+
+          const emailResponse = await fetch(apiUrl, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({
+              appointmentData: {
+                appointmentId: appointment.id,
+                firstName,
+                lastName,
+                email: formData.email,
+                phone: formData.mobile,
+                program: formData.program,
+                specialization: formData.specialization,
+                preferredDate: formData.preferredDate,
+                timeSlot: formData.timeSlot,
+                appointmentType: formData.appointmentType,
+                city: formData.city,
+                state: formData.state,
+              }
+            }),
+          });
+
+          const emailResult = await emailResponse.json();
+
+          if (emailResult.applicantEmailSent) {
+            setEmailStatus({
+              sent: true,
+              message: `A confirmation email has been sent to ${formData.email}`
+            });
+          } else {
+            setEmailStatus({
+              sent: false,
+              message: 'We could not send the confirmation email right now, but your appointment is confirmed in our system.'
+            });
+          }
+        } catch (emailError) {
+          console.error('Email sending error:', emailError);
+          setEmailStatus({
+            sent: false,
+            message: 'We could not send the confirmation email right now, but your appointment is confirmed in our system.'
+          });
+        }
+      }
 
       setSuccess(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -386,9 +444,16 @@ export function AppointmentBooking() {
             <CheckCircle className="w-12 h-12 text-green-600" />
           </div>
           <h2 className="text-3xl font-bold text-gray-900 mb-4">Appointment Booked Successfully!</h2>
-          <p className="text-lg text-gray-600 mb-8">
+          <p className="text-lg text-gray-600 mb-4">
             Thank you for booking an appointment with National College. Our team will contact you shortly to confirm your appointment and discuss your program requirements.
           </p>
+          {emailStatus && (
+            <div className={`p-4 rounded-lg mb-4 ${emailStatus.sent ? 'bg-green-50 border border-green-200' : 'bg-yellow-50 border border-yellow-200'}`}>
+              <p className={`text-sm ${emailStatus.sent ? 'text-green-800' : 'text-yellow-800'}`}>
+                {emailStatus.message}
+              </p>
+            </div>
+          )}
           <div className="bg-blue-50 rounded-lg p-6 mb-8">
             <h3 className="font-semibold text-gray-900 mb-3">Appointment Details:</h3>
             <div className="space-y-2 text-left">
@@ -404,6 +469,7 @@ export function AppointmentBooking() {
             <button
               onClick={() => {
                 setSuccess(false);
+                setEmailStatus(null);
                 setFormData({
                   fullName: '',
                   mobile: '',
@@ -414,7 +480,10 @@ export function AppointmentBooking() {
                   program: '',
                   specialization: '',
                   highestQualification: '',
+                  highestQualificationCourse: '',
+                  highestQualificationSpecialization: '',
                   yearOfPassing: '',
+                  totalExperience: '',
                   employmentStatus: '',
                   appointmentType: '',
                   preferredDate: '',
