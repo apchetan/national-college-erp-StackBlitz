@@ -342,7 +342,7 @@ export function EnquiryForm() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="program" className="block text-sm font-medium text-gray-700 mb-2">
-                    Course
+                    Course Interested
                   </label>
                   <select
                     id="program"
@@ -403,7 +403,7 @@ export function EnquiryForm() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label htmlFor="program-edu" className="block text-sm font-medium text-gray-700 mb-2">
-                      Course
+                      Course Interested
                     </label>
                     <select
                       id="program-edu"

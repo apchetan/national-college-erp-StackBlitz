@@ -474,7 +474,7 @@ export function AdmissionForm() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label htmlFor="program" className="block text-sm font-medium text-gray-700 mb-2">
-                      Course <span className="text-red-500">*</span>
+                      Course Interested <span className="text-red-500">*</span>
                     </label>
                     <select
                       id="program"
