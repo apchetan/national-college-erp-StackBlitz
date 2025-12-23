@@ -97,6 +97,23 @@ export function normalizeTotalExperience(value: any): number | null {
   return null;
 }
 
+export function normalizeSalary(value: any): number | null {
+  if (value === null || value === undefined) return null;
+
+  const strValue = String(value).trim().toLowerCase();
+  if (!strValue) return null;
+
+  const cleanedValue = strValue.replace(/[,\s]/g, '');
+  const numberMatch = cleanedValue.match(/(\d+\.?\d*)/);
+
+  if (numberMatch) {
+    const num = parseFloat(numberMatch[1]);
+    return !isNaN(num) && num > 0 ? num : null;
+  }
+
+  return null;
+}
+
 export function normalizeString(value: any): string | null {
   if (value === null || value === undefined) return null;
 
@@ -188,6 +205,17 @@ export function normalizeImportRow(row: any, rowIndex: number): { normalized: an
     });
   }
   normalized.total_experience = normalizedExp;
+
+  const normalizedSalary = normalizeSalary(row.salary);
+  if (row.salary && normalizedSalary === null) {
+    warnings.push({
+      row: rowIndex + 1,
+      field: 'salary',
+      originalValue: row.salary,
+      message: 'Invalid salary format, set to NULL'
+    });
+  }
+  normalized.salary = normalizedSalary;
 
   normalized.city = normalizeString(row.city);
   normalized.address = normalizeString(row.address);

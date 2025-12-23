@@ -57,3 +57,16 @@ export function displayArray(arr: any, fallback: string = '—'): string {
 
   return arr.filter(item => item !== null && item !== undefined && item !== '').join(', ');
 }
+
+export function displaySalary(salary: any, fallback: string = '—'): string {
+  if (salary === null || salary === undefined) return fallback;
+
+  const num = Number(salary);
+  if (isNaN(num)) return fallback;
+
+  return num.toLocaleString('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 0
+  });
+}
