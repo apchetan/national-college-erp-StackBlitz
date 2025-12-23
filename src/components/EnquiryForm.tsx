@@ -336,39 +336,6 @@ export function EnquiryForm() {
           />
 
           <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="font-semibold text-gray-900 mb-4">Enquiry Type *</h3>
-
-            <div className="space-y-4">
-              <div>
-                <div className="flex gap-4">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="enquiryType"
-                      value="general"
-                      checked={formData.enquiryType === 'general'}
-                      onChange={(e) => setFormData({ ...formData, enquiryType: e.target.value as any })}
-                      className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                    />
-                    <span className="text-sm text-gray-700">General</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="enquiryType"
-                      value="support"
-                      checked={formData.enquiryType === 'support'}
-                      onChange={(e) => setFormData({ ...formData, enquiryType: e.target.value as any })}
-                      className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                    />
-                    <span className="text-sm text-gray-700">Support</span>
-                  </label>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-gray-50 p-4 rounded-lg">
             <h3 className="font-semibold text-gray-900 mb-4">Program Details</h3>
 
             <div className="space-y-4">
