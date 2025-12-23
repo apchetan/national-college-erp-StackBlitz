@@ -4,6 +4,7 @@ import { Upload, FileSpreadsheet, CheckCircle, AlertCircle, Download } from 'luc
 import { downloadEnquiryCSVTemplate, downloadStudentStatusCSVTemplate } from '../utils/csvTemplate';
 import { sanitizeDateValue } from '../utils/dateValidation';
 import { checkForDuplicates } from '../utils/duplicateDetection';
+import { normalizeImportRow, validateMandatoryFields, isFieldMandatory, ImportWarning } from '../utils/importNormalization';
 
 type DataType = 'contacts' | 'enquiries' | 'appointments' | 'admissions' | 'student_status' | 'payments';
 
@@ -20,6 +21,8 @@ export function DataImport() {
   const [error, setError] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [skippedRecords, setSkippedRecords] = useState<string[]>([]);
+  const [importWarnings, setImportWarnings] = useState<ImportWarning[]>([]);
+  const [importStats, setImportStats] = useState<{ total: number; imported: number; rejected: number } | null>(null);
   const [showMapping, setShowMapping] = useState(false);
   const [fileHeaders, setFileHeaders] = useState<string[]>([]);
   const [previewData, setPreviewData] = useState<any[]>([]);
@@ -40,28 +43,45 @@ export function DataImport() {
     'Email Address': 'email',
     'Phone Number': 'phone',
     'Date of Birth (DD-MM-YYYY)': 'date_of_birth',
+    'Date of Birth': 'date_of_birth',
+    'DOB': 'date_of_birth',
     'City': 'city',
     'Address': 'address',
     'Gender': 'gender',
     'Caller': 'caller',
     'Current Company/Organization': 'company',
+    'Company': 'company',
     'How did you hear about us': 'source',
+    'Source': 'source',
     'Enquiry Type': 'enquiry_type',
     'Subject': 'subject',
     'Message': 'message',
     'Priority': 'priority',
     'Annual Salary': 'annual_salary',
     'Course': 'program',
-    'Job Title': 'program',
+    'Job Title': 'role',
+    'Role': 'role',
     'Specialisation': 'specialisation',
     'Previous Institution': 'previous_institution',
-    'Years of Experience': 'experience_years',
-    'Experience': 'experience_years',
-    'Expirence': 'experience_years',
+    'Years of Experience': 'total_experience',
+    'Total Experience': 'total_experience',
+    'Experience': 'total_experience',
+    'Expirence': 'total_experience',
     'Additional Notes': 'notes',
     'Contact Email': 'contact_email',
     'Program': 'program',
     'Status': 'status',
+    'Date of Application': 'date_of_application',
+    'Application Date': 'date_of_application',
+    'Industry': 'industry',
+    'UG Degree': 'ug_degree',
+    'UG Specialization': 'ug_specialization',
+    'UG University': 'ug_university',
+    'PG Degree': 'pg_degree',
+    'PG Specialization': 'pg_specialization',
+    'PG University': 'pg_university',
+    'Remark': 'remark',
+    'Remarks': 'remark',
     'Courseware Exam Status': 'courseware_exam_status',
     'Degree Status': 'degree_status',
     'Degree Issued': 'degree_issued',
@@ -107,7 +127,32 @@ export function DataImport() {
 
   const getTargetColumns = (dataType: DataType): string[] => {
     const columnsByType: Record<DataType, string[]> = {
-      contacts: ['first_name', 'last_name', 'email', 'phone', 'date_of_birth', 'city', 'address', 'gender', 'company', 'caller', 'source', 'status'],
+      contacts: [
+        'first_name',
+        'last_name',
+        'email',
+        'phone',
+        'date_of_birth',
+        'city',
+        'address',
+        'gender',
+        'company',
+        'caller',
+        'source',
+        'status',
+        'program',
+        'date_of_application',
+        'total_experience',
+        'role',
+        'industry',
+        'ug_degree',
+        'ug_specialization',
+        'ug_university',
+        'pg_degree',
+        'pg_specialization',
+        'pg_university',
+        'remark'
+      ],
       enquiries: ['contact_id', 'subject', 'message', 'enquiry_type', 'priority', 'annual_salary', 'program', 'specialisation', 'previous_institution', 'experience_years', 'notes', 'status'],
       appointments: ['contact_id', 'appointment_date', 'appointment_time', 'purpose', 'notes', 'status', 'attendance'],
       admissions: ['contact_id', 'program', 'specialisation', 'admission_status', 'previous_institution', 'qualifications', 'notes', 'status'],
@@ -231,10 +276,23 @@ export function DataImport() {
       return;
     }
 
+    if (selectedType === 'contacts') {
+      const mappedFields = new Set(Object.values(customMapping).filter(v => v && v !== 'skip'));
+      const mandatoryFields = ['first_name', 'phone', 'email'];
+      const missingFields = mandatoryFields.filter(field => !mappedFields.has(field));
+
+      if (missingFields.length > 0) {
+        setError(`First Name, Phone and Email are mandatory mappings. Missing: ${missingFields.map(f => f.replace(/_/g, ' ')).join(', ')}`);
+        return;
+      }
+    }
+
     setLoading(true);
     setError('');
     setSuccess('');
     setSkippedRecords([]);
+    setImportWarnings([]);
+    setImportStats(null);
     setShowMapping(false);
 
     try {
@@ -460,32 +518,44 @@ export function DataImport() {
         }
         setSuccess(message);
       } else if (selectedType === 'contacts') {
-        const validContactFields = new Set(['first_name', 'last_name', 'email', 'phone', 'date_of_birth', 'city', 'address', 'gender', 'company', 'caller', 'source', 'status']);
+        const allWarnings: ImportWarning[] = [];
+        const rejectedRows: string[] = [];
+        const validRows: any[] = [];
 
-        const filteredData = cleanedData.map(row => {
-          const filtered: any = {};
-          Object.keys(row).forEach(key => {
-            if (validContactFields.has(key)) {
-              filtered[key] = row[key];
-            }
-          });
-          if (filtered.date_of_birth !== undefined) {
-            filtered.date_of_birth = sanitizeDateValue(filtered.date_of_birth);
+        for (let i = 0; i < cleanedData.length; i++) {
+          const row = cleanedData[i];
+
+          const validation = validateMandatoryFields(row, i);
+          if (!validation.isValid) {
+            rejectedRows.push(...validation.errors);
+            continue;
           }
-          if (!filtered.status) {
-            filtered.status = 'new';
-          }
-          return filtered;
+
+          const { normalized, warnings } = normalizeImportRow(row, i);
+          allWarnings.push(...warnings);
+
+          validRows.push(normalized);
+        }
+
+        let importedCount = 0;
+        if (validRows.length > 0) {
+          const { data: insertedData, error: insertError } = await supabase
+            .from('contacts')
+            .insert(validRows)
+            .select();
+
+          if (insertError) throw insertError;
+          importedCount = insertedData?.length || 0;
+        }
+
+        setImportWarnings(allWarnings);
+        setImportStats({
+          total: cleanedData.length,
+          imported: importedCount,
+          rejected: rejectedRows.length
         });
 
-        const { data: insertedData, error: insertError } = await supabase
-          .from('contacts')
-          .insert(filteredData)
-          .select();
-
-        if (insertError) throw insertError;
-
-        setSuccess(`Successfully imported ${insertedData?.length || 0} contact records`);
+        setSuccess(`Successfully imported ${importedCount} of ${cleanedData.length} contact records`);
       } else {
         const sanitizeDatesInRow = (row: any, dataType: DataType) => {
           const dateFields: Record<DataType, string[]> = {
@@ -740,7 +810,7 @@ export function DataImport() {
                     <option value="skip">Skip this column</option>
                     {getTargetColumns(selectedType).map((col) => (
                       <option key={col} value={col}>
-                        {col.replace(/_/g, ' ')}
+                        {col.replace(/_/g, ' ')} {selectedType === 'contacts' && isFieldMandatory(col) ? '(Required)' : ''}
                       </option>
                     ))}
                   </select>
@@ -813,6 +883,74 @@ export function DataImport() {
               <li key={idx} className="list-disc">{record}</li>
             ))}
           </ul>
+        </div>
+      )}
+
+      {importStats && (
+        <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="flex items-start gap-2 mb-2">
+            <CheckCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <h4 className="font-semibold text-blue-900">Import Summary</h4>
+              <div className="grid grid-cols-3 gap-4 mt-3">
+                <div className="bg-white p-3 rounded">
+                  <p className="text-xs text-gray-600">Total Rows</p>
+                  <p className="text-2xl font-bold text-gray-900">{importStats.total}</p>
+                </div>
+                <div className="bg-white p-3 rounded">
+                  <p className="text-xs text-gray-600">Imported</p>
+                  <p className="text-2xl font-bold text-green-600">{importStats.imported}</p>
+                </div>
+                <div className="bg-white p-3 rounded">
+                  <p className="text-xs text-gray-600">Rejected</p>
+                  <p className="text-2xl font-bold text-red-600">{importStats.rejected}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {importWarnings.length > 0 && (
+        <div className="mt-4 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+          <div className="flex items-start gap-2 mb-2">
+            <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <h4 className="font-semibold text-orange-900">Import Warnings ({importWarnings.length})</h4>
+              <p className="text-sm text-orange-700 mt-1">
+                Some values had invalid formats and were set to NULL:
+              </p>
+            </div>
+          </div>
+          <div className="mt-3 max-h-60 overflow-y-auto">
+            <table className="w-full text-xs">
+              <thead className="bg-orange-100 sticky top-0">
+                <tr>
+                  <th className="px-3 py-2 text-left font-medium text-orange-900">Row</th>
+                  <th className="px-3 py-2 text-left font-medium text-orange-900">Field</th>
+                  <th className="px-3 py-2 text-left font-medium text-orange-900">Original Value</th>
+                  <th className="px-3 py-2 text-left font-medium text-orange-900">Issue</th>
+                </tr>
+              </thead>
+              <tbody>
+                {importWarnings.slice(0, 50).map((warning, idx) => (
+                  <tr key={idx} className="border-b border-orange-200">
+                    <td className="px-3 py-2 text-orange-800">{warning.row}</td>
+                    <td className="px-3 py-2 text-orange-800">{warning.field}</td>
+                    <td className="px-3 py-2 text-orange-800 truncate max-w-xs" title={String(warning.originalValue)}>
+                      {String(warning.originalValue)}
+                    </td>
+                    <td className="px-3 py-2 text-orange-800">{warning.message}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {importWarnings.length > 50 && (
+              <p className="text-xs text-orange-700 mt-2 text-center">
+                Showing first 50 of {importWarnings.length} warnings
+              </p>
+            )}
+          </div>
         </div>
       )}
     </div>
