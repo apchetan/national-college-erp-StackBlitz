@@ -745,45 +745,45 @@ export function AppointmentBooking() {
                   </select>
                 </div>
 
-                <div>
-                  <label htmlFor="yearOfPassing" className="block text-sm font-medium text-gray-700 mb-2">
-                    Year of Passing <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    id="yearOfPassing"
-                    value={formData.yearOfPassing}
-                    onChange={(e) => setFormData({ ...formData, yearOfPassing: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                  >
-                    <option value="">Select year of passing</option>
-                    {generateYears().map(year => (
-                      <option key={year} value={year}>{year}</option>
-                    ))}
-                  </select>
-                </div>
+                {shouldShowHighestQualificationSpecialisation() && (
+                  <div>
+                    <label htmlFor="highestQualificationSpecialization" className="block text-sm font-medium text-gray-700 mb-2">
+                      Specialisation
+                    </label>
+                    <select
+                      id="highestQualificationSpecialization"
+                      disabled={!formData.highestQualificationCourse}
+                      value={formData.highestQualificationSpecialization}
+                      onChange={(e) => setFormData({ ...formData, highestQualificationSpecialization: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    >
+                      <option value="">
+                        {formData.highestQualificationCourse ? 'Select specialisation' : 'Select a course first'}
+                      </option>
+                      {getAvailableHighestQualificationSpecialisations().map((spec) => (
+                        <option key={spec} value={spec}>{spec}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
 
-              {shouldShowHighestQualificationSpecialisation() && (
-                <div>
-                  <label htmlFor="highestQualificationSpecialization" className="block text-sm font-medium text-gray-700 mb-2">
-                    Specialisation
-                  </label>
-                  <select
-                    id="highestQualificationSpecialization"
-                    disabled={!formData.highestQualificationCourse}
-                    value={formData.highestQualificationSpecialization}
-                    onChange={(e) => setFormData({ ...formData, highestQualificationSpecialization: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition disabled:bg-gray-100 disabled:cursor-not-allowed"
-                  >
-                    <option value="">
-                      {formData.highestQualificationCourse ? 'Select specialisation' : 'Select a course first'}
-                    </option>
-                    {getAvailableHighestQualificationSpecialisations().map((spec) => (
-                      <option key={spec} value={spec}>{spec}</option>
-                    ))}
-                  </select>
-                </div>
-              )}
+              <div>
+                <label htmlFor="yearOfPassing" className="block text-sm font-medium text-gray-700 mb-2">
+                  Year of Passing <span className="text-red-500">*</span>
+                </label>
+                <select
+                  id="yearOfPassing"
+                  value={formData.yearOfPassing}
+                  onChange={(e) => setFormData({ ...formData, yearOfPassing: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                >
+                  <option value="">Select year of passing</option>
+                  {generateYears().map(year => (
+                    <option key={year} value={year}>{year}</option>
+                  ))}
+                </select>
+              </div>
 
               <div>
                 <label htmlFor="employmentStatus" className="block text-sm font-medium text-gray-700 mb-2">
