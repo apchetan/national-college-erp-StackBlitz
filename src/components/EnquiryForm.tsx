@@ -1,12 +1,12 @@
 import { useState, FormEvent, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Mail, MessageSquare, AlertCircle, CheckCircle, ArrowLeft } from 'lucide-react';
+import { Mail, MessageSquare, AlertCircle, CheckCircle, ArrowLeft, Briefcase } from 'lucide-react';
 import { ContactSearch } from './ContactSearch';
 import { sanitizeDateValue, cleanDateForForm } from '../utils/dateValidation';
 import { useNavigation } from '../App';
 import { checkForDuplicates, PotentialDuplicate } from '../utils/duplicateDetection';
 import { DuplicateWarningModal } from './DuplicateWarningModal';
-import { CITIES, QUALIFICATIONS, SPECIALISATIONS } from '../constants/formOptions';
+import { CITIES, QUALIFICATIONS, SPECIALISATIONS, EMPLOYMENT_STATUS, generateYears } from '../constants/formOptions';
 
 interface Contact {
   id: string;
@@ -52,6 +52,12 @@ export function EnquiryForm() {
     enquiryType: 'general' as const,
     priority: 'medium' as const,
     notes: '',
+    highestQualification: '',
+    highestQualificationCourse: '',
+    highestQualificationSpecialization: '',
+    yearOfPassing: '',
+    totalExperience: '',
+    employmentStatus: '',
   });
 
   useEffect(() => {
@@ -130,6 +136,37 @@ export function EnquiryForm() {
     return SPECIALISATIONS[formData.program] || SPECIALISATIONS['default'];
   };
 
+  const handleHighestQualificationCourseChange = (course: string) => {
+    setFormData(prev => ({
+      ...prev,
+      highestQualificationCourse: course,
+      highestQualificationSpecialization: '',
+    }));
+  };
+
+  const shouldShowHighestQualificationSpecialisation = () => {
+    const coursesWithSpecialisation = ['BA', 'MA', 'BSc', 'MSc', 'MBA', 'Diploma Engg.', 'BTech', 'MTech', 'PhD', 'Other', 'OTHER'];
+    return coursesWithSpecialisation.includes(formData.highestQualificationCourse);
+  };
+
+  const getAvailableHighestQualificationSpecialisations = () => {
+    if (formData.highestQualificationCourse === 'PhD') {
+      const allSpecs = new Set<string>();
+      const excludeSpecs = ['(General)CBZ', '(General)PCB', '(General)PCM', 'Artificial Intelligence'];
+
+      Object.values(SPECIALISATIONS).forEach(specs => {
+        specs.forEach(spec => {
+          if (!excludeSpecs.includes(spec)) {
+            allSpecs.add(spec);
+          }
+        });
+      });
+      allSpecs.add('Pharmacy');
+      return Array.from(allSpecs).sort();
+    }
+    return SPECIALISATIONS[formData.highestQualificationCourse] || SPECIALISATIONS['default'];
+  };
+
   const handleClearForm = () => {
     setSelectedContact(null);
     setFormData({
@@ -154,6 +191,12 @@ export function EnquiryForm() {
       enquiryType: 'general',
       priority: 'medium',
       notes: '',
+      highestQualification: '',
+      highestQualificationCourse: '',
+      highestQualificationSpecialization: '',
+      yearOfPassing: '',
+      totalExperience: '',
+      employmentStatus: '',
     });
   };
 
@@ -395,100 +438,138 @@ export function EnquiryForm() {
             </div>
           </div>
 
-          {formData.enquiryType !== 'support' && (
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="font-semibold text-gray-900 mb-4">Highest Qualification</h3>
-
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="program-edu" className="block text-sm font-medium text-gray-700 mb-2">
-                      Course Interested
-                    </label>
-                    <select
-                      id="program-edu"
-                      value={formData.program}
-                      onChange={(e) => handleProgramChange(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                    >
-                      <option value="">Select a course</option>
-                      <option value="10th">10th</option>
-                      <option value="12th">12th</option>
-                      <option value="BA">BA</option>
-                      <option value="BBA">BBA</option>
-                      <option value="BCA">BCA</option>
-                      <option value="BCom">BCom</option>
-                      <option value="BEd">BEd</option>
-                      <option value="BSc">BSc</option>
-                      <option value="BTech">BTech</option>
-                      <option value="Diploma Engg.">Diploma Engg.</option>
-                      <option value="LLB">LLB</option>
-                      <option value="LLM">LLM</option>
-                      <option value="MBA">MBA</option>
-                      <option value="MCA">MCA</option>
-                      <option value="MSc">MSc</option>
-                      <option value="MTech">MTech</option>
-                      <option value="PhD">PhD</option>
-                      <option value="OTHER">OTHER</option>
-                    </select>
-                  </div>
-
-                  {shouldShowSpecialisation() && (
-                    <div>
-                      <label htmlFor="specialisation-edu" className="block text-sm font-medium text-gray-700 mb-2">
-                        Specialisation
-                      </label>
-                      <select
-                        id="specialisation-edu"
-                        disabled={!formData.program}
-                        value={formData.specialisation}
-                        onChange={(e) => setFormData({ ...formData, specialisation: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition disabled:bg-gray-100 disabled:cursor-not-allowed"
-                      >
-                        <option value="">
-                          {formData.program ? 'Select specialisation' : 'Select a course first'}
-                        </option>
-                        {getAvailableSpecialisations().map((spec) => (
-                          <option key={spec} value={spec}>{spec}</option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="previousInstitution" className="block text-sm font-medium text-gray-700 mb-2">
-                      Previous Institution
-                    </label>
-                    <input
-                      type="text"
-                      id="previousInstitution"
-                      value={formData.previousInstitution}
-                      onChange={(e) => setFormData({ ...formData, previousInstitution: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="experienceYears" className="block text-sm font-medium text-gray-700 mb-2">
-                      Years of Experience
-                    </label>
-                    <input
-                      type="number"
-                      id="experienceYears"
-                      min="0"
-                      max="50"
-                      value={formData.experienceYears}
-                      onChange={(e) => setFormData({ ...formData, experienceYears: parseInt(e.target.value) || 0 })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                    />
-                  </div>
-                </div>
-
+          <div className="space-y-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-3 bg-blue-100 rounded-lg">
+                <Briefcase className="w-6 h-6 text-blue-900" />
               </div>
+              <h3 className="text-2xl font-bold text-gray-900">Educational & Professional Background</h3>
             </div>
-          )}
+
+            <div>
+              <label htmlFor="highestQualification" className="block text-sm font-medium text-gray-700 mb-2">
+                Highest Qualification <span className="text-red-500">*</span>
+              </label>
+              <select
+                id="highestQualification"
+                value={formData.highestQualification}
+                onChange={(e) => setFormData({ ...formData, highestQualification: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              >
+                <option value="">Select your highest qualification</option>
+                {QUALIFICATIONS.map(qual => (
+                  <option key={qual} value={qual}>{qual}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="highestQualificationCourse" className="block text-sm font-medium text-gray-700 mb-2">
+                  Course
+                </label>
+                <select
+                  id="highestQualificationCourse"
+                  value={formData.highestQualificationCourse}
+                  onChange={(e) => handleHighestQualificationCourseChange(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                >
+                  <option value="">Select a course</option>
+                  <option value="10th">10th</option>
+                  <option value="12th">12th</option>
+                  <option value="BA">BA</option>
+                  <option value="BBA">BBA</option>
+                  <option value="BCA">BCA</option>
+                  <option value="BCom">BCom</option>
+                  <option value="BEd">BEd</option>
+                  <option value="BSc">BSc</option>
+                  <option value="BTech">BTech</option>
+                  <option value="Diploma Engg.">Diploma Engg.</option>
+                  <option value="LLB">LLB</option>
+                  <option value="LLM">LLM</option>
+                  <option value="MBA">MBA</option>
+                  <option value="MCA">MCA</option>
+                  <option value="MSc">MSc</option>
+                  <option value="MTech">MTech</option>
+                  <option value="PhD">PhD</option>
+                  <option value="OTHER">OTHER</option>
+                </select>
+              </div>
+
+              {shouldShowHighestQualificationSpecialisation() && (
+                <div>
+                  <label htmlFor="highestQualificationSpecialization" className="block text-sm font-medium text-gray-700 mb-2">
+                    Specialisation
+                  </label>
+                  <select
+                    id="highestQualificationSpecialization"
+                    disabled={!formData.highestQualificationCourse}
+                    value={formData.highestQualificationSpecialization}
+                    onChange={(e) => setFormData({ ...formData, highestQualificationSpecialization: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  >
+                    <option value="">
+                      {formData.highestQualificationCourse ? 'Select specialisation' : 'Select a course first'}
+                    </option>
+                    {getAvailableHighestQualificationSpecialisations().map((spec) => (
+                      <option key={spec} value={spec}>{spec}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+
+            <div>
+              <label htmlFor="yearOfPassing" className="block text-sm font-medium text-gray-700 mb-2">
+                Year of Passing <span className="text-red-500">*</span>
+              </label>
+              <select
+                id="yearOfPassing"
+                value={formData.yearOfPassing}
+                onChange={(e) => setFormData({ ...formData, yearOfPassing: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              >
+                <option value="">Select year of passing</option>
+                {generateYears().map(year => (
+                  <option key={year} value={year}>{year}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="totalExperience" className="block text-sm font-medium text-gray-700 mb-2">
+                Total Experience
+              </label>
+              <select
+                id="totalExperience"
+                value={formData.totalExperience}
+                onChange={(e) => setFormData({ ...formData, totalExperience: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              >
+                <option value="">Select years of experience</option>
+                {Array.from({ length: 51 }, (_, i) => i).map(years => (
+                  <option key={years} value={years}>{years} {years === 1 ? 'year' : 'years'}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="employmentStatus" className="block text-sm font-medium text-gray-700 mb-2">
+                Current Employment Status <span className="text-red-500">*</span>
+              </label>
+              <select
+                id="employmentStatus"
+                value={formData.employmentStatus}
+                onChange={(e) => setFormData({ ...formData, employmentStatus: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              >
+                <option value="">Select your employment status</option>
+                {EMPLOYMENT_STATUS.map(status => (
+                  <option key={status} value={status}>{status}</option>
+                ))}
+              </select>
+            </div>
+          </div>
 
           <div className="bg-gray-50 p-4 rounded-lg">
             <h3 className="font-semibold text-gray-900 mb-4">Personal Information</h3>
