@@ -1019,7 +1019,7 @@ export function StatusSearch() {
                     <div className="flex items-center justify-between mb-4">
                       <h4 className="text-lg font-bold text-gray-900 flex items-center gap-2">
                         <DollarSign className="w-5 h-5 text-orange-600" />
-                        Student Status ({report.admissions.length})
+                        Fee Status ({report.admissions.length})
                       </h4>
                       <div className="flex gap-2">
                         <button
@@ -1172,13 +1172,13 @@ export function StatusSearch() {
                   </div>
                 )}
 
-                {/* Students Update Form Section */}
+                {/* Student Status Section */}
                 {report.studentStatuses.length > 0 && (
                   <div>
                     <div className="flex items-center justify-between mb-4">
                       <h4 className="text-lg font-bold text-gray-900 flex items-center gap-2">
                         <ClipboardCheck className="w-5 h-5 text-indigo-600" />
-                        Students Update Form ({report.studentStatuses.length})
+                        Student Status ({report.studentStatuses.length})
                       </h4>
                       <div className="flex gap-2">
                         <button
