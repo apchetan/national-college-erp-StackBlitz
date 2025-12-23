@@ -135,10 +135,6 @@ export function AppointmentBooking() {
       setError('City is required');
       return false;
     }
-    if (!formData.state) {
-      setError('State is required');
-      return false;
-    }
     if (!formData.program) {
       setError('Please select a program');
       return false;
@@ -875,7 +871,7 @@ export function AppointmentBooking() {
 
                 <div>
                   <label htmlFor="state" className="block text-sm font-medium text-gray-700 mb-2">
-                    State <span className="text-red-500">*</span>
+                    State
                   </label>
                   <select
                     id="state"
