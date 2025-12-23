@@ -20,6 +20,8 @@ interface FormData {
   program: string;
   specialization: string;
   highestQualification: string;
+  highestQualificationCourse: string;
+  highestQualificationSpecialization: string;
   yearOfPassing: string;
   employmentStatus: string;
   appointmentType: string;
@@ -58,6 +60,8 @@ export function AppointmentBooking() {
     program: '',
     specialization: '',
     highestQualification: '',
+    highestQualificationCourse: '',
+    highestQualificationSpecialization: '',
     yearOfPassing: '',
     employmentStatus: '',
     appointmentType: '',
@@ -257,6 +261,37 @@ export function AppointmentBooking() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleHighestQualificationCourseChange = (course: string) => {
+    setFormData(prev => ({
+      ...prev,
+      highestQualificationCourse: course,
+      highestQualificationSpecialization: '',
+    }));
+  };
+
+  const shouldShowHighestQualificationSpecialisation = () => {
+    const coursesWithSpecialisation = ['BA', 'MA', 'BSc', 'MSc', 'MBA', 'Diploma Engg.', 'BTech', 'MTech', 'PhD', 'Other', 'OTHER'];
+    return coursesWithSpecialisation.includes(formData.highestQualificationCourse);
+  };
+
+  const getAvailableHighestQualificationSpecialisations = () => {
+    if (formData.highestQualificationCourse === 'PhD') {
+      const allSpecs = new Set<string>();
+      const excludeSpecs = ['(General)CBZ', '(General)PCB', '(General)PCM', 'Artificial Intelligence'];
+
+      Object.values(SPECIALISATIONS).forEach(specs => {
+        specs.forEach(spec => {
+          if (!excludeSpecs.includes(spec)) {
+            allSpecs.add(spec);
+          }
+        });
+      });
+      allSpecs.add('Pharmacy');
+      return Array.from(allSpecs).sort();
+    }
+    return SPECIALISATIONS[formData.highestQualificationCourse] || SPECIALISATIONS['default'];
   };
 
   const getAvailableSpecialisations = () => {
@@ -675,6 +710,62 @@ export function AppointmentBooking() {
                     <option key={qual} value={qual}>{qual}</option>
                   ))}
                 </select>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="highestQualificationCourse" className="block text-sm font-medium text-gray-700 mb-2">
+                    Course
+                  </label>
+                  <select
+                    id="highestQualificationCourse"
+                    value={formData.highestQualificationCourse}
+                    onChange={(e) => handleHighestQualificationCourseChange(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  >
+                    <option value="">Select a course</option>
+                    <option value="10th">10th</option>
+                    <option value="12th">12th</option>
+                    <option value="BA">BA</option>
+                    <option value="BBA">BBA</option>
+                    <option value="BCA">BCA</option>
+                    <option value="BCom">BCom</option>
+                    <option value="BEd">BEd</option>
+                    <option value="BSc">BSc</option>
+                    <option value="BTech">BTech</option>
+                    <option value="Diploma Engg.">Diploma Engg.</option>
+                    <option value="LLB">LLB</option>
+                    <option value="LLM">LLM</option>
+                    <option value="MBA">MBA</option>
+                    <option value="MCA">MCA</option>
+                    <option value="MSc">MSc</option>
+                    <option value="MTech">MTech</option>
+                    <option value="PhD">PhD</option>
+                    <option value="OTHER">OTHER</option>
+                  </select>
+                </div>
+
+                {shouldShowHighestQualificationSpecialisation() && (
+                  <div>
+                    <label htmlFor="highestQualificationSpecialization" className="block text-sm font-medium text-gray-700 mb-2">
+                      Specialisation
+                    </label>
+                    <select
+                      id="highestQualificationSpecialization"
+                      disabled={!formData.highestQualificationCourse}
+                      value={formData.highestQualificationSpecialization}
+                      onChange={(e) => setFormData({ ...formData, highestQualificationSpecialization: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    >
+                      <option value="">
+                        {formData.highestQualificationCourse ? 'Select specialisation' : 'Select a course first'}
+                      </option>
+                      {getAvailableHighestQualificationSpecialisations().map((spec) => (
+                        <option key={spec} value={spec}>{spec}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
 
               <div>
