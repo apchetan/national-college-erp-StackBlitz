@@ -41,17 +41,8 @@ export function EnquiryForm() {
     source: 'other' as const,
     program: '',
     specialisation: '',
-    qualification: [] as string[],
-    experienceYears: 0,
-    previousInstitution: '',
-    documentsSubmitted: false,
-    amount: 0,
-    amountPaid: 0,
     subject: '',
     message: '',
-    enquiryType: 'general' as const,
-    priority: 'medium' as const,
-    notes: '',
     highestQualification: '',
     highestQualificationCourse: '',
     highestQualificationSpecialization: '',
@@ -96,13 +87,27 @@ export function EnquiryForm() {
     }
   };
 
-  const handleQualificationToggle = (qual: string) => {
-    setFormData(prev => ({
-      ...prev,
-      qualification: prev.qualification.includes(qual)
-        ? prev.qualification.filter(q => q !== qual)
-        : [...prev.qualification, qual]
-    }));
+  const shouldShowSpecialisation = (course: string) => {
+    const coursesWithSpecialisation = ['BA', 'MA', 'BSc', 'MSc', 'MBA', 'Diploma Engg.', 'BTech', 'MTech', 'PhD', 'Other', 'OTHER'];
+    return coursesWithSpecialisation.includes(course);
+  };
+
+  const getAvailableSpecialisations = (course: string) => {
+    if (course === 'PhD') {
+      const allSpecs = new Set<string>();
+      const excludeSpecs = ['(General)CBZ', '(General)PCB', '(General)PCM', 'Artificial Intelligence'];
+
+      Object.values(SPECIALISATIONS).forEach(specs => {
+        specs.forEach(spec => {
+          if (!excludeSpecs.includes(spec)) {
+            allSpecs.add(spec);
+          }
+        });
+      });
+      allSpecs.add('Pharmacy');
+      return Array.from(allSpecs).sort();
+    }
+    return SPECIALISATIONS[course] || SPECIALISATIONS['default'];
   };
 
   const handleProgramChange = (program: string) => {
@@ -113,58 +118,12 @@ export function EnquiryForm() {
     }));
   };
 
-  const shouldShowSpecialisation = () => {
-    const programsWithSpecialisation = ['BA', 'MA', 'BSc', 'MSc', 'MBA', 'Diploma Engg.', 'BTech', 'MTech', 'PhD', 'Other', 'OTHER'];
-    return programsWithSpecialisation.includes(formData.program);
-  };
-
-  const getAvailableSpecialisations = () => {
-    if (formData.program === 'PhD') {
-      const allSpecs = new Set<string>();
-      const excludeSpecs = ['(General)CBZ', '(General)PCB', '(General)PCM', 'Artificial Intelligence'];
-
-      Object.values(SPECIALISATIONS).forEach(specs => {
-        specs.forEach(spec => {
-          if (!excludeSpecs.includes(spec)) {
-            allSpecs.add(spec);
-          }
-        });
-      });
-      allSpecs.add('Pharmacy');
-      return Array.from(allSpecs).sort();
-    }
-    return SPECIALISATIONS[formData.program] || SPECIALISATIONS['default'];
-  };
-
   const handleHighestQualificationCourseChange = (course: string) => {
     setFormData(prev => ({
       ...prev,
       highestQualificationCourse: course,
       highestQualificationSpecialization: '',
     }));
-  };
-
-  const shouldShowHighestQualificationSpecialisation = () => {
-    const coursesWithSpecialisation = ['BA', 'MA', 'BSc', 'MSc', 'MBA', 'Diploma Engg.', 'BTech', 'MTech', 'PhD', 'Other', 'OTHER'];
-    return coursesWithSpecialisation.includes(formData.highestQualificationCourse);
-  };
-
-  const getAvailableHighestQualificationSpecialisations = () => {
-    if (formData.highestQualificationCourse === 'PhD') {
-      const allSpecs = new Set<string>();
-      const excludeSpecs = ['(General)CBZ', '(General)PCB', '(General)PCM', 'Artificial Intelligence'];
-
-      Object.values(SPECIALISATIONS).forEach(specs => {
-        specs.forEach(spec => {
-          if (!excludeSpecs.includes(spec)) {
-            allSpecs.add(spec);
-          }
-        });
-      });
-      allSpecs.add('Pharmacy');
-      return Array.from(allSpecs).sort();
-    }
-    return SPECIALISATIONS[formData.highestQualificationCourse] || SPECIALISATIONS['default'];
   };
 
   const handleClearForm = () => {
@@ -180,17 +139,8 @@ export function EnquiryForm() {
       source: 'other',
       program: '',
       specialisation: '',
-      qualification: [],
-      experienceYears: 0,
-      previousInstitution: '',
-      documentsSubmitted: false,
-      amount: 0,
-      amountPaid: 0,
       subject: '',
       message: '',
-      enquiryType: 'general',
-      priority: 'medium',
-      notes: '',
       highestQualification: '',
       highestQualificationCourse: '',
       highestQualificationSpecialization: '',
@@ -253,8 +203,8 @@ export function EnquiryForm() {
         contact_id: contactId,
         subject: formData.subject,
         message: formData.message,
-        enquiry_type: formData.enquiryType,
-        priority: formData.priority,
+        enquiry_type: 'general' as const,
+        priority: 'medium' as const,
         status: 'new' as const,
       };
 
@@ -278,17 +228,14 @@ export function EnquiryForm() {
         source: 'other',
         program: '',
         specialisation: '',
-        qualification: [],
-        experienceYears: 0,
-        previousInstitution: '',
-        documentsSubmitted: false,
-        amount: 0,
-        amountPaid: 0,
         subject: '',
         message: '',
-        enquiryType: 'general',
-        priority: 'medium',
-        notes: '',
+        highestQualification: '',
+        highestQualificationCourse: '',
+        highestQualificationSpecialization: '',
+        yearOfPassing: '',
+        totalExperience: '',
+        employmentStatus: '',
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -413,7 +360,7 @@ export function EnquiryForm() {
                   </select>
                 </div>
 
-                {shouldShowSpecialisation() && (
+                {shouldShowSpecialisation(formData.program) && (
                   <div>
                     <label htmlFor="specialisation" className="block text-sm font-medium text-gray-700 mb-2">
                       Specialisation
@@ -428,7 +375,7 @@ export function EnquiryForm() {
                       <option value="">
                         {formData.program ? 'Select specialisation' : 'Select a course first'}
                       </option>
-                      {getAvailableSpecialisations().map((spec) => (
+                      {getAvailableSpecialisations(formData.program).map((spec) => (
                         <option key={spec} value={spec}>{spec}</option>
                       ))}
                     </select>
@@ -496,7 +443,7 @@ export function EnquiryForm() {
                 </select>
               </div>
 
-              {shouldShowHighestQualificationSpecialisation() && (
+              {shouldShowSpecialisation(formData.highestQualificationCourse) && (
                 <div>
                   <label htmlFor="highestQualificationSpecialization" className="block text-sm font-medium text-gray-700 mb-2">
                     Specialisation
@@ -511,7 +458,7 @@ export function EnquiryForm() {
                     <option value="">
                       {formData.highestQualificationCourse ? 'Select specialisation' : 'Select a course first'}
                     </option>
-                    {getAvailableHighestQualificationSpecialisations().map((spec) => (
+                    {getAvailableSpecialisations(formData.highestQualificationCourse).map((spec) => (
                       <option key={spec} value={spec}>{spec}</option>
                     ))}
                   </select>
@@ -695,53 +642,71 @@ export function EnquiryForm() {
                 </div>
               </div>
 
-              {formData.enquiryType !== 'support' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="source" className="block text-sm font-medium text-gray-700 mb-2">
-                      How did you hear about us?
-                    </label>
-                    <select
-                      id="source"
-                      value={formData.source}
-                      onChange={(e) => setFormData({ ...formData, source: e.target.value as any })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                    >
-                      <option value="email_naukri">Email from naukri.com</option>
-                      <option value="email_foundit">Email from Foundit.com</option>
-                      <option value="referred_student_friend">Referred by (Student/Friend)</option>
-                      <option value="referred_staff">Referred by Staff</option>
-                      <option value="sms">SMS</option>
-                      <option value="linkedin">LinkedIn</option>
-                      <option value="facebook">Facebook</option>
-                      <option value="google">Google</option>
-                      <option value="instagram">Instagram</option>
-                      <option value="youtube">YouTube</option>
-                      <option value="whatsapp">WhatsApp</option>
-                      <option value="webchat">WebChat</option>
-                      <option value="missed_call">Missed Call</option>
-                      <option value="other">Other</option>
-                    </select>
-                  </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="source" className="block text-sm font-medium text-gray-700 mb-2">
+                    How did you hear about us?
+                  </label>
+                  <select
+                    id="source"
+                    value={formData.source}
+                    onChange={(e) => setFormData({ ...formData, source: e.target.value as any })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  >
+                    <option value="email_naukri">Email from naukri.com</option>
+                    <option value="email_foundit">Email from Foundit.com</option>
+                    <option value="referred_student_friend">Referred by (Student/Friend)</option>
+                    <option value="referred_staff">Referred by Staff</option>
+                    <option value="sms">SMS</option>
+                    <option value="linkedin">LinkedIn</option>
+                    <option value="facebook">Facebook</option>
+                    <option value="google">Google</option>
+                    <option value="instagram">Instagram</option>
+                    <option value="youtube">YouTube</option>
+                    <option value="whatsapp">WhatsApp</option>
+                    <option value="webchat">WebChat</option>
+                    <option value="missed_call">Missed Call</option>
+                    <option value="other">Other</option>
+                  </select>
                 </div>
-              )}
+              </div>
             </div>
           </div>
 
-          {formData.enquiryType !== 'general' && (
-            <div>
-              <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-2">
-                Additional Notes
-              </label>
-              <textarea
-                id="notes"
-                rows={4}
-                value={formData.notes}
-                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"
-              />
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <h3 className="font-semibold text-gray-900 mb-4">Enquiry Details</h3>
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
+                  Subject *
+                </label>
+                <input
+                  type="text"
+                  id="subject"
+                  required
+                  value={formData.subject}
+                  onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  placeholder="What is your enquiry about?"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
+                  Message *
+                </label>
+                <textarea
+                  id="message"
+                  required
+                  rows={4}
+                  value={formData.message}
+                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"
+                  placeholder="Please provide details about your enquiry..."
+                />
+              </div>
             </div>
-          )}
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <button
