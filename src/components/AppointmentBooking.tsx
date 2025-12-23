@@ -23,6 +23,7 @@ interface FormData {
   highestQualificationCourse: string;
   highestQualificationSpecialization: string;
   yearOfPassing: string;
+  totalExperience: string;
   employmentStatus: string;
   appointmentType: string;
   preferredDate: string;
@@ -63,6 +64,7 @@ export function AppointmentBooking() {
     highestQualificationCourse: '',
     highestQualificationSpecialization: '',
     yearOfPassing: '',
+    totalExperience: '',
     employmentStatus: '',
     appointmentType: '',
     preferredDate: '',
@@ -229,6 +231,7 @@ export function AppointmentBooking() {
             email: formData.email,
             phone: formData.mobile,
             city: formData.city,
+            total_experience: formData.totalExperience ? parseInt(formData.totalExperience) : null,
             source: 'google',
             status: 'new',
           })
@@ -244,7 +247,7 @@ export function AppointmentBooking() {
         .insert({
           contact_id: contactId,
           title: `${formData.program} Consultation - ${formData.fullName}`,
-          description: `Program: ${formData.program}\nSpecialization: ${formData.specialization}\nQualification: ${formData.highestQualification}\nYear of Passing: ${formData.yearOfPassing}\nEmployment: ${formData.employmentStatus}`,
+          description: `Program: ${formData.program}\nSpecialization: ${formData.specialization}\nQualification: ${formData.highestQualification}\nYear of Passing: ${formData.yearOfPassing}\nTotal Experience: ${formData.totalExperience ? formData.totalExperience + ' years' : 'Not specified'}\nEmployment: ${formData.employmentStatus}`,
           appointment_type: 'consultation',
           appointment_date: appointmentDate,
           duration_minutes: 60,
@@ -781,6 +784,23 @@ export function AppointmentBooking() {
                   <option value="">Select year of passing</option>
                   {generateYears().map(year => (
                     <option key={year} value={year}>{year}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="totalExperience" className="block text-sm font-medium text-gray-700 mb-2">
+                  Total Experience
+                </label>
+                <select
+                  id="totalExperience"
+                  value={formData.totalExperience}
+                  onChange={(e) => setFormData({ ...formData, totalExperience: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                >
+                  <option value="">Select years of experience</option>
+                  {Array.from({ length: 51 }, (_, i) => i).map(years => (
+                    <option key={years} value={years}>{years} {years === 1 ? 'year' : 'years'}</option>
                   ))}
                 </select>
               </div>

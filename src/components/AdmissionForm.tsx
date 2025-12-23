@@ -23,6 +23,7 @@ interface FormData {
   highestQualificationCourse: string;
   highestQualificationSpecialization: string;
   yearOfPassing: string;
+  totalExperience: string;
   employmentStatus: string;
   resume: File | null;
   idProof: File | null;
@@ -62,6 +63,7 @@ export function AdmissionForm() {
     highestQualificationCourse: '',
     highestQualificationSpecialization: '',
     yearOfPassing: '',
+    totalExperience: '',
     employmentStatus: '',
     resume: null,
     idProof: null,
@@ -201,6 +203,7 @@ export function AdmissionForm() {
             email: formData.email,
             phone: formData.mobile,
             city: formData.city,
+            total_experience: formData.totalExperience ? parseInt(formData.totalExperience) : null,
             source: 'google',
             status: 'new',
           })
@@ -218,14 +221,14 @@ export function AdmissionForm() {
           program: formData.program,
           specialisation: formData.specialization || null,
           qualification: [formData.highestQualification],
-          experience_years: 0,
+          experience_years: formData.totalExperience ? parseInt(formData.totalExperience) : 0,
           previous_institution: null,
           documents_submitted: false,
           payment_status: 'pending',
           amount: 0,
           amount_paid: 0,
           status: 'applied',
-          notes: `Qualification: ${formData.highestQualification}\nYear of Passing: ${formData.yearOfPassing}\nEmployment: ${formData.employmentStatus}\nState: ${formData.state}`,
+          notes: `Qualification: ${formData.highestQualification}\nYear of Passing: ${formData.yearOfPassing}\nTotal Experience: ${formData.totalExperience ? formData.totalExperience + ' years' : 'Not specified'}\nEmployment: ${formData.employmentStatus}\nState: ${formData.state}`,
         });
 
       if (admissionError) throw admissionError;
@@ -718,6 +721,23 @@ export function AdmissionForm() {
                   <option value="">Select year of passing</option>
                   {generateYears().map(year => (
                     <option key={year} value={year}>{year}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="totalExperience" className="block text-sm font-medium text-gray-700 mb-2">
+                  Total Experience
+                </label>
+                <select
+                  id="totalExperience"
+                  value={formData.totalExperience}
+                  onChange={(e) => setFormData({ ...formData, totalExperience: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent transition"
+                >
+                  <option value="">Select years of experience</option>
+                  {Array.from({ length: 51 }, (_, i) => i).map(years => (
+                    <option key={years} value={years}>{years} {years === 1 ? 'year' : 'years'}</option>
                   ))}
                 </select>
               </div>
