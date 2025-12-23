@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Filter, User, Calendar, Phone, Mail, X, FileText, Briefcase, BookOpen, MapPin, DollarSign, Award, GraduationCap, Trash2, AlertTriangle, ClipboardCheck, MessageCircle, CheckCircle } from 'lucide-react';
+import { Search, Filter, User, Calendar, Phone, Mail, X, FileText, Briefcase, BookOpen, MapPin, DollarSign, Award, GraduationCap, Trash2, AlertTriangle, ClipboardCheck, CheckCircle, MessageSquare } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 interface Contact {
@@ -169,18 +169,6 @@ interface Payment {
   updated_at: string;
 }
 
-interface SupportForm {
-  id: string;
-  contact_id: string;
-  subject: string;
-  message: string;
-  enquiry_type: string;
-  priority: string;
-  status: string;
-  created_at: string;
-  updated_at: string;
-}
-
 interface Profile {
   id: string;
   full_name: string;
@@ -195,7 +183,6 @@ interface ContactReport {
   admissions: Admission[];
   studentStatuses: StudentStatus[];
   payments: Payment[];
-  supportForms: SupportForm[];
 }
 
 export function StatusSearch() {
@@ -207,7 +194,6 @@ export function StatusSearch() {
   const [admissions, setAdmissions] = useState<Admission[]>([]);
   const [studentStatuses, setStudentStatuses] = useState<StudentStatus[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
-  const [supportForms, setSupportForms] = useState<SupportForm[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
@@ -216,7 +202,6 @@ export function StatusSearch() {
   const [selectedAppointments, setSelectedAppointments] = useState<Set<string>>(new Set());
   const [selectedAdmissions, setSelectedAdmissions] = useState<Set<string>>(new Set());
   const [selectedStudentStatuses, setSelectedStudentStatuses] = useState<Set<string>>(new Set());
-  const [selectedSupportForms, setSelectedSupportForms] = useState<Set<string>>(new Set());
   const [deleteConfirm, setDeleteConfirm] = useState<{ type: string; ids: string[] } | null>(null);
   const [deleting, setDeleting] = useState(false);
 
@@ -227,14 +212,13 @@ export function StatusSearch() {
   async function fetchData() {
     setLoading(true);
     try {
-      const [contactsResult, enquiriesResult, appointmentsResult, admissionsResult, studentStatusResult, paymentsResult, supportFormsResult, profilesResult] = await Promise.all([
+      const [contactsResult, enquiriesResult, appointmentsResult, admissionsResult, studentStatusResult, paymentsResult, profilesResult] = await Promise.all([
         supabase.from('contacts').select('*').order('created_at', { ascending: false }),
         supabase.from('enquiries').select('*').order('created_at', { ascending: false }),
         supabase.from('appointments').select('*').order('created_at', { ascending: false }),
         supabase.from('admissions').select('*').order('created_at', { ascending: false }),
         supabase.from('student_status').select('*').order('created_at', { ascending: false }),
         supabase.from('payments').select('*').order('payment_date', { ascending: false }),
-        supabase.from('support_forms').select('*').order('created_at', { ascending: false }),
         supabase.from('profiles').select('id, full_name, email, role')
       ]);
 
@@ -274,12 +258,6 @@ export function StatusSearch() {
         setPayments(paymentsResult.data);
       }
 
-      if (supportFormsResult.error) {
-        console.error('Error fetching support forms:', supportFormsResult.error);
-      } else if (supportFormsResult.data) {
-        setSupportForms(supportFormsResult.data);
-      }
-
       if (profilesResult.error) {
         console.error('Error fetching profiles:', profilesResult.error);
       } else if (profilesResult.data) {
@@ -298,7 +276,7 @@ export function StatusSearch() {
     return profile ? profile.full_name : 'Unknown';
   };
 
-  const toggleSelection = (type: 'enquiry' | 'appointment' | 'admission' | 'studentStatus' | 'supportForm', id: string) => {
+  const toggleSelection = (type: 'enquiry' | 'appointment' | 'admission' | 'studentStatus', id: string) => {
     if (type === 'enquiry') {
       const newSet = new Set(selectedEnquiries);
       if (newSet.has(id)) {
@@ -331,18 +309,10 @@ export function StatusSearch() {
         newSet.add(id);
       }
       setSelectedStudentStatuses(newSet);
-    } else if (type === 'supportForm') {
-      const newSet = new Set(selectedSupportForms);
-      if (newSet.has(id)) {
-        newSet.delete(id);
-      } else {
-        newSet.add(id);
-      }
-      setSelectedSupportForms(newSet);
     }
   };
 
-  const selectAllForContact = (report: ContactReport, type: 'enquiry' | 'appointment' | 'admission' | 'studentStatus' | 'supportForm') => {
+  const selectAllForContact = (report: ContactReport, type: 'enquiry' | 'appointment' | 'admission' | 'studentStatus') => {
     if (type === 'enquiry') {
       const newSet = new Set(selectedEnquiries);
       report.enquiries.forEach(e => newSet.add(e.id));
@@ -359,10 +329,6 @@ export function StatusSearch() {
       const newSet = new Set(selectedStudentStatuses);
       report.studentStatuses.forEach(s => newSet.add(s.id));
       setSelectedStudentStatuses(newSet);
-    } else if (type === 'supportForm') {
-      const newSet = new Set(selectedSupportForms);
-      report.supportForms.forEach(s => newSet.add(s.id));
-      setSelectedSupportForms(newSet);
     }
   };
 
@@ -386,8 +352,6 @@ export function StatusSearch() {
         table = 'admissions';
       } else if (type === 'studentStatus' || type === 'student_status') {
         table = 'student_status';
-      } else if (type === 'supportForm' || type === 'support_forms') {
-        table = 'support_forms';
       }
 
       const { error } = await supabase
@@ -409,9 +373,6 @@ export function StatusSearch() {
       } else if (type === 'studentStatus' || type === 'student_status') {
         setStudentStatuses(prev => prev.filter(s => !ids.includes(s.id)));
         setSelectedStudentStatuses(new Set());
-      } else if (type === 'supportForm' || type === 'support_forms') {
-        setSupportForms(prev => prev.filter(s => !ids.includes(s.id)));
-        setSelectedSupportForms(new Set());
       }
 
       setDeleteConfirm(null);
@@ -433,8 +394,7 @@ export function StatusSearch() {
         appointments: appointments.filter(a => a.contact_id === contact.id),
         admissions: contactAdmissions,
         studentStatuses: studentStatuses.filter(s => s.contact_id === contact.id),
-        payments: payments.filter(p => admissionIds.includes(p.admission_id)),
-        supportForms: supportForms.filter(s => s.contact_id === contact.id)
+        payments: payments.filter(p => admissionIds.includes(p.admission_id))
       };
     }).filter(report => {
       const contact = report.contact;
@@ -459,7 +419,7 @@ export function StatusSearch() {
         report.appointments.some(a => a.status === statusFilter) ||
         report.admissions.some(a => a.status === statusFilter);
 
-      const hasData = report.enquiries.length > 0 || report.appointments.length > 0 || report.admissions.length > 0 || report.studentStatuses.length > 0 || report.supportForms.length > 0;
+      const hasData = report.enquiries.length > 0 || report.appointments.length > 0 || report.admissions.length > 0 || report.studentStatuses.length > 0;
 
       return matchesSearch && matchesStatus && hasData;
     });
@@ -1464,97 +1424,6 @@ export function StatusSearch() {
                                   <p className="text-gray-600 mt-1 bg-white p-3 rounded">{status.notes}</p>
                                 </div>
                               )}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Support Forms Section */}
-                {report.supportForms.length > 0 && (
-                  <div>
-                    <div className="flex items-center justify-between mb-4">
-                      <h4 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                        <MessageCircle className="w-5 h-5 text-purple-600" />
-                        Update Status Forms ({report.supportForms.length})
-                      </h4>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => selectAllForContact(report, 'supportForm')}
-                          className="text-sm px-3 py-1 text-purple-700 bg-purple-50 hover:bg-purple-100 rounded transition"
-                        >
-                          Select All
-                        </button>
-                        {report.supportForms.filter(s => selectedSupportForms.has(s.id)).length > 0 && (
-                          <button
-                            onClick={() => confirmDelete('support_forms', report.supportForms.filter(s => selectedSupportForms.has(s.id)).map(s => s.id))}
-                            className="text-sm px-3 py-1 text-red-700 bg-red-50 hover:bg-red-100 rounded flex items-center gap-1 transition"
-                          >
-                            <Trash2 className="w-3 h-3" />
-                            Delete Selected ({report.supportForms.filter(s => selectedSupportForms.has(s.id)).length})
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                    <div className="border border-gray-200 rounded-lg bg-purple-50">
-                      {report.supportForms.map((supportForm, idx) => (
-                        <div key={supportForm.id} className={`p-4 ${idx > 0 ? 'border-t border-gray-300' : ''}`}>
-                          <div className="flex gap-3">
-                            <input
-                              type="checkbox"
-                              checked={selectedSupportForms.has(supportForm.id)}
-                              onChange={() => toggleSelection('supportForm', supportForm.id)}
-                              className="mt-1 w-4 h-4 text-purple-600 rounded focus:ring-purple-500 flex-shrink-0"
-                            />
-                            <div className="flex-1">
-                              <div className="flex items-center justify-between mb-3">
-                                <div className="flex items-center gap-2">
-                                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                                    supportForm.status === 'new' ? 'bg-blue-100 text-blue-800' :
-                                    supportForm.status === 'in_progress' ? 'bg-yellow-100 text-yellow-800' :
-                                    supportForm.status === 'resolved' ? 'bg-green-100 text-green-800' :
-                                    'bg-gray-100 text-gray-800'
-                                  }`}>
-                                    {supportForm.status}
-                                  </span>
-                                  <span className={`px-2 py-1 rounded text-xs font-medium ${
-                                    supportForm.priority === 'high' ? 'bg-red-100 text-red-800' :
-                                    supportForm.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                                    'bg-gray-100 text-gray-800'
-                                  }`}>
-                                    {supportForm.priority}
-                                  </span>
-                                </div>
-                                <div className="text-right">
-                                  <div className="text-xs text-gray-500">
-                                    Created: {new Date(supportForm.created_at).toLocaleDateString()}
-                                  </div>
-                                  {supportForm.updated_at !== supportForm.created_at && (
-                                    <div className="text-xs text-gray-500">
-                                      Updated: {new Date(supportForm.updated_at).toLocaleDateString()}
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-
-                              <div className="space-y-3">
-                                <div className="text-sm">
-                                  <span className="font-semibold text-gray-700">Type:</span>
-                                  <p className="text-gray-600 mt-1 capitalize">{supportForm.enquiry_type}</p>
-                                </div>
-
-                                <div className="text-sm">
-                                  <span className="font-semibold text-gray-700">Subject:</span>
-                                  <p className="text-gray-600 mt-1">{supportForm.subject}</p>
-                                </div>
-
-                                <div className="text-sm">
-                                  <span className="font-semibold text-gray-700">Message:</span>
-                                  <p className="text-gray-600 mt-1 bg-white p-3 rounded border border-purple-100">{supportForm.message}</p>
-                                </div>
-                              </div>
                             </div>
                           </div>
                         </div>
