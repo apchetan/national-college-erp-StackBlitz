@@ -36,14 +36,17 @@ function AppContent() {
 
   console.log('Profile:', profile);
   console.log('Is Admin:', isAdmin);
+  console.log('Profile Role:', profile?.role);
+  console.log('Profile Active:', profile?.is_active);
 
   const mainNavigation = [
     { name: 'Dashboard', icon: LayoutDashboard, id: 'dashboard' as Page },
     { name: 'Status', icon: ListChecks, id: 'status' as Page },
   ];
 
-  if (isAdmin) {
-    console.log('Adding Admin Panel to navigation');
+  // Always show Admin Panel for admin and super_admin users
+  if (profile && (profile.role === 'admin' || profile.role === 'super_admin') && profile.is_active) {
+    console.log('Adding Admin Panel to navigation for role:', profile.role);
     mainNavigation.push({ name: 'Admin Panel', icon: Shield, id: 'admin' as Page });
   }
 
