@@ -1,3 +1,6 @@
 {
-  "template": "bolt-vite-react-ts"
+  "env": {
+    "VITE_SUPABASE_URL": "https://xdasglovqnuxhhmshexa.supabase.co",
+    "VITE_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhkYXNnbG92cW51eGhobXNoZXhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY0OTA1MTYsImV4cCI6MjA4MjA2NjUxNn0.iwRkZlRuj2rXfiUNoL_1nsnuHoZL3M5q1sdQumH_cZQ"
+  }
 }
