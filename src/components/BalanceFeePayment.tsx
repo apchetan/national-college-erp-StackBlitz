@@ -34,6 +34,9 @@ interface Payment {
   transaction_number: string | null;
   notes: string | null;
   receipt_file_url: string | null;
+  receipt_date: string | null;
+  balance_fee: number | null;
+  counselor: string | null;
 }
 
 export function BalanceFeePayment() {
@@ -60,9 +63,11 @@ export function BalanceFeePayment() {
   const [paymentData, setPaymentData] = useState({
     amount: 0,
     paymentDate: new Date().toISOString().split('T')[0],
+    receiptDate: new Date().toISOString().split('T')[0],
     paymentMode: 'cash' as const,
     transactionNumber: '',
     notes: '',
+    counselor: '',
   });
 
   const searchAdmissions = async (query: string) => {
@@ -307,6 +312,8 @@ export function BalanceFeePayment() {
         receiptFileUrl = await uploadReceipt(tempPaymentId);
       }
 
+      const balanceAfterPayment = selectedAdmission.amount - newTotalPaid;
+
       const { error: paymentError } = await supabase
         .from('payments')
         .insert({
@@ -314,10 +321,13 @@ export function BalanceFeePayment() {
           admission_id: selectedAdmission.id,
           amount: paymentData.amount,
           payment_date: paymentData.paymentDate,
+          receipt_date: paymentData.receiptDate || null,
           payment_mode: paymentData.paymentMode,
           transaction_number: paymentData.transactionNumber || null,
           notes: paymentData.notes || null,
           receipt_file_url: receiptFileUrl,
+          balance_fee: balanceAfterPayment,
+          counselor: paymentData.counselor || null,
         });
 
       if (paymentError) throw paymentError;
@@ -341,9 +351,11 @@ export function BalanceFeePayment() {
       setPaymentData({
         amount: 0,
         paymentDate: new Date().toISOString().split('T')[0],
+        receiptDate: new Date().toISOString().split('T')[0],
         paymentMode: 'cash',
         transactionNumber: '',
         notes: '',
+        counselor: '',
       });
       setReceiptFile(null);
 
@@ -683,11 +695,22 @@ export function BalanceFeePayment() {
                               <p className="text-sm text-gray-600">
                                 {new Date(payment.payment_date).toLocaleDateString()}
                               </p>
+                              {payment.balance_fee !== null && (
+                                <span className="text-sm text-amber-600 font-medium">
+                                  Balance: ₹{parseFloat(payment.balance_fee.toString()).toLocaleString()}
+                                </span>
+                              )}
                             </div>
-                            <div className="flex gap-4 text-sm text-gray-600">
+                            <div className="flex gap-4 text-sm text-gray-600 flex-wrap">
                               <span className="capitalize">{payment.payment_mode.replace('_', ' ')}</span>
                               {payment.transaction_number && (
                                 <span>Txn: {payment.transaction_number}</span>
+                              )}
+                              {payment.receipt_date && (
+                                <span>Receipt: {new Date(payment.receipt_date).toLocaleDateString()}</span>
+                              )}
+                              {payment.counselor && (
+                                <span>Counselor: {payment.counselor}</span>
                               )}
                             </div>
                             {payment.notes && (
@@ -737,6 +760,22 @@ export function BalanceFeePayment() {
                     </div>
 
                     <div>
+                      <label htmlFor="counselor" className="block text-sm font-medium text-gray-700 mb-2">
+                        Counselor
+                      </label>
+                      <input
+                        type="text"
+                        id="counselor"
+                        value={paymentData.counselor}
+                        onChange={(e) => setPaymentData({ ...paymentData, counselor: e.target.value })}
+                        placeholder="Enter counselor name"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
                       <label htmlFor="paymentDate" className="block text-sm font-medium text-gray-700 mb-2">
                         Payment Date *
                       </label>
@@ -746,6 +785,19 @@ export function BalanceFeePayment() {
                         required
                         value={paymentData.paymentDate}
                         onChange={(e) => setPaymentData({ ...paymentData, paymentDate: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
+                      />
+                    </div>
+
+                    <div>
+                      <label htmlFor="receiptDate" className="block text-sm font-medium text-gray-700 mb-2">
+                        Receipt Date
+                      </label>
+                      <input
+                        type="date"
+                        id="receiptDate"
+                        value={paymentData.receiptDate}
+                        onChange={(e) => setPaymentData({ ...paymentData, receiptDate: e.target.value })}
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
                       />
                     </div>
