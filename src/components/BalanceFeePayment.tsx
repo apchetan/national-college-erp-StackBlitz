@@ -10,6 +10,8 @@ interface Contact {
   last_name: string;
   email: string;
   phone: string | null;
+  mobile1: string | null;
+  mobile2: string | null;
   date_of_birth: string | null;
   city: string | null;
 }
@@ -112,6 +114,8 @@ export function BalanceFeePayment() {
             last_name,
             email,
             phone,
+            mobile1,
+            mobile2,
             date_of_birth,
             city
           )
@@ -473,6 +477,12 @@ export function BalanceFeePayment() {
                           {admission.contacts.phone && (
                             <p className="text-sm text-gray-600">{admission.contacts.phone}</p>
                           )}
+                          {admission.contacts.mobile1 && (
+                            <p className="text-sm text-gray-600">{admission.contacts.mobile1}</p>
+                          )}
+                          {admission.contacts.mobile2 && (
+                            <p className="text-sm text-gray-600">{admission.contacts.mobile2}</p>
+                          )}
                           {admission.contacts.city && (
                             <p className="text-sm text-gray-500">{admission.contacts.city}</p>
                           )}
@@ -571,6 +581,22 @@ export function BalanceFeePayment() {
                       Phone
                     </label>
                     <p className="text-gray-900">{selectedAdmission.contacts.phone}</p>
+                  </div>
+                )}
+                {selectedAdmission.contacts.mobile1 && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Mobile 1
+                    </label>
+                    <p className="text-gray-900">{selectedAdmission.contacts.mobile1}</p>
+                  </div>
+                )}
+                {selectedAdmission.contacts.mobile2 && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Mobile 2
+                    </label>
+                    <p className="text-gray-900">{selectedAdmission.contacts.mobile2}</p>
                   </div>
                 )}
                 {selectedAdmission.contacts.city && (

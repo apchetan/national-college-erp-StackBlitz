@@ -8,6 +8,8 @@ export type Database = {
           last_name: string;
           email: string;
           phone: string | null;
+          mobile1: string | null;
+          mobile2: string | null;
           company: string | null;
           status: 'new' | 'contacted' | 'qualified' | 'converted' | 'closed';
           source: 'website' | 'referral' | 'social' | 'advertisement' | 'other' | null;
@@ -21,6 +23,8 @@ export type Database = {
           last_name: string;
           email: string;
           phone?: string | null;
+          mobile1?: string | null;
+          mobile2?: string | null;
           company?: string | null;
           status?: 'new' | 'contacted' | 'qualified' | 'converted' | 'closed';
           source?: 'website' | 'referral' | 'social' | 'advertisement' | 'other' | null;
@@ -34,6 +38,8 @@ export type Database = {
           last_name?: string;
           email?: string;
           phone?: string | null;
+          mobile1?: string | null;
+          mobile2?: string | null;
           company?: string | null;
           status?: 'new' | 'contacted' | 'qualified' | 'converted' | 'closed';
           source?: 'website' | 'referral' | 'social' | 'advertisement' | 'other' | null;

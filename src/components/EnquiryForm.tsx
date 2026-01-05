@@ -14,6 +14,8 @@ interface Contact {
   last_name: string;
   email: string;
   phone: string | null;
+  mobile1: string | null;
+  mobile2: string | null;
   date_of_birth: string | null;
   city: string | null;
   company: string | null;
@@ -35,6 +37,8 @@ export function EnquiryForm() {
     lastName: '',
     email: '',
     phone: '',
+    mobile1: '',
+    mobile2: '',
     dateOfBirth: '',
     city: '',
     company: '',
@@ -59,6 +63,8 @@ export function EnquiryForm() {
         lastName: selectedContact.last_name,
         email: selectedContact.email,
         phone: selectedContact.phone || '',
+        mobile1: selectedContact.mobile1 || '',
+        mobile2: selectedContact.mobile2 || '',
         dateOfBirth: cleanDateForForm(selectedContact.date_of_birth),
         city: selectedContact.city || '',
         company: selectedContact.company || '',
@@ -133,6 +139,8 @@ export function EnquiryForm() {
       lastName: '',
       email: '',
       phone: '',
+      mobile1: '',
+      mobile2: '',
       dateOfBirth: '',
       city: '',
       company: '',
@@ -182,6 +190,8 @@ export function EnquiryForm() {
           last_name: formData.lastName,
           email: formData.email,
           phone: formData.phone,
+          mobile1: formData.mobile1 || null,
+          mobile2: formData.mobile2 || null,
           date_of_birth: sanitizeDateValue(formData.dateOfBirth),
           city: formData.city || null,
           company: formData.company || null,
@@ -222,6 +232,8 @@ export function EnquiryForm() {
         lastName: '',
         email: '',
         phone: '',
+        mobile1: '',
+        mobile2: '',
         dateOfBirth: '',
         city: '',
         company: '',
@@ -251,6 +263,8 @@ export function EnquiryForm() {
       last_name: duplicate.last_name,
       email: duplicate.email,
       phone: duplicate.phone,
+      mobile1: null,
+      mobile2: null,
       date_of_birth: null,
       city: null,
       company: null,
@@ -590,6 +604,34 @@ export function EnquiryForm() {
                     required
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="mobile1" className="block text-sm font-medium text-gray-700 mb-2">
+                    Mobile 1
+                  </label>
+                  <input
+                    type="tel"
+                    id="mobile1"
+                    value={formData.mobile1}
+                    onChange={(e) => setFormData({ ...formData, mobile1: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="mobile2" className="block text-sm font-medium text-gray-700 mb-2">
+                    Mobile 2
+                  </label>
+                  <input
+                    type="tel"
+                    id="mobile2"
+                    value={formData.mobile2}
+                    onChange={(e) => setFormData({ ...formData, mobile2: e.target.value })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                   />
                 </div>

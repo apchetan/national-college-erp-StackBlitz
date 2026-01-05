@@ -162,6 +162,28 @@ export function normalizeImportRow(row: any, rowIndex: number): { normalized: an
   }
   normalized.phone = normalizedPhone;
 
+  const normalizedMobile1 = normalizePhone(row.mobile1);
+  if (row.mobile1 && !normalizedMobile1) {
+    warnings.push({
+      row: rowIndex + 1,
+      field: 'mobile1',
+      originalValue: row.mobile1,
+      message: 'Invalid mobile1 format, set to NULL'
+    });
+  }
+  normalized.mobile1 = normalizedMobile1;
+
+  const normalizedMobile2 = normalizePhone(row.mobile2);
+  if (row.mobile2 && !normalizedMobile2) {
+    warnings.push({
+      row: rowIndex + 1,
+      field: 'mobile2',
+      originalValue: row.mobile2,
+      message: 'Invalid mobile2 format, set to NULL'
+    });
+  }
+  normalized.mobile2 = normalizedMobile2;
+
   const normalizedEmail = normalizeEmail(row.email);
   if (row.email && !normalizedEmail) {
     warnings.push({

@@ -13,6 +13,8 @@ import { useNavigation } from '../App';
 interface FormData {
   fullName: string;
   mobile: string;
+  mobile1: string;
+  mobile2: string;
   whatsapp: string;
   email: string;
   city: string;
@@ -36,6 +38,8 @@ interface Contact {
   last_name: string;
   email: string;
   phone: string | null;
+  mobile1: string | null;
+  mobile2: string | null;
   date_of_birth: string | null;
   city: string | null;
   company: string | null;
@@ -53,6 +57,8 @@ export function AdmissionForm() {
   const [formData, setFormData] = useState<FormData>({
     fullName: '',
     mobile: '',
+    mobile1: '',
+    mobile2: '',
     whatsapp: '',
     email: '',
     city: '',
@@ -77,6 +83,8 @@ export function AdmissionForm() {
         fullName: `${selectedContact.first_name} ${selectedContact.last_name}`.trim(),
         email: selectedContact.email,
         mobile: selectedContact.phone || '',
+        mobile1: selectedContact.mobile1 || '',
+        mobile2: selectedContact.mobile2 || '',
         whatsapp: selectedContact.phone || '',
         city: selectedContact.city || '',
       }));
@@ -202,6 +210,8 @@ export function AdmissionForm() {
             last_name: formData.fullName.split(' ').slice(1).join(' '),
             email: formData.email,
             phone: formData.mobile,
+            mobile1: formData.mobile1 || null,
+            mobile2: formData.mobile2 || null,
             city: formData.city,
             total_experience: formData.totalExperience ? parseInt(formData.totalExperience) : null,
             source: 'google',
@@ -724,6 +734,36 @@ export function AdmissionForm() {
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent transition"
                   placeholder="your.email@example.com"
                 />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label htmlFor="mobile1" className="block text-sm font-medium text-gray-700 mb-2">
+                    Mobile 1
+                  </label>
+                  <input
+                    type="tel"
+                    id="mobile1"
+                    value={formData.mobile1}
+                    onChange={(e) => setFormData({ ...formData, mobile1: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent transition"
+                    placeholder="Mobile number 1"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="mobile2" className="block text-sm font-medium text-gray-700 mb-2">
+                    Mobile 2
+                  </label>
+                  <input
+                    type="tel"
+                    id="mobile2"
+                    value={formData.mobile2}
+                    onChange={(e) => setFormData({ ...formData, mobile2: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent transition"
+                    placeholder="Mobile number 2"
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

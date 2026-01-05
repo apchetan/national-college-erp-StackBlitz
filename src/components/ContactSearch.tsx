@@ -8,6 +8,8 @@ interface Contact {
   last_name: string;
   email: string;
   phone: string | null;
+  mobile1: string | null;
+  mobile2: string | null;
   date_of_birth: string | null;
   city: string | null;
   company: string | null;
@@ -49,7 +51,7 @@ export function ContactSearch({ onSelectContact, selectedContact }: ContactSearc
         const { data, error } = await supabase
           .from('contacts')
           .select('*')
-          .or(`first_name.ilike.%${searchTerm}%,last_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%,phone.ilike.%${searchTerm}%`)
+          .or(`first_name.ilike.%${searchTerm}%,last_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%,phone.ilike.%${searchTerm}%,mobile1.ilike.%${searchTerm}%,mobile2.ilike.%${searchTerm}%`)
           .limit(10);
 
         if (error) throw error;
@@ -102,7 +104,9 @@ export function ContactSearch({ onSelectContact, selectedContact }: ContactSearc
               </div>
               <div className="space-y-1 text-sm text-gray-600">
                 <p>{selectedContact.email}</p>
-                {selectedContact.phone && <p>{selectedContact.phone}</p>}
+                {selectedContact.phone && <p>Phone: {selectedContact.phone}</p>}
+                {selectedContact.mobile1 && <p>Mobile1: {selectedContact.mobile1}</p>}
+                {selectedContact.mobile2 && <p>Mobile2: {selectedContact.mobile2}</p>}
                 {selectedContact.city && <p>City: {selectedContact.city}</p>}
                 {selectedContact.company && <p>Company: {selectedContact.company}</p>}
               </div>
@@ -153,7 +157,13 @@ export function ContactSearch({ onSelectContact, selectedContact }: ContactSearc
                       </p>
                       <p className="text-sm text-gray-600 truncate">{contact.email}</p>
                       {contact.phone && (
-                        <p className="text-sm text-gray-500">{contact.phone}</p>
+                        <p className="text-sm text-gray-500">Phone: {contact.phone}</p>
+                      )}
+                      {contact.mobile1 && (
+                        <p className="text-sm text-gray-500">Mobile1: {contact.mobile1}</p>
+                      )}
+                      {contact.mobile2 && (
+                        <p className="text-sm text-gray-500">Mobile2: {contact.mobile2}</p>
                       )}
                       {contact.city && (
                         <p className="text-xs text-gray-400 mt-1">{contact.city}</p>
