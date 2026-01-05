@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Download, Upload, Users, Database, Shield, UserCog, Settings, BarChart3 } from 'lucide-react';
 import { DataExport } from './DataExport';
-import { DataImport } from './DataImport';
+import DynamicColumnMapper from './DynamicColumnMapper';
 import { EnhancedUserManagement } from './EnhancedUserManagement';
 
 type AdminView = 'export' | 'import' | 'users' | 'roles' | 'settings' | 'analytics';
@@ -90,7 +90,7 @@ export function AdminPanel() {
 
         <div className="p-6">
           {currentView === 'export' && <DataExport />}
-          {currentView === 'import' && <DataImport />}
+          {currentView === 'import' && <DynamicColumnMapper />}
           {currentView === 'users' && <EnhancedUserManagement />}
           {currentView === 'roles' && (
             <div className="text-center py-12">
