@@ -90,14 +90,30 @@ Deno.serve(async (req: Request) => {
     };
 
     const pgType = pgTypeMap[dataType] || 'text';
-    const nullableClause = isNullable ? '' : 'NOT NULL';
-    const defaultClause = defaultValue ? `DEFAULT '${defaultValue.replace(/'/g, "''")}'` : '';
+
+    // Build column definition parts
+    const parts = [pgType];
+
+    // Add default value if provided (must come before NOT NULL)
+    if (defaultValue) {
+      if (dataType === 'boolean') {
+        parts.push(`DEFAULT ${defaultValue.toLowerCase() === 'true' ? 'true' : 'false'}`);
+      } else if (dataType === 'number' || dataType === 'decimal') {
+        parts.push(`DEFAULT ${defaultValue}`);
+      } else if (dataType === 'date') {
+        parts.push(`DEFAULT '${defaultValue.replace(/'/g, "''")}'::date`);
+      } else {
+        parts.push(`DEFAULT '${defaultValue.replace(/'/g, "''")}'`);
+      }
+    }
+
+    // Add NOT NULL constraint if needed
+    if (!isNullable) {
+      parts.push('NOT NULL');
+    }
 
     // Build ALTER TABLE statement
-    const alterTableSQL = `
-      ALTER TABLE ${tableName}
-      ADD COLUMN IF NOT EXISTS ${sanitizedColumnName} ${pgType} ${nullableClause} ${defaultClause};
-    `;
+    const alterTableSQL = `ALTER TABLE ${tableName} ADD COLUMN IF NOT EXISTS ${sanitizedColumnName} ${parts.join(' ')};`;
 
     // Execute ALTER TABLE
     const { error: alterError } = await supabase.rpc('execute_sql', { query: alterTableSQL });
