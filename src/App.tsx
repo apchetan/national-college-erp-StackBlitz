@@ -34,11 +34,6 @@ function AppContent() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { profile, signOut, isAdmin } = useAuth();
 
-  console.log('Profile:', profile);
-  console.log('Is Admin:', isAdmin);
-  console.log('Profile Role:', profile?.role);
-  console.log('Profile Active:', profile?.is_active);
-
   const mainNavigation = [
     { name: 'Dashboard', icon: LayoutDashboard, id: 'dashboard' as Page },
     { name: 'Status', icon: ListChecks, id: 'status' as Page },
@@ -246,12 +241,7 @@ function App() {
   }
 
   if (!user) {
-    return (
-      <div>
-        {import.meta.hot && <Login />}
-        {!import.meta.hot && <Login />}
-      </div>
-    );
+    return <Login />;
   }
 
   return <AppContent />;
