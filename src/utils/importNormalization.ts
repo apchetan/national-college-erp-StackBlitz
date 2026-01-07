@@ -144,6 +144,13 @@ export function validateMandatoryFields(row: any, rowIndex: number): { isValid: 
   };
 }
 
+function cleanEmptyValue(value: any): any {
+  if (value === '' || value === null || value === undefined || value === 'null' || value === 'undefined') {
+    return null;
+  }
+  return value;
+}
+
 export function normalizeImportRow(row: any, rowIndex: number): { normalized: any; warnings: ImportWarning[] } {
   const warnings: ImportWarning[] = [];
   const normalized: any = {};
@@ -259,6 +266,10 @@ export function normalizeImportRow(row: any, rowIndex: number): { normalized: an
   if (!normalized.status) {
     normalized.status = 'new';
   }
+
+  Object.keys(normalized).forEach(key => {
+    normalized[key] = cleanEmptyValue(normalized[key]);
+  });
 
   return { normalized, warnings };
 }

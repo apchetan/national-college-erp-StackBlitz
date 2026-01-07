@@ -390,7 +390,12 @@ export function DataImport() {
         const cleaned: any = {};
         Object.keys(row).forEach(key => {
           if (key !== 'id' && key !== 'created_at' && key !== 'updated_at') {
-            cleaned[key] = row[key];
+            const value = row[key];
+            if (value === '' || value === 'null' || value === 'undefined') {
+              cleaned[key] = null;
+            } else {
+              cleaned[key] = value;
+            }
           }
         });
         return cleaned;
