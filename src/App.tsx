@@ -32,19 +32,16 @@ export const useNavigation = () => {
 function AppContent() {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { profile, signOut, isAdmin } = useAuth();
+  const { profile, signOut, isAdmin, isSuperAdmin } = useAuth();
 
-  // Debug: Log profile state
-  console.log('Profile state:', { profile, isAdmin });
-
-  // Build navigation with Admin Panel for admins
+  // Build main navigation
   const mainNavigation = [
     { name: 'Dashboard', icon: LayoutDashboard, id: 'dashboard' as Page },
     { name: 'Status', icon: ListChecks, id: 'status' as Page },
   ];
 
-  // Use isAdmin from context instead of manual check
-  if (isAdmin) {
+  // Add Admin Panel for admin or super_admin users
+  if (profile && (isAdmin || isSuperAdmin)) {
     mainNavigation.push({ name: 'Admin Panel', icon: Shield, id: 'admin' as Page });
   }
 
