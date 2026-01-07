@@ -360,6 +360,10 @@ export function DataImport() {
             const row: any = {};
             headers.forEach((header, index) => {
               let value: any = values[index];
+              // Clean any remaining quotes and whitespace
+              if (typeof value === 'string') {
+                value = value.replace(/^["'\s]+|["'\s]+$/g, '').trim();
+              }
               if (value === '' || value === 'null' || value === 'undefined') {
                 value = null;
               } else if (value === 'true') {
@@ -368,7 +372,7 @@ export function DataImport() {
                 value = false;
               } else if (!isNaN(Number(value)) && value !== '') {
                 value = Number(value);
-              } else if (value.includes(';')) {
+              } else if (typeof value === 'string' && value.includes(';')) {
                 value = value.split(';').map((v: string) => v.trim());
               }
               row[header] = value;
@@ -390,8 +394,12 @@ export function DataImport() {
         const cleaned: any = {};
         Object.keys(row).forEach(key => {
           if (key !== 'id' && key !== 'created_at' && key !== 'updated_at') {
-            const value = row[key];
-            if (value === '' || value === 'null' || value === 'undefined') {
+            let value = row[key];
+            // Extra cleaning: remove any remaining quotes
+            if (typeof value === 'string') {
+              value = value.replace(/^["'\s]+|["'\s]+$/g, '').trim();
+            }
+            if (value === '' || value === 'null' || value === 'undefined' || value === '""' || value === "''") {
               cleaned[key] = null;
             } else {
               cleaned[key] = value;
