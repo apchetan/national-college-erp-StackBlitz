@@ -34,13 +34,17 @@ function AppContent() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { profile, signOut, isAdmin } = useAuth();
 
+  // Debug: Log profile state
+  console.log('Profile state:', { profile, isAdmin });
+
+  // Build navigation with Admin Panel for admins
   const mainNavigation = [
     { name: 'Dashboard', icon: LayoutDashboard, id: 'dashboard' as Page },
     { name: 'Status', icon: ListChecks, id: 'status' as Page },
   ];
 
-  // Always show Admin Panel for admin and super_admin users
-  if (profile && (profile.role === 'admin' || profile.role === 'super_admin') && profile.is_active) {
+  // Use isAdmin from context instead of manual check
+  if (isAdmin) {
     mainNavigation.push({ name: 'Admin Panel', icon: Shield, id: 'admin' as Page });
   }
 
