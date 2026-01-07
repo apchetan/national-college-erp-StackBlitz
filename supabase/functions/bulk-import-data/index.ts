@@ -6,6 +6,13 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, Apikey',
 };
 
+function cleanEmptyValue(value: any): any {
+  if (value === '' || value === null || value === undefined || value === 'null' || value === 'undefined') {
+    return null;
+  }
+  return value;
+}
+
 interface ImportRequest {
   targetTable: string;
   fileName: string;
@@ -133,7 +140,7 @@ Deno.serve(async (req: Request) => {
           }
         }
 
-        transformedRow[dbCol] = value;
+        transformedRow[dbCol] = cleanEmptyValue(value);
       }
 
       // Add created_by if table supports it
