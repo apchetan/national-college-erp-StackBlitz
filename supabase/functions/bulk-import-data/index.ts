@@ -7,9 +7,23 @@ const corsHeaders = {
 };
 
 function cleanEmptyValue(value: any): any {
-  if (value === '' || value === null || value === undefined || value === 'null' || value === 'undefined') {
+  if (value === null || value === undefined) {
     return null;
   }
+
+  // Convert to string and clean quotes
+  if (typeof value === 'string') {
+    const cleaned = value.replace(/^["'\s]+|["'\s]+$/g, '').trim();
+    if (cleaned === '' || cleaned === 'null' || cleaned === 'undefined') {
+      return null;
+    }
+    return cleaned;
+  }
+
+  if (value === '') {
+    return null;
+  }
+
   return value;
 }
 

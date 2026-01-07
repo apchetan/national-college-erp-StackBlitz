@@ -20,7 +20,15 @@ export function parseCSV(fileContent: string, fileName: string): ParsedFile {
 
     const row: Record<string, any> = {};
     headers.forEach((header, index) => {
-      row[header] = values[index] || '';
+      let value = values[index] || '';
+      // Clean any remaining quotes and convert empty strings to null
+      if (typeof value === 'string') {
+        value = value.replace(/^["'\s]+|["'\s]+$/g, '').trim();
+        if (value === '' || value === 'null' || value === 'undefined') {
+          value = null;
+        }
+      }
+      row[header] = value;
     });
     data.push(row);
   }
