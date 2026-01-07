@@ -845,7 +845,7 @@ export function DataImport() {
                     <option value="skip">Skip this column</option>
                     {getTargetColumns(selectedType).map((col) => (
                       <option key={col} value={col}>
-                        {col.replace(/_/g, ' ')} {selectedType === 'contacts' && isFieldMandatory(col) ? '(Required)' : ''}
+                        {col.replace(/_/g, ' ').replace(/[\/\(\)\.\-]/g, ' ').replace(/\s+/g, ' ').trim()} {selectedType === 'contacts' && isFieldMandatory(col) ? '(Required)' : ''}
                       </option>
                     ))}
                   </select>
