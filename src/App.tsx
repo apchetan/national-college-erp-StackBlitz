@@ -41,7 +41,6 @@ function AppContent() {
 
   // Always show Admin Panel for admin and super_admin users
   if (profile && (profile.role === 'admin' || profile.role === 'super_admin') && profile.is_active) {
-    console.log('Adding Admin Panel to navigation for role:', profile.role);
     mainNavigation.push({ name: 'Admin Panel', icon: Shield, id: 'admin' as Page });
   }
 
