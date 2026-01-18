@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Supabase Connection Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Supabase Connection Test</h1>
+    <div id="result">Testing connection...</div>
+
+    <script>
+        const supabaseUrl = 'https://rxcawzsxonkkpfcguvax.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ4Y2F3enN4b25ra3BmY2d1dmF4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM3MjIwNzYsImV4cCI6MjA3OTI5ODA3Nn0.yvwWdzdHNV8U_eApzhLJCMslJb0aV0uEtIS631VvpXI';
+
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        async function testConnection() {
+            const result = document.getElementById('result');
+
+            try {
+                result.innerHTML = 'Testing REST API...';
+
+                // Test basic connection
+                const { data, error } = await supabase.from('profiles').select('count').limit(1);
+
+                if (error) {
+                    result.innerHTML = `<div style="color: red;">
+                        <h2>Connection Failed</h2>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                        <p><strong>Details:</strong> ${JSON.stringify(error)}</p>
+                        <h3>Possible solutions:</h3>
+                        <ul>
+                            <li>Check if your Supabase project is active at <a href="https://supabase.com/dashboard" target="_blank">supabase.com/dashboard</a></li>
+                            <li>Verify the project URL and API key are correct</li>
+                            <li>Make sure the project hasn't been paused or deleted</li>
+                        </ul>
+                    </div>`;
+                } else {
+                    result.innerHTML = `<div style="color: green;">
+                        <h2>✓ Connection Successful!</h2>
+                        <p>Supabase is connected and working properly.</p>
+                        <p><strong>Project URL:</strong> ${supabaseUrl}</p>
+                    </div>`;
+                }
+            } catch (err) {
+                result.innerHTML = `<div style="color: red;">
+                    <h2>Network Error</h2>
+                    <p><strong>Error:</strong> ${err.message}</p>
+                    <p>Cannot reach Supabase server. The project may be paused or deleted.</p>
+                    <h3>Action required:</h3>
+                    <ol>
+                        <li>Go to <a href="https://supabase.com/dashboard" target="_blank">supabase.com/dashboard</a></li>
+                        <li>Check your project status</li>
+                        <li>If paused, unpause it</li>
+                        <li>If deleted, create a new project and update credentials</li>
+                    </ol>
+                </div>`;
+            }
+        }
+
+        testConnection();
+    </script>
+</body>
+</html>
