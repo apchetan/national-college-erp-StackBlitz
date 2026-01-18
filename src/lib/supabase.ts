@@ -5,11 +5,17 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('Environment variables check:');
+  console.error('Missing Supabase environment variables!');
   console.error('VITE_SUPABASE_URL:', supabaseUrl);
   console.error('VITE_SUPABASE_ANON_KEY:', supabaseAnonKey ? 'exists' : 'missing');
-  console.error('All env vars:', import.meta.env);
-  throw new Error('Missing Supabase environment variables. Please check your .env file.');
+  throw new Error('Missing Supabase environment variables. Please check your .env file and restart the dev server.');
 }
 
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
+console.log('Initializing Supabase client with URL:', supabaseUrl);
+
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+  },
+});

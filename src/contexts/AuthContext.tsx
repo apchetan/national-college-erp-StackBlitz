@@ -86,11 +86,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         password,
       });
       return { error };
-    } catch (err) {
+    } catch (err: any) {
       console.error('Sign in error:', err);
+      const errorMessage = err?.message || err?.toString() || 'Network error';
       return {
         error: {
-          message: 'Unable to connect to the server. Please check your internet connection or try again later.'
+          message: `Connection failed: ${errorMessage}. Please check your internet connection and try again.`
         }
       };
     }
