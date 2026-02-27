@@ -81,17 +81,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      console.log('Attempting to sign in...');
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
-      return { error };
+
+      if (error) {
+        console.error('Supabase auth error:', error);
+        return { error };
+      }
+
+      console.log('Sign in successful:', data);
+      return { error: null };
     } catch (err: any) {
-      console.error('Sign in error:', err);
-      const errorMessage = err?.message || err?.toString() || 'Network error';
+      console.error('Sign in exception:', err);
+
+      if (err.message && err.message.includes('fetch')) {
+        return {
+          error: {
+            message: 'Unable to connect to the authentication server. Please check that your Supabase URL is correct and accessible.'
+          }
+        };
+      }
+
+      const errorMessage = err?.message || err?.toString() || 'Unknown error';
       return {
         error: {
-          message: `Connection failed: ${errorMessage}. Please check your internet connection and try again.`
+          message: `Authentication error: ${errorMessage}`
         }
       };
     }
