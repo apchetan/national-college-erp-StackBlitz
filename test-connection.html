@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase Connection Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .result {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #results {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Supabase Connection Test</h1>
+    <p>This page will test the connection to your Supabase project.</p>
+
+    <button onclick="testConnection()">Test Connection</button>
+
+    <div id="results"></div>
+
+    <script type="module">
+        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+        const SUPABASE_URL = 'https://obqyndxmkgtshalmchot.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9icXluZHhta2d0c2hhbG1jaG90Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMzg0MjUsImV4cCI6MjA4NzcxNDQyNX0.7otczh0QG-m9Ce7JLS5Xx6j5N-c4Ljlf5ChqBOtb3fY';
+
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        window.testConnection = async function() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<div class="info result">Testing connection...</div>';
+
+            try {
+                // Test 1: Basic connectivity
+                results.innerHTML += '<div class="info result">Step 1: Testing basic connectivity...</div>';
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+
+                if (response.ok) {
+                    results.innerHTML += '<div class="success result">✓ Basic connectivity: SUCCESS</div>';
+                } else {
+                    results.innerHTML += `<div class="error result">✗ Basic connectivity failed: ${response.status} ${response.statusText}</div>`;
+                }
+
+                // Test 2: Auth endpoint
+                results.innerHTML += '<div class="info result">Step 2: Testing auth endpoint...</div>';
+                const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+
+                if (sessionError) {
+                    results.innerHTML += `<div class="error result">✗ Auth endpoint error: ${sessionError.message}</div>`;
+                } else {
+                    results.innerHTML += '<div class="success result">✓ Auth endpoint: SUCCESS</div>';
+                }
+
+                // Test 3: Login attempt
+                results.innerHTML += '<div class="info result">Step 3: Testing login with credentials...</div>';
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: 'apchetan@gmail.com',
+                    password: '@001Evelina'
+                });
+
+                if (error) {
+                    results.innerHTML += `<div class="error result">✗ Login failed: ${error.message}</div>`;
+                } else if (data.user) {
+                    results.innerHTML += `<div class="success result">✓ LOGIN SUCCESSFUL!<br>User: ${data.user.email}<br>User ID: ${data.user.id}</div>`;
+
+                    // Test 4: Check profile
+                    results.innerHTML += '<div class="info result">Step 4: Loading user profile...</div>';
+                    const { data: profile, error: profileError } = await supabase
+                        .from('profiles')
+                        .select('*')
+                        .eq('id', data.user.id)
+                        .maybeSingle();
+
+                    if (profileError) {
+                        results.innerHTML += `<div class="error result">✗ Profile error: ${profileError.message}</div>`;
+                    } else if (profile) {
+                        results.innerHTML += `<div class="success result">✓ Profile loaded!<br>Name: ${profile.full_name}<br>Role: ${profile.role}</div>`;
+                    }
+                } else {
+                    results.innerHTML += '<div class="error result">✗ Login failed: No user data returned</div>';
+                }
+
+            } catch (err) {
+                results.innerHTML += `<div class="error result">✗ CRITICAL ERROR: ${err.message}<br><br>This usually means:<br>1. Cannot connect to Supabase (network issue)<br>2. CORS policy blocking the request<br>3. Supabase project is not accessible</div>`;
+                console.error('Test error:', err);
+            }
+        };
+
+        // Auto-run test on load
+        window.addEventListener('load', () => {
+            setTimeout(() => window.testConnection(), 500);
+        });
+    </script>
+</body>
+</html>
