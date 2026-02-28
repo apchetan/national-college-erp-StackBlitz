@@ -81,26 +81,48 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     try {
+      console.log('Supabase URL:', import.meta.env.VITE_SUPABASE_URL);
       console.log('Attempting to sign in...');
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
 
-      if (error) {
-        console.error('Supabase auth error:', error);
-        return { error };
+      // Retry mechanism for transient network errors
+      let lastError: any = null;
+      const maxRetries = 3;
+
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          const { data, error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+          });
+
+          if (error) {
+            console.error('Supabase auth error:', error);
+            return { error };
+          }
+
+          console.log('Sign in successful');
+          return { error: null };
+        } catch (err: any) {
+          lastError = err;
+          console.error(`Attempt ${attempt}/${maxRetries} failed:`, err);
+
+          if (attempt < maxRetries && (err.message?.includes('fetch') || err.message?.includes('Failed to fetch'))) {
+            console.log(`Retrying in ${attempt} second(s)...`);
+            await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+            continue;
+          }
+          throw err;
+        }
       }
 
-      console.log('Sign in successful:', data);
-      return { error: null };
+      throw lastError;
     } catch (err: any) {
-      console.error('Sign in exception:', err);
+      console.error('Sign in failed after all retries:', err);
 
-      if (err.message && err.message.includes('fetch')) {
+      if (err.message && (err.message.includes('fetch') || err.message.includes('network'))) {
         return {
           error: {
-            message: 'Unable to connect to the authentication server. Please check that your Supabase URL is correct and accessible.'
+            message: 'Cannot connect to server. Please ensure your internet connection is active and the dev server is running. Try refreshing the page or restarting with: npm run dev'
           }
         };
       }
