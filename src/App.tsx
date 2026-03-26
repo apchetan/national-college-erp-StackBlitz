@@ -34,30 +34,13 @@ function AppContent() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { profile, signOut, isAdmin, isSuperAdmin } = useAuth();
 
-  // Debug logging
-  console.log('=== AUTH DEBUG START ===');
-  console.log('Profile:', profile);
-  console.log('Profile Role:', profile?.role);
-  console.log('Profile Active:', profile?.is_active);
-  console.log('isAdmin:', isAdmin);
-  console.log('isSuperAdmin:', isSuperAdmin);
-  console.log('=== AUTH DEBUG END ===');
-
-  // Build main navigation
   const mainNavigation = [
     { name: 'Dashboard', icon: LayoutDashboard, id: 'dashboard' as Page },
     { name: 'Status', icon: ListChecks, id: 'status' as Page },
   ];
 
-  // Add Admin Panel for admin or super_admin users
   if (profile && (isAdmin || isSuperAdmin)) {
-    console.log('✅ ADDING ADMIN PANEL TO NAVIGATION!');
     mainNavigation.push({ name: 'Admin Panel', icon: Shield, id: 'admin' as Page });
-  } else {
-    console.log('❌ NOT ADDING ADMIN PANEL');
-    console.log('  - profile exists:', !!profile);
-    console.log('  - isAdmin:', isAdmin);
-    console.log('  - isSuperAdmin:', isSuperAdmin);
   }
 
   const formsNavigation = [

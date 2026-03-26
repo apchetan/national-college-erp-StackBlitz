@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Download, Upload, Users, Database, Shield, UserCog, Settings, BarChart3 } from 'lucide-react';
+import { Download, Upload, Users, Database, Shield, Settings, BarChart3 } from 'lucide-react';
 import { DataExport } from './DataExport';
 import DynamicColumnMapper from './DynamicColumnMapper';
 import { EnhancedUserManagement } from './EnhancedUserManagement';

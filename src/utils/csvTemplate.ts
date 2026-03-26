@@ -1,3 +1,26 @@
+function downloadCSVTemplate(filename: string, headers: string[], exampleRow: string[], emptyRowCount: number = 3) {
+  const emptyRow = headers.map(() => '');
+
+  const rows = [
+    headers.map(h => `"${h}"`).join(','),
+    exampleRow.map(v => `"${v}"`).join(','),
+    ...Array(emptyRowCount).fill(emptyRow.join(','))
+  ];
+
+  const csvContent = rows.join('\n');
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+
+  link.setAttribute('href', url);
+  link.setAttribute('download', filename);
+  link.style.visibility = 'hidden';
+
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
 export function downloadStudentStatusCSVTemplate() {
   const headers = [
     'Contact Email',
@@ -87,29 +110,7 @@ export function downloadStudentStatusCSVTemplate() {
     'Student progressing well',
   ];
 
-  const emptyRow = headers.map(() => '');
-
-  const rows = [
-    headers.map(h => `"${h}"`).join(','),
-    exampleRow.map(v => `"${v}"`).join(','),
-    emptyRow.join(','),
-    emptyRow.join(','),
-    emptyRow.join(','),
-  ];
-
-  const csvContent = rows.join('\n');
-
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-  const link = document.createElement('a');
-  const url = URL.createObjectURL(blob);
-
-  link.setAttribute('href', url);
-  link.setAttribute('download', 'student_status_template.csv');
-  link.style.visibility = 'hidden';
-
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  downloadCSVTemplate('student_status_template.csv', headers, exampleRow);
 }
 
 export function downloadEnquiryCSVTemplate() {
@@ -159,27 +160,5 @@ export function downloadEnquiryCSVTemplate() {
     'Looking for weekend classes'
   ];
 
-  const emptyRow = headers.map(() => '');
-
-  const rows = [
-    headers.map(h => `"${h}"`).join(','),
-    exampleRow.map(v => `"${v}"`).join(','),
-    emptyRow.join(','),
-    emptyRow.join(','),
-    emptyRow.join(','),
-  ];
-
-  const csvContent = rows.join('\n');
-
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-  const link = document.createElement('a');
-  const url = URL.createObjectURL(blob);
-
-  link.setAttribute('href', url);
-  link.setAttribute('download', 'enquiry_form_template.csv');
-  link.style.visibility = 'hidden';
-
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  downloadCSVTemplate('enquiry_form_template.csv', headers, exampleRow);
 }

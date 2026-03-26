@@ -60,15 +60,3 @@ export function formatCurrency(amount: number | string | null | undefined): stri
 
   return `₹${num.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
 }
-
-export function formatPhoneNumber(phone: string | null | undefined): string {
-  if (!phone) return '';
-
-  const cleaned = phone.replace(/\D/g, '');
-
-  if (cleaned.length === 10) {
-    return `${cleaned.slice(0, 5)}-${cleaned.slice(5)}`;
-  }
-
-  return phone;
-}

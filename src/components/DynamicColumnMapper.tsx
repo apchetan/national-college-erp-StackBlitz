@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, ChangeEvent } from 'react';
 import { Upload, Download, Save, Play, AlertCircle, CheckCircle, Plus, Settings } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { parseFile, ParsedFile, downloadCSV } from '../utils/fileParser';
@@ -92,7 +92,7 @@ export default function DynamicColumnMapper() {
     }
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
 

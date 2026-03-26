@@ -13,9 +13,3 @@ export function validateMobile(mobile: string): boolean {
   const mobileRegex = /^[6-9]\d{9}$/;
   return mobileRegex.test(cleaned);
 }
-
-export function validateRequired(value: string | number | null | undefined): boolean {
-  if (value === null || value === undefined) return false;
-  if (typeof value === 'string') return value.trim().length > 0;
-  return true;
-}

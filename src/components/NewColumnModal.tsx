@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, FormEvent } from 'react';
 import { X, Plus, AlertCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
@@ -35,7 +35,7 @@ export default function NewColumnModal({ isOpen, onClose, tableName, onColumnCre
 
   if (!isOpen) return null;
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);

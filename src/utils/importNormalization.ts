@@ -5,12 +5,6 @@ export interface ImportWarning {
   message: string;
 }
 
-export interface ImportValidationResult {
-  isValid: boolean;
-  errors: string[];
-  warnings: ImportWarning[];
-}
-
 export function normalizePhone(value: any): string | null {
   if (!value) return null;
 
@@ -274,10 +268,6 @@ export function normalizeImportRow(row: any, rowIndex: number): { normalized: an
   return { normalized, warnings };
 }
 
-export function getMandatoryFields(): string[] {
-  return ['first_name', 'phone', 'email'];
-}
-
 export function isFieldMandatory(fieldName: string): boolean {
-  return getMandatoryFields().includes(fieldName);
+  return ['first_name', 'phone', 'email'].includes(fieldName);
 }

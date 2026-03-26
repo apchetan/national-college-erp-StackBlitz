@@ -60,7 +60,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loadProfile = async (userId: string) => {
     try {
-      console.log('Loading profile for user ID:', userId);
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -71,9 +70,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.error('Supabase error:', error);
         throw error;
       }
-      console.log('Profile loaded:', data);
-      console.log('Role:', data?.role);
-      console.log('Is active:', data?.is_active);
       setProfile(data);
     } catch (error) {
       console.error('Error loading profile:', error);
@@ -85,10 +81,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     try {
-      console.log('Supabase URL:', import.meta.env.VITE_SUPABASE_URL);
-      console.log('Attempting to sign in...');
-
-      // Retry mechanism for transient network errors
       let lastError: any = null;
       const maxRetries = 3;
 
@@ -104,14 +96,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             return { error };
           }
 
-          console.log('Sign in successful');
           return { error: null };
         } catch (err: any) {
           lastError = err;
-          console.error(`Attempt ${attempt}/${maxRetries} failed:`, err);
+          console.error(`Authentication attempt ${attempt}/${maxRetries} failed:`, err);
 
           if (attempt < maxRetries && (err.message?.includes('fetch') || err.message?.includes('Failed to fetch'))) {
-            console.log(`Retrying in ${attempt} second(s)...`);
             await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
             continue;
           }
@@ -121,7 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       throw lastError;
     } catch (err: any) {
-      console.error('Sign in failed after all retries:', err);
+      console.error('Sign in failed:', err);
 
       if (err.message && (err.message.includes('fetch') || err.message.includes('network'))) {
         return {
