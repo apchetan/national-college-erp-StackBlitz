@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { Users, Plus, Edit2, Trash2, CheckCircle, X, Shield, UserCog, Eye, EyeOff, AlertCircle, Key } from 'lucide-react';
+import { Users, Plus, CreditCard as Edit2, Trash2, CheckCircle, X, Shield, UserCog, Eye, EyeOff, AlertCircle, Key } from 'lucide-react';
 
 interface Profile {
   id: string;
@@ -102,6 +102,7 @@ export function EnhancedUserManagement() {
         headers: {
           'Authorization': `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
+          'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
         },
         body: JSON.stringify({
           email,
