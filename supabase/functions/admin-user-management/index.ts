@@ -27,18 +27,15 @@ Deno.serve(async (req: Request) => {
       }
     });
 
-    // Create regular client to verify the requesting user
-    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
-    const userClient = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } }
-    });
+    // Verify JWT and get user ID from the token
+    const token = authHeader.replace('Bearer ', '');
 
-    // Get the requesting user
-    const { data: { user }, error: userError } = await userClient.auth.getUser();
+    // Use admin client to verify the JWT
+    const { data: { user }, error: userError } = await adminClient.auth.getUser(token);
     if (userError || !user) {
       console.error('Auth error:', userError);
       return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
+        JSON.stringify({ error: 'Unauthorized - Invalid or expired token' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
