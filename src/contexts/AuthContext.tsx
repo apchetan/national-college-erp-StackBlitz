@@ -60,6 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loadProfile = async (userId: string) => {
     try {
+      console.log('Loading profile for user ID:', userId);
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -70,6 +71,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.error('Supabase error:', error);
         throw error;
       }
+      console.log('Profile loaded:', data);
+      console.log('Role:', data?.role);
+      console.log('Is active:', data?.is_active);
       setProfile(data);
     } catch (error) {
       console.error('Error loading profile:', error);
