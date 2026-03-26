@@ -11,7 +11,7 @@ import { AdminPanel } from './components/AdminPanel';
 import { StatusSearch } from './components/StatusSearch';
 import { Login } from './components/Login';
 import { useAuth } from './contexts/AuthContext';
-import { LayoutDashboard, FileText, Calendar, GraduationCap, Menu, X, Shield, LogOut, User, ListChecks, Wallet, HeadphonesIcon, ClipboardCheck, Truck } from 'lucide-react';
+import { LayoutDashboard, FileText, Calendar, GraduationCap, Menu, X, Shield, LogOut, User, ListChecks, Wallet, Headphones as HeadphonesIcon, ClipboardCheck, Truck } from 'lucide-react';
 
 type Page = 'dashboard' | 'enquiry' | 'support' | 'appointment' | 'admission' | 'admin' | 'status' | 'balance-fee' | 'student-status' | 'courier-status';
 
@@ -34,6 +34,11 @@ function AppContent() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { profile, signOut, isAdmin, isSuperAdmin } = useAuth();
 
+  // Debug logging
+  console.log('Profile:', profile);
+  console.log('isAdmin:', isAdmin);
+  console.log('isSuperAdmin:', isSuperAdmin);
+
   // Build main navigation
   const mainNavigation = [
     { name: 'Dashboard', icon: LayoutDashboard, id: 'dashboard' as Page },
@@ -42,6 +47,7 @@ function AppContent() {
 
   // Add Admin Panel for admin or super_admin users
   if (profile && (isAdmin || isSuperAdmin)) {
+    console.log('Adding Admin Panel to navigation');
     mainNavigation.push({ name: 'Admin Panel', icon: Shield, id: 'admin' as Page });
   }
 
