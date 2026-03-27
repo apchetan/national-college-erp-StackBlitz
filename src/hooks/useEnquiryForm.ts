@@ -3,7 +3,6 @@ import { supabase } from '../lib/supabase';
 import { sanitizeDateValue, cleanDateForForm } from '../utils/dateValidation';
 import { checkForDuplicates, PotentialDuplicate } from '../utils/duplicateDetection';
 import { Contact } from '../types/interfaces';
-import { SPECIALISATIONS } from '../constants/formOptions';
 
 interface FormData {
   firstName: string;
@@ -103,12 +102,12 @@ export function useEnquiryForm() {
     return coursesWithSpecialisation.includes(course);
   };
 
-  const getAvailableSpecialisations = (course: string) => {
+  const getAvailableSpecialisations = (course: string, specialisations: Record<string, string[]>) => {
     if (course === 'PhD') {
       const allSpecs = new Set<string>();
       const excludeSpecs = ['(General)CBZ', '(General)PCB', '(General)PCM', 'Artificial Intelligence'];
 
-      Object.values(SPECIALISATIONS).forEach(specs => {
+      Object.values(specialisations).forEach(specs => {
         specs.forEach(spec => {
           if (!excludeSpecs.includes(spec)) {
             allSpecs.add(spec);
@@ -118,7 +117,7 @@ export function useEnquiryForm() {
       allSpecs.add('Pharmacy');
       return Array.from(allSpecs).sort();
     }
-    return SPECIALISATIONS[course] || SPECIALISATIONS['default'];
+    return specialisations[course] || specialisations['default'] || [];
   };
 
   const handleProgramChange = (program: string) => {

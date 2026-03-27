@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase';
 import { convertToDBFormat } from '../utils/dateValidation';
 import { validateEmail, validateMobile } from '../utils/validation';
 import { Contact } from '../types/interfaces';
-import { SPECIALISATIONS } from '../constants/formOptions';
+import { useFormOptions } from './useFormOptions';
 
 interface FormData {
   fullName: string;
@@ -26,6 +26,7 @@ interface FormData {
 }
 
 export function useAppointmentForm() {
+  const { specialisations } = useFormOptions();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
@@ -124,7 +125,7 @@ export function useAppointmentForm() {
       ? (() => {
           const allSpecs = new Set<string>();
           const excludeSpecs = ['(General)CBZ', '(General)PCB', '(General)PCM', 'Artificial Intelligence'];
-          Object.values(SPECIALISATIONS).forEach(specs => {
+          Object.values(specialisations).forEach(specs => {
             specs.forEach(spec => {
               if (!excludeSpecs.includes(spec)) {
                 allSpecs.add(spec);
@@ -134,7 +135,7 @@ export function useAppointmentForm() {
           allSpecs.add('Pharmacy');
           return Array.from(allSpecs);
         })()
-      : SPECIALISATIONS[formData.program] || [];
+      : specialisations[formData.program] || [];
 
     if (availableSpecs.length > 0 && !formData.specialization) {
       setError('Please select a specialization');
@@ -319,7 +320,7 @@ export function useAppointmentForm() {
       const allSpecs = new Set<string>();
       const excludeSpecs = ['(General)CBZ', '(General)PCB', '(General)PCM', 'Artificial Intelligence'];
 
-      Object.values(SPECIALISATIONS).forEach(specs => {
+      Object.values(specialisations).forEach(specs => {
         specs.forEach(spec => {
           if (!excludeSpecs.includes(spec)) {
             allSpecs.add(spec);
@@ -329,7 +330,7 @@ export function useAppointmentForm() {
       allSpecs.add('Pharmacy');
       return Array.from(allSpecs).sort();
     }
-    return SPECIALISATIONS[formData.highestQualificationCourse] || SPECIALISATIONS['default'];
+    return specialisations[formData.highestQualificationCourse] || specialisations['default'];
   };
 
   const getAvailableSpecialisations = () => {
@@ -339,7 +340,7 @@ export function useAppointmentForm() {
       const allSpecs = new Set<string>();
       const excludeSpecs = ['(General)CBZ', '(General)PCB', '(General)PCM', 'Artificial Intelligence'];
 
-      Object.values(SPECIALISATIONS).forEach(specs => {
+      Object.values(specialisations).forEach(specs => {
         specs.forEach(spec => {
           if (!excludeSpecs.includes(spec)) {
             allSpecs.add(spec);
@@ -350,7 +351,7 @@ export function useAppointmentForm() {
       return Array.from(allSpecs).sort();
     }
 
-    return SPECIALISATIONS[formData.program] || [];
+    return specialisations[formData.program] || [];
   };
 
   const resetForm = () => {

@@ -1,0 +1,14 @@
+{
+  "BTech": ["Bio-Medical","Bio-Technology","Chemical","Civil","Computer Science","Electrical","Electrical & Electronics","Electronics & Comm.","Fire & Safety","Food Technology","Information Technology","Instrumentation & Control","Leather Technology","Mechanical","Mechatronics","Metallurgical","Mining Technology","Petroleum","Polymer","Production","Textile","Other"],
+  "MTech": ["Computer Science","Information Technology","Electronics & Comm.","Electrical","Mechanical","Civil","Chemical","Structural Engineering","Power Systems","VLSI Design","Other"],
+  "MBA": ["Digital Marketing","Disaster Management","E-Commerce","Economics","Fashion Designing","Finance","Healthcare Management","Hospital Management","Hospitality & Tourism","Hotel Management","Human Resource","Information Technology","Insurance & Banking","Interior Designing","International Business","International Relations","Journalism & Electronics Media","Marketing","Production & Operation","Project Management","Public Relations","Retail Management","Rural","Solar & Renewable Energy","Start Up & Entrepreneurship","Supply Chain","Total Quality","Other"],
+  "MCA": ["Software Development","Data Science","Cyber Security","Cloud Computing","Artificial Intelligence","Other"],
+  "BSc": ["Biochemistry","Biotechnology","Botany","Chemistry","Environment Science","Geography","Home Science","Hotel Management","Mathematics","Microbiology","MLT","Naturopathy & Yoga","Physics","Psychology","Statistics","Zoology","(General)CBZ","(General)PCB","(General)PCM","Interior Des.","Fashion Des","Other"],
+  "MSc": ["Biochemistry","Biotechnology","Botany","Chemistry","Environment Science","Geography","Home Science","Hotel Management","Mathematics","Microbiology","MLT","Naturopathy & Yoga","Physics","Psychology","Statistics","Zoology","Interior Des.","Fashion Des","Other"],
+  "BA": ["Economics","English","Fine Arts","Geography","Hindi","History","Journalism & Mass Comm.","Mathematics","Philosophy","Political Science","Psychology","Public Administration","Sanskrit","Social Work","Sociology","Other"],
+  "MA": ["Economics","English","Fine Arts","Geography","Hindi","History","Journalism & Mass Comm.","Mathematics","Philosophy","Political Science","Psychology","Public Administration","Sanskrit","Social Work","Sociology","Other"],
+  "Diploma Engg.": ["Civil","Computer Science","Electrical","Electronics & Comm.","Fire & Safety","Information Technology","Mechanical","Other"],
+  "PhD": [],
+  "Other": ["General","Other"],
+  "default": ["General","Other"]
+}

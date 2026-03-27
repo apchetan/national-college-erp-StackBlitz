@@ -6,11 +6,14 @@ import { ContactSearch } from './ContactSearch';
 import { sanitizeDateValue, cleanDateForForm } from '../utils/dateValidation';
 import { checkForDuplicates, PotentialDuplicate } from '../utils/duplicateDetection';
 import { DuplicateWarningModal } from './DuplicateWarningModal';
-import { CITIES, QUALIFICATIONS, SPECIALISATIONS } from '../constants/formOptions';
+import { QUALIFICATIONS } from '../constants/formOptions';
 import { Contact } from '../types/interfaces';
+import { SearchableSelect } from './SearchableSelect';
+import { useFormOptions } from '../hooks/useFormOptions';
 
 export function SupportForm() {
   const navigate = useNavigate();
+  const { cities, specialisations, loadingOptions } = useFormOptions();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
@@ -106,7 +109,7 @@ export function SupportForm() {
       const allSpecs = new Set<string>();
       const excludeSpecs = ['(General)CBZ', '(General)PCB', '(General)PCM', 'Artificial Intelligence'];
 
-      Object.values(SPECIALISATIONS).forEach(specs => {
+      Object.values(specialisations).forEach(specs => {
         specs.forEach(spec => {
           if (!excludeSpecs.includes(spec)) {
             allSpecs.add(spec);
@@ -116,7 +119,7 @@ export function SupportForm() {
       allSpecs.add('Pharmacy');
       return Array.from(allSpecs).sort();
     }
-    return SPECIALISATIONS[formData.program] || SPECIALISATIONS['default'];
+    return specialisations[formData.program] || specialisations['default'] || [];
   };
 
   const handleClearForm = () => {
@@ -565,20 +568,14 @@ export function SupportForm() {
                 </div>
 
                 <div>
-                  <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-2">
-                    City
-                  </label>
-                  <select
-                    id="city"
+                  <SearchableSelect
+                    options={cities}
                     value={formData.city}
-                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                  >
-                    <option value="">Select a city</option>
-                    {CITIES.map((city) => (
-                      <option key={city} value={city}>{city}</option>
-                    ))}
-                  </select>
+                    onChange={(value) => setFormData({ ...formData, city: value })}
+                    placeholder="Select a city"
+                    label="City"
+                    loading={loadingOptions}
+                  />
                 </div>
               </div>
 

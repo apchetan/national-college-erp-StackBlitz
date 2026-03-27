@@ -1,5 +1,6 @@
 import { MessageSquare } from 'lucide-react';
-import { CITIES } from '../../constants/formOptions';
+import { SearchableSelect } from '../SearchableSelect';
+import { useFormOptions } from '../../hooks/useFormOptions';
 
 interface FormData {
   firstName: string;
@@ -31,6 +32,8 @@ interface EnquiryPersonalSectionProps {
 }
 
 export function EnquiryPersonalSection({ formData, setFormData, previousEnquiries }: EnquiryPersonalSectionProps) {
+  const { cities, loadingOptions } = useFormOptions();
+
   return (
     <div className="bg-gray-50 p-4 rounded-lg">
       <h3 className="font-semibold text-gray-900 mb-4">Personal Information</h3>
@@ -152,20 +155,14 @@ export function EnquiryPersonalSection({ formData, setFormData, previousEnquirie
           </div>
 
           <div>
-            <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-2">
-              City
-            </label>
-            <select
-              id="city"
+            <SearchableSelect
+              options={cities}
               value={formData.city}
-              onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-            >
-              <option value="">Select a city</option>
-              {CITIES.map((city) => (
-                <option key={city} value={city}>{city}</option>
-              ))}
-            </select>
+              onChange={(value) => setFormData({ ...formData, city: value })}
+              placeholder="Select a city"
+              label="City"
+              loading={loadingOptions}
+            />
           </div>
         </div>
 
