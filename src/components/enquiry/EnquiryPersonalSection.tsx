@@ -1,6 +1,8 @@
 import { MessageSquare } from 'lucide-react';
 import { SearchableSelect } from '../SearchableSelect';
 import { useFormOptions } from '../../hooks/useFormOptions';
+import { ValidatedInput } from '../ValidatedInput';
+import { ValidationRule } from '../../hooks/useFormValidation';
 
 interface FormData {
   firstName: string;
@@ -29,9 +31,21 @@ interface EnquiryPersonalSectionProps {
   formData: FormData;
   setFormData: (data: FormData) => void;
   previousEnquiries: Array<{ id: string; created_at: string }>;
+  errors?: Record<string, string>;
+  validateField?: (fieldName: string, value: any, rules: ValidationRule) => boolean;
+  clearError?: (fieldName: string) => void;
+  validationRules?: Record<string, ValidationRule>;
 }
 
-export function EnquiryPersonalSection({ formData, setFormData, previousEnquiries }: EnquiryPersonalSectionProps) {
+export function EnquiryPersonalSection({
+  formData,
+  setFormData,
+  previousEnquiries,
+  errors = {},
+  validateField,
+  clearError,
+  validationRules = {}
+}: EnquiryPersonalSectionProps) {
   const { cities, loadingOptions } = useFormOptions();
 
   return (
@@ -53,49 +67,70 @@ export function EnquiryPersonalSection({ formData, setFormData, previousEnquirie
 
       <div className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
-              First Name *
-            </label>
-            <input
-              type="text"
-              id="firstName"
-              required
-              value={formData.firstName}
-              onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-            />
-          </div>
+          <ValidatedInput
+            label="First Name"
+            name="firstName"
+            type="text"
+            required
+            value={formData.firstName}
+            onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+            onFocus={() => clearError?.('firstName')}
+            onBlur={() => validateField?.('firstName', formData.firstName, validationRules.firstName || {})}
+            error={errors.firstName}
+          />
 
-          <div>
-            <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">
-              Last Name *
-            </label>
-            <input
-              type="text"
-              id="lastName"
-              required
-              value={formData.lastName}
-              onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-            />
-          </div>
+          <ValidatedInput
+            label="Last Name"
+            name="lastName"
+            type="text"
+            required
+            value={formData.lastName}
+            onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+            onFocus={() => clearError?.('lastName')}
+            onBlur={() => validateField?.('lastName', formData.lastName, validationRules.lastName || {})}
+            error={errors.lastName}
+          />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-              Email Address *
-            </label>
-            <input
-              type="email"
-              id="email"
-              required
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-            />
-          </div>
+          <ValidatedInput
+            label="Email Address"
+            name="email"
+            type="email"
+            required
+            value={formData.email}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            onFocus={() => clearError?.('email')}
+            onBlur={() => validateField?.('email', formData.email, validationRules.email || {})}
+            error={errors.email}
+          />
+
+          <ValidatedInput
+            label="Mobile Number"
+            name="mobile1"
+            type="tel"
+            autoFormat="mobile"
+            value={formData.mobile1}
+            onChange={(e) => setFormData({ ...formData, mobile1: e.target.value })}
+            onFocus={() => clearError?.('mobile1')}
+            onBlur={() => validateField?.('mobile1', formData.mobile1, validationRules.mobile1 || {})}
+            error={errors.mobile1}
+            hint="Enter 10-digit Indian mobile number"
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <ValidatedInput
+            label="Date of Birth"
+            name="dateOfBirth"
+            type="date"
+            value={formData.dateOfBirth}
+            onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
+            onFocus={() => clearError?.('dateOfBirth')}
+            onBlur={() => validateField?.('dateOfBirth', formData.dateOfBirth, validationRules.dateOfBirth || {})}
+            error={errors.dateOfBirth}
+            hint="Must be 16-80 years old"
+          />
 
           <div>
             <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">

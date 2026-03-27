@@ -1,8 +1,9 @@
-import { useState, useEffect, FormEvent } from 'react';
+import { useState, useEffect, FormEvent, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
 import { sanitizeDateValue, cleanDateForForm } from '../utils/dateValidation';
 import { checkForDuplicates, PotentialDuplicate } from '../utils/duplicateDetection';
 import { Contact } from '../types/interfaces';
+import { useFormValidation, ValidationRules, countCompletedRequiredFields } from './useFormValidation';
 
 interface FormData {
   firstName: string;
@@ -35,6 +36,8 @@ export function useEnquiryForm() {
   const [potentialDuplicates, setPotentialDuplicates] = useState<PotentialDuplicate[]>([]);
   const [forceCreate, setForceCreate] = useState(false);
   const [previousEnquiries, setPreviousEnquiries] = useState<Array<{ id: string; created_at: string }>>([]);
+
+  const { errors, validateField, validateAll, clearError, clearAllErrors } = useFormValidation();
 
   const [formData, setFormData] = useState<FormData>({
     firstName: '',
@@ -136,8 +139,25 @@ export function useEnquiryForm() {
     }));
   };
 
+  const validationRules: ValidationRules = useMemo(() => ({
+    firstName: { required: true, minLength: 2, maxLength: 50 },
+    lastName: { required: true, minLength: 2, maxLength: 50 },
+    email: { required: true, email: true },
+    mobile1: { mobile: true },
+    mobile2: { mobile: true },
+    dateOfBirth: { pastDate: true, minAge: 16, maxAge: 80 },
+    subject: { required: true, minLength: 5, maxLength: 200 },
+    message: { required: true, minLength: 10, maxLength: 1000 },
+  }), []);
+
+  const fieldProgress = useMemo(() =>
+    countCompletedRequiredFields(formData, validationRules),
+    [formData, validationRules]
+  );
+
   const handleClearForm = () => {
     setSelectedContact(null);
+    clearAllErrors();
     setFormData({
       firstName: '',
       lastName: '',
@@ -164,6 +184,12 @@ export function useEnquiryForm() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+
+    if (!validateAll(formData, validationRules)) {
+      setError('Please fix the validation errors before submitting');
+      return;
+    }
+
     setLoading(true);
     setError('');
     setSuccess(false);
@@ -318,5 +344,10 @@ export function useEnquiryForm() {
     handleUseExisting,
     handleCreateNew,
     handleCancelDuplicate,
+    errors,
+    validateField,
+    clearError,
+    validationRules,
+    fieldProgress,
   };
 }

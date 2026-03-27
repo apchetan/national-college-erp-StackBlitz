@@ -7,6 +7,7 @@ import { EnquiryDetailsSection } from './enquiry/EnquiryDetailsSection';
 import { useEnquiryForm } from '../hooks/useEnquiryForm';
 import { LoadingSpinner } from './LoadingSpinner';
 import { FormProgressIndicator } from './FormProgressIndicator';
+import { RequiredFieldsProgress } from './RequiredFieldsProgress';
 
 export function EnquiryForm() {
   const navigate = useNavigate();
@@ -29,6 +30,11 @@ export function EnquiryForm() {
     handleUseExisting,
     handleCreateNew,
     handleCancelDuplicate,
+    errors,
+    validateField,
+    clearError,
+    validationRules,
+    fieldProgress,
   } = useEnquiryForm();
 
   return (
@@ -77,6 +83,11 @@ export function EnquiryForm() {
           ]}
         />
 
+        <RequiredFieldsProgress
+          completed={fieldProgress.completed}
+          total={fieldProgress.total}
+        />
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div id="contact-search">
             <ContactSearch
@@ -93,6 +104,10 @@ export function EnquiryForm() {
               handleHighestQualificationCourseChange={handleHighestQualificationCourseChange}
               shouldShowSpecialisation={shouldShowSpecialisation}
               getAvailableSpecialisations={getAvailableSpecialisations}
+              errors={errors}
+              validateField={validateField}
+              clearError={clearError}
+              validationRules={validationRules}
             />
           </div>
 
@@ -101,6 +116,10 @@ export function EnquiryForm() {
               formData={formData}
               setFormData={setFormData}
               previousEnquiries={previousEnquiries}
+              errors={errors}
+              validateField={validateField}
+              clearError={clearError}
+              validationRules={validationRules}
             />
           </div>
 

@@ -1,5 +1,7 @@
 import { Briefcase } from 'lucide-react';
 import { QUALIFICATIONS, EMPLOYMENT_STATUS, generateYears } from '../../constants/formOptions';
+import { ValidatedInput, ValidatedTextarea } from '../ValidatedInput';
+import { ValidationRule } from '../../hooks/useFormValidation';
 
 interface FormData {
   firstName: string;
@@ -31,6 +33,10 @@ interface EnquiryDetailsSectionProps {
   handleHighestQualificationCourseChange: (course: string) => void;
   shouldShowSpecialisation: (course: string) => boolean;
   getAvailableSpecialisations: (course: string) => string[];
+  errors?: Record<string, string>;
+  validateField?: (fieldName: string, value: any, rules: ValidationRule) => boolean;
+  clearError?: (fieldName: string) => void;
+  validationRules?: Record<string, ValidationRule>;
 }
 
 export function EnquiryDetailsSection({
@@ -40,6 +46,10 @@ export function EnquiryDetailsSection({
   handleHighestQualificationCourseChange,
   shouldShowSpecialisation,
   getAvailableSpecialisations,
+  errors = {},
+  validateField,
+  clearError,
+  validationRules = {}
 }: EnquiryDetailsSectionProps) {
   return (
     <>
@@ -239,35 +249,31 @@ export function EnquiryDetailsSection({
       <div className="bg-gray-50 p-4 rounded-lg">
         <h3 className="font-semibold text-gray-900 mb-4">Enquiry Details</h3>
         <div className="space-y-4">
-          <div>
-            <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
-              Subject *
-            </label>
-            <input
-              type="text"
-              id="subject"
-              required
-              value={formData.subject}
-              onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-              placeholder="What is your enquiry about?"
-            />
-          </div>
+          <ValidatedInput
+            label="Subject"
+            name="subject"
+            type="text"
+            required
+            value={formData.subject}
+            onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+            onFocus={() => clearError?.('subject')}
+            onBlur={() => validateField?.('subject', formData.subject, validationRules.subject || {})}
+            error={errors.subject}
+            placeholder="What is your enquiry about?"
+          />
 
-          <div>
-            <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
-              Message *
-            </label>
-            <textarea
-              id="message"
-              required
-              rows={4}
-              value={formData.message}
-              onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"
-              placeholder="Please provide details about your enquiry..."
-            />
-          </div>
+          <ValidatedTextarea
+            label="Message"
+            name="message"
+            required
+            rows={4}
+            value={formData.message}
+            onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+            onFocus={() => clearError?.('message')}
+            onBlur={() => validateField?.('message', formData.message, validationRules.message || {})}
+            error={errors.message}
+            placeholder="Please provide details about your enquiry..."
+          />
         </div>
       </div>
     </>
