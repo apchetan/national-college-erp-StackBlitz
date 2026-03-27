@@ -9,6 +9,7 @@ import { AdmissionProgramSection } from './admission/AdmissionProgramSection';
 import { AdmissionPaymentSection } from './admission/AdmissionPaymentSection';
 import { useAdmissionForm } from '../hooks/useAdmissionForm';
 import { LoadingSpinner } from './LoadingSpinner';
+import { FormProgressIndicator } from './FormProgressIndicator';
 
 export function AdmissionForm() {
   const navigate = useNavigate();
@@ -177,49 +178,70 @@ export function AdmissionForm() {
             </div>
           )}
 
+          <div className="px-8 pt-6">
+            <FormProgressIndicator
+              sections={[
+                { id: 'contact-search-adm', label: 'Contact Search' },
+                { id: 'program-details', label: 'Program Details' },
+                { id: 'personal-info-adm', label: 'Personal Info' },
+                { id: 'payment-info', label: 'Payment' },
+              ]}
+            />
+          </div>
+
           <form onSubmit={handleSubmit} className="p-8 space-y-12">
-            <ContactSearch
-              onSelectContact={setSelectedContact}
-              selectedContact={selectedContact}
-            />
+            <div id="contact-search-adm">
+              <ContactSearch
+                onSelectContact={setSelectedContact}
+                selectedContact={selectedContact}
+              />
+            </div>
 
-            <AdmissionProgramSection
-              formData={formData}
-              setFormData={setFormData}
-              getAvailableSpecialisations={getAvailableSpecialisations}
-              handleHighestQualificationCourseChange={handleHighestQualificationCourseChange}
-              shouldShowHighestQualificationSpecialisation={shouldShowHighestQualificationSpecialisation}
-              getAvailableHighestQualificationSpecialisations={getAvailableHighestQualificationSpecialisations}
-            />
+            <div id="program-details">
+              <AdmissionProgramSection
+                formData={formData}
+                setFormData={setFormData}
+                getAvailableSpecialisations={getAvailableSpecialisations}
+                handleHighestQualificationCourseChange={handleHighestQualificationCourseChange}
+                shouldShowHighestQualificationSpecialisation={shouldShowHighestQualificationSpecialisation}
+                getAvailableHighestQualificationSpecialisations={getAvailableHighestQualificationSpecialisations}
+              />
+            </div>
 
-            <AdmissionPersonalSection
-              formData={formData}
-              setFormData={setFormData}
-              previousAdmissions={previousAdmissions}
-            />
+            <div id="personal-info-adm">
+              <AdmissionPersonalSection
+                formData={formData}
+                setFormData={setFormData}
+                previousAdmissions={previousAdmissions}
+              />
+            </div>
 
-            <AdmissionPaymentSection
-              formData={formData}
-              setFormData={setFormData}
-            />
+            <div id="payment-info">
+              <AdmissionPaymentSection
+                formData={formData}
+                setFormData={setFormData}
+              />
+            </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-amber-900 to-amber-800 text-white rounded-lg font-semibold text-lg hover:from-amber-800 hover:to-amber-700 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
-            >
-              {loading ? (
-                <>
-                  <LoadingSpinner variant="inline" />
-                  Submitting Application...
-                </>
-              ) : (
-                <>
-                  Submit Admission Application
-                  <CheckCircle className="w-6 h-6" />
-                </>
-              )}
-            </button>
+            <div className="sticky bottom-0 bg-white border-t border-gray-200 p-4 -mx-4 mt-6 md:relative md:border-0 md:p-0 md:mx-0 md:mt-6 md:bg-transparent">
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-amber-900 to-amber-800 text-white rounded-lg font-semibold text-lg hover:from-amber-800 hover:to-amber-700 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+              >
+                {loading ? (
+                  <>
+                    <LoadingSpinner variant="inline" />
+                    Submitting Application...
+                  </>
+                ) : (
+                  <>
+                    Submit Admission Application
+                    <CheckCircle className="w-6 h-6" />
+                  </>
+                )}
+              </button>
+            </div>
           </form>
         </div>
       </div>

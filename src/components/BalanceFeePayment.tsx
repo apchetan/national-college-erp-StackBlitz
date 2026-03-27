@@ -886,28 +886,30 @@ export function BalanceFeePayment() {
                     <p className="text-xs text-gray-500 mt-1">Optional: Upload a PDF receipt for this payment</p>
                   </div>
 
-                  <button
-                    type="submit"
-                    disabled={loading || uploading}
-                    className="w-full bg-green-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
-                  >
-                    {uploading ? (
-                      <>
-                        <LoadingSpinner variant="inline" />
-                        Uploading Receipt...
-                      </>
-                    ) : loading ? (
-                      <>
-                        <LoadingSpinner variant="inline" />
-                        Recording Payment...
-                      </>
-                    ) : (
-                      <>
-                        <Wallet className="w-5 h-5" />
-                        Record Payment
-                      </>
-                    )}
-                  </button>
+                  <div className="sticky bottom-0 bg-white border-t border-gray-200 p-4 -mx-4 mt-6 md:relative md:border-0 md:p-0 md:mx-0 md:mt-6 md:bg-transparent">
+                    <button
+                      type="submit"
+                      disabled={loading || uploading}
+                      className="w-full bg-green-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
+                    >
+                      {uploading ? (
+                        <>
+                          <LoadingSpinner variant="inline" />
+                          Uploading Receipt...
+                        </>
+                      ) : loading ? (
+                        <>
+                          <LoadingSpinner variant="inline" />
+                          Recording Payment...
+                        </>
+                      ) : (
+                        <>
+                          <Wallet className="w-5 h-5" />
+                          Record Payment
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
               </form>
             )}

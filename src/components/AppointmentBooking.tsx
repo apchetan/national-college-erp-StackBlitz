@@ -9,6 +9,7 @@ import { AppointmentAcademicInfo } from './appointment/AppointmentAcademicInfo';
 import { AppointmentScheduling } from './appointment/AppointmentScheduling';
 import { useAppointmentForm } from '../hooks/useAppointmentForm';
 import { LoadingSpinner } from './LoadingSpinner';
+import { FormProgressIndicator } from './FormProgressIndicator';
 
 export function AppointmentBooking() {
   const navigate = useNavigate();
@@ -203,58 +204,79 @@ export function AppointmentBooking() {
             </div>
           )}
 
+          <div className="px-8 pt-6">
+            <FormProgressIndicator
+              sections={[
+                { id: 'contact-search-apt', label: 'Contact Search' },
+                { id: 'academic-info', label: 'Academic Info' },
+                { id: 'personal-info-apt', label: 'Personal Info' },
+                { id: 'scheduling', label: 'Schedule' },
+              ]}
+            />
+          </div>
+
           <form onSubmit={handleSubmit} className="p-8 space-y-12">
-            <ContactSearch
-              onSelectContact={setSelectedContact}
-              selectedContact={selectedContact}
-            />
+            <div id="contact-search-apt">
+              <ContactSearch
+                onSelectContact={setSelectedContact}
+                selectedContact={selectedContact}
+              />
 
-            {previousEnquiries > 1 && (
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                <p className="text-sm font-semibold text-yellow-900 flex items-center gap-2">
-                  <Calendar className="w-4 h-4" />
-                  Re-Enquiry: This is enquiry #{previousEnquiries} for this contact
-                </p>
-              </div>
-            )}
-
-            <AppointmentAcademicInfo
-              formData={formData}
-              setFormData={setFormData}
-              getAvailableSpecialisations={getAvailableSpecialisations}
-              handleHighestQualificationCourseChange={handleHighestQualificationCourseChange}
-              shouldShowHighestQualificationSpecialisation={shouldShowHighestQualificationSpecialisation}
-              getAvailableHighestQualificationSpecialisations={getAvailableHighestQualificationSpecialisations}
-            />
-
-            <AppointmentPersonalInfo
-              formData={formData}
-              setFormData={setFormData}
-            />
-
-            <AppointmentScheduling
-              formData={formData}
-              setFormData={setFormData}
-              previousAppointments={previousAppointments}
-            />
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-900 to-blue-800 text-white rounded-lg font-semibold text-lg hover:from-blue-800 hover:to-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
-            >
-              {loading ? (
-                <>
-                  <LoadingSpinner variant="inline" />
-                  Booking Appointment...
-                </>
-              ) : (
-                <>
-                  Book Appointment
-                  <CheckCircle className="w-6 h-6" />
-                </>
+              {previousEnquiries > 1 && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-4">
+                  <p className="text-sm font-semibold text-yellow-900 flex items-center gap-2">
+                    <Calendar className="w-4 h-4" />
+                    Re-Enquiry: This is enquiry #{previousEnquiries} for this contact
+                  </p>
+                </div>
               )}
-            </button>
+            </div>
+
+            <div id="academic-info">
+              <AppointmentAcademicInfo
+                formData={formData}
+                setFormData={setFormData}
+                getAvailableSpecialisations={getAvailableSpecialisations}
+                handleHighestQualificationCourseChange={handleHighestQualificationCourseChange}
+                shouldShowHighestQualificationSpecialisation={shouldShowHighestQualificationSpecialisation}
+                getAvailableHighestQualificationSpecialisations={getAvailableHighestQualificationSpecialisations}
+              />
+            </div>
+
+            <div id="personal-info-apt">
+              <AppointmentPersonalInfo
+                formData={formData}
+                setFormData={setFormData}
+              />
+            </div>
+
+            <div id="scheduling">
+              <AppointmentScheduling
+                formData={formData}
+                setFormData={setFormData}
+                previousAppointments={previousAppointments}
+              />
+            </div>
+
+            <div className="sticky bottom-0 bg-white border-t border-gray-200 p-4 -mx-4 mt-6 md:relative md:border-0 md:p-0 md:mx-0 md:mt-6 md:bg-transparent">
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-900 to-blue-800 text-white rounded-lg font-semibold text-lg hover:from-blue-800 hover:to-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+              >
+                {loading ? (
+                  <>
+                    <LoadingSpinner variant="inline" />
+                    Booking Appointment...
+                  </>
+                ) : (
+                  <>
+                    Book Appointment
+                    <CheckCircle className="w-6 h-6" />
+                  </>
+                )}
+              </button>
+            </div>
           </form>
         </div>
       </div>

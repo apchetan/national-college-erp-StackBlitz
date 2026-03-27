@@ -611,7 +611,7 @@ export function Dashboard() {
                       type="checkbox"
                       checked={contacts.length > 0 && selectedContacts.length === contacts.length}
                       onChange={() => toggleSelectAll('contacts')}
-                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      className="w-5 h-5 md:w-4 md:h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 touch-manipulation"
                     />
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
@@ -626,13 +626,13 @@ export function Dashboard() {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {contacts.map((contact) => (
-                  <tr key={contact.id} className="hover:bg-gray-50">
+                  <tr key={contact.id} className="hover:bg-gray-50 min-h-[48px] touch-manipulation">
                     <td className="px-6 py-4">
                       <input
                         type="checkbox"
                         checked={selectedContacts.includes(contact.id)}
                         onChange={() => toggleSelectItem(contact.id, 'contacts')}
-                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                        className="w-5 h-5 md:w-4 md:h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 touch-manipulation"
                       />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -691,7 +691,7 @@ export function Dashboard() {
                       type="checkbox"
                       checked={enquiries.length > 0 && selectedEnquiries.length === enquiries.length}
                       onChange={() => toggleSelectAll('enquiries')}
-                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      className="w-5 h-5 md:w-4 md:h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 touch-manipulation"
                     />
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
@@ -704,13 +704,13 @@ export function Dashboard() {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {enquiries.map((enquiry) => (
-                  <tr key={enquiry.id} className="hover:bg-gray-50">
+                  <tr key={enquiry.id} className="hover:bg-gray-50 min-h-[48px] touch-manipulation">
                     <td className="px-6 py-4">
                       <input
                         type="checkbox"
                         checked={selectedEnquiries.includes(enquiry.id)}
                         onChange={() => toggleSelectItem(enquiry.id, 'enquiries')}
-                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                        className="w-5 h-5 md:w-4 md:h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 touch-manipulation"
                       />
                     </td>
                     <td className="px-6 py-4">
@@ -764,7 +764,7 @@ export function Dashboard() {
                       type="checkbox"
                       checked={appointments.length > 0 && selectedAppointments.length === appointments.length}
                       onChange={() => toggleSelectAll('appointments')}
-                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      className="w-5 h-5 md:w-4 md:h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 touch-manipulation"
                     />
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
@@ -778,13 +778,13 @@ export function Dashboard() {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {appointments.map((appointment) => (
-                  <tr key={appointment.id} className="hover:bg-gray-50">
+                  <tr key={appointment.id} className="hover:bg-gray-50 min-h-[48px] touch-manipulation">
                     <td className="px-6 py-4">
                       <input
                         type="checkbox"
                         checked={selectedAppointments.includes(appointment.id)}
                         onChange={() => toggleSelectItem(appointment.id, 'appointments')}
-                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                        className="w-5 h-5 md:w-4 md:h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 touch-manipulation"
                       />
                     </td>
                     <td className="px-6 py-4">
@@ -841,7 +841,7 @@ export function Dashboard() {
                       type="checkbox"
                       checked={admissions.length > 0 && selectedAdmissions.length === admissions.length}
                       onChange={() => toggleSelectAll('admissions')}
-                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      className="w-5 h-5 md:w-4 md:h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 touch-manipulation"
                     />
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Program</th>
@@ -855,13 +855,13 @@ export function Dashboard() {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {admissions.map((admission) => (
-                  <tr key={admission.id} className="hover:bg-gray-50">
+                  <tr key={admission.id} className="hover:bg-gray-50 min-h-[48px] touch-manipulation">
                     <td className="px-6 py-4">
                       <input
                         type="checkbox"
                         checked={selectedAdmissions.includes(admission.id)}
                         onChange={() => toggleSelectItem(admission.id, 'admissions')}
-                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                        className="w-5 h-5 md:w-4 md:h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 touch-manipulation"
                       />
                     </td>
                     <td className="px-6 py-4">

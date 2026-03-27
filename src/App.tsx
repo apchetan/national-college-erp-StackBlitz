@@ -13,6 +13,7 @@ import { StatusSearch } from './components/StatusSearch';
 import { Login } from './components/Login';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { useAuth } from './contexts/AuthContext';
+import { MobileBottomNav } from './components/MobileBottomNav';
 import { LayoutDashboard, FileText, Calendar, GraduationCap, Menu, X, Shield, LogOut, User, ListChecks, Wallet, Headphones as HeadphonesIcon, ClipboardCheck, Truck, Home } from 'lucide-react';
 
 function AppContent() {
@@ -185,7 +186,7 @@ function AppContent() {
           )}
         </nav>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-8">
         <ErrorBoundary>
           <Routes>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
@@ -221,13 +222,15 @@ function AppContent() {
         </ErrorBoundary>
       </main>
 
-      <footer className="bg-gradient-to-r from-white via-gray-50 to-white border-t border-gray-200 mt-16 shadow-inner">
+      <footer className="bg-gradient-to-r from-white via-gray-50 to-white border-t border-gray-200 mt-16 shadow-inner mb-16 md:mb-0">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <p className="text-center text-gray-600 text-sm">
             <span className="font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">Mirror</span> <span className="text-xs">(ERP-CRM)</span> <span className="text-emerald-600 font-bold">by Dr. Chetan</span> - All data is securely stored and interconnected
           </p>
         </div>
       </footer>
+
+      <MobileBottomNav />
     </div>
   );
 }

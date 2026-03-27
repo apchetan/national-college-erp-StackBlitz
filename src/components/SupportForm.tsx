@@ -642,31 +642,33 @@ export function SupportForm() {
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <button
-              type="button"
-              onClick={handleClearForm}
-              className="w-full bg-gray-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition flex items-center justify-center gap-2"
-            >
-              Clear Form
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
-            >
-              {loading ? (
-                <>
-                  <LoadingSpinner variant="inline" />
-                  Submitting...
-                </>
-              ) : (
-                <>
-                  <Mail className="w-5 h-5" />
-                  Submit Support Request
-                </>
-              )}
-            </button>
+          <div className="sticky bottom-0 bg-white border-t border-gray-200 p-4 -mx-4 mt-6 md:relative md:border-0 md:p-0 md:mx-0 md:mt-6 md:bg-transparent">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <button
+                type="button"
+                onClick={handleClearForm}
+                className="w-full bg-gray-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition flex items-center justify-center gap-2"
+              >
+                Clear Form
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
+              >
+                {loading ? (
+                  <>
+                    <LoadingSpinner variant="inline" />
+                    Submitting...
+                  </>
+                ) : (
+                  <>
+                    <Mail className="w-5 h-5" />
+                    Submit Support Request
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </form>
       </div>
