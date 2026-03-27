@@ -6,6 +6,7 @@
 html {
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
+  transition: background-color 0.3s ease;
 }
 
 /* Safe area support for notched phones */
@@ -35,6 +36,14 @@ html {
 
   .scrollbar-thin::-webkit-scrollbar-thumb:hover {
     background: #94a3b8;
+  }
+
+  .dark .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: #4b5563;
+  }
+
+  .dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: #6b7280;
   }
 }
 

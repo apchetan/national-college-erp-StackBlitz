@@ -16,11 +16,13 @@ import { useAuth } from './contexts/AuthContext';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { OfflineBanner } from './components/OfflineBanner';
 import { InstallPrompt } from './components/InstallPrompt';
-import { LayoutDashboard, FileText, Calendar, GraduationCap, Menu, X, Shield, LogOut, User, ListChecks, Wallet, Headphones as HeadphonesIcon, ClipboardCheck, Truck, Home } from 'lucide-react';
+import { LayoutDashboard, FileText, Calendar, GraduationCap, Menu, X, Shield, LogOut, User, ListChecks, Wallet, Headphones as HeadphonesIcon, ClipboardCheck, Truck, Home, Sun, Moon } from 'lucide-react';
+import { useTheme } from './contexts/ThemeContext';
 
 function AppContent() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { profile, signOut, isAdmin, isSuperAdmin } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -44,10 +46,10 @@ function AppContent() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
-      <nav className="bg-white shadow-lg border-b border-gray-200 sticky top-0 z-50 backdrop-blur-sm bg-opacity-95">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 transition-colors">
+      <nav className="bg-white dark:bg-gray-900 shadow-lg border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95 transition-colors">
           {/* Main Menu Ribbon */}
-          <div className="border-b border-gray-200">
+          <div className="border-b border-gray-200 dark:border-gray-700">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex justify-between items-center h-16">
                 <div className="flex items-center gap-3">
@@ -65,7 +67,7 @@ function AppContent() {
                       className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 ${
                         location.pathname === item.path
                           ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg shadow-blue-500/30'
-                          : 'text-gray-600 hover:bg-gradient-to-r hover:from-gray-100 hover:to-gray-200'
+                          : 'text-gray-600 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-100 hover:to-gray-200 dark:hover:from-gray-800 dark:hover:to-gray-700'
                       }`}
                     >
                       <item.icon className="w-4 h-4" />
@@ -73,14 +75,21 @@ function AppContent() {
                     </button>
                   ))}
 
-                    <div className="ml-4 flex items-center gap-2 pl-4 border-l border-gray-300">
-                      <div className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200">
-                        <User className="w-4 h-4 text-gray-600" />
-                        <span className="text-sm font-medium text-gray-700">{profile?.full_name}</span>
+                    <div className="ml-4 flex items-center gap-2 pl-4 border-l border-gray-300 dark:border-gray-600">
+                      <button
+                        onClick={toggleTheme}
+                        className="flex items-center gap-2 px-3 py-2 text-gray-600 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-100 hover:to-gray-200 dark:hover:from-gray-800 dark:hover:to-gray-700 rounded-xl transition-all duration-200 transform hover:scale-105"
+                        title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
+                      >
+                        {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+                      </button>
+                      <div className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 rounded-xl border border-gray-200 dark:border-gray-600">
+                        <User className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{profile?.full_name}</span>
                       </div>
                       <button
                         onClick={signOut}
-                        className="flex items-center gap-2 px-3 py-2 text-red-600 hover:bg-gradient-to-r hover:from-red-50 hover:to-red-100 rounded-xl transition-all duration-200 transform hover:scale-105"
+                        className="flex items-center gap-2 px-3 py-2 text-red-600 dark:text-red-400 hover:bg-gradient-to-r hover:from-red-50 hover:to-red-100 dark:hover:from-red-900/30 dark:hover:to-red-800/30 rounded-xl transition-all duration-200 transform hover:scale-105"
                         title="Sign Out"
                       >
                         <LogOut className="w-4 h-4" />
@@ -90,7 +99,7 @@ function AppContent() {
 
                   <button
                     onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                    className="md:hidden p-2 rounded-xl text-gray-600 hover:bg-gray-100 transition-all duration-200"
+                    className="md:hidden p-2 rounded-xl text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200"
                   >
                     {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
                   </button>
@@ -99,10 +108,10 @@ function AppContent() {
             </div>
 
           {/* Forms Ribbon */}
-          <div className="bg-gradient-to-r from-slate-50 via-gray-50 to-slate-50">
+          <div className="bg-gradient-to-r from-slate-50 via-gray-50 to-slate-50 dark:from-gray-800 dark:via-gray-800 dark:to-gray-800">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="hidden md:flex items-center gap-3 py-4 overflow-x-auto scrollbar-thin">
-                <span className="text-xs font-bold text-gray-500 uppercase tracking-wider mr-1">Forms:</span>
+                <span className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mr-1">Forms:</span>
                 {formsNavigation.map((item) => (
                   <button
                     key={item.path}
@@ -110,7 +119,7 @@ function AppContent() {
                     className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-300 transform hover:scale-105 whitespace-nowrap shadow-sm ${
                       location.pathname === item.path
                         ? `bg-gradient-to-r ${item.color} text-white shadow-lg`
-                        : `bg-white text-gray-700 hover:shadow-md border border-gray-200 ${item.hoverColor} hover:text-white`
+                        : `bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:shadow-md border border-gray-200 dark:border-gray-600 ${item.hoverColor} hover:text-white`
                     }`}
                   >
                     <item.icon className="w-4 h-4" />
@@ -123,10 +132,10 @@ function AppContent() {
 
           {/* Mobile Menu */}
           {mobileMenuOpen && (
-            <div className="md:hidden border-t border-gray-200 bg-white animate-slide-down">
+            <div className="md:hidden border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 animate-slide-down">
               <div className="px-4 py-3 space-y-2">
                 <div className="mb-3">
-                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 px-2">Main Menu</p>
+                  <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3 px-2">Main Menu</p>
                   {mainNavigation.map((item) => (
                     <button
                       key={item.path}
@@ -137,7 +146,7 @@ function AppContent() {
                       className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl font-medium transition-all duration-200 mb-2 ${
                         location.pathname === item.path
                           ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-md'
-                          : 'text-gray-600 hover:bg-gradient-to-r hover:from-gray-100 hover:to-gray-200'
+                          : 'text-gray-600 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-100 hover:to-gray-200 dark:hover:from-gray-800 dark:hover:to-gray-700'
                       }`}
                     >
                       <item.icon className="w-5 h-5" />
@@ -146,8 +155,8 @@ function AppContent() {
                   ))}
                 </div>
 
-                <div className="mb-3 pt-3 border-t border-gray-200">
-                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 px-2">Forms</p>
+                <div className="mb-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                  <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3 px-2">Forms</p>
                   {formsNavigation.map((item) => (
                     <button
                       key={item.path}
@@ -158,7 +167,7 @@ function AppContent() {
                       className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl font-medium transition-all duration-200 mb-2 ${
                         location.pathname === item.path
                           ? `bg-gradient-to-r ${item.color} text-white shadow-md`
-                          : 'text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-200'
+                          : 'text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600'
                       }`}
                     >
                       <item.icon className="w-5 h-5" />
@@ -167,17 +176,24 @@ function AppContent() {
                   ))}
                 </div>
 
-                <div className="pt-2 mt-2 border-t border-gray-200">
-                  <div className="flex items-center gap-2 px-4 py-2 mb-3 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl">
-                    <User className="w-4 h-4 text-gray-600" />
-                    <span className="text-sm font-medium text-gray-700">{profile?.full_name}</span>
+                <div className="pt-2 mt-2 border-t border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center gap-2 px-4 py-2 mb-3 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 rounded-xl">
+                    <User className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{profile?.full_name}</span>
                   </div>
+                  <button
+                    onClick={toggleTheme}
+                    className="flex items-center gap-3 w-full px-4 py-3 rounded-xl font-medium text-gray-700 dark:text-gray-200 hover:bg-gradient-to-r hover:from-gray-100 hover:to-gray-200 dark:hover:from-gray-800 dark:hover:to-gray-700 transition-all duration-200 border border-gray-200 dark:border-gray-600 mb-2"
+                  >
+                    {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+                    {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
+                  </button>
                   <button
                     onClick={() => {
                       signOut();
                       setMobileMenuOpen(false);
                     }}
-                    className="flex items-center gap-3 w-full px-4 py-3 rounded-xl font-medium text-red-600 hover:bg-gradient-to-r hover:from-red-50 hover:to-red-100 transition-all duration-200 border border-red-200"
+                    className="flex items-center gap-3 w-full px-4 py-3 rounded-xl font-medium text-red-600 dark:text-red-400 hover:bg-gradient-to-r hover:from-red-50 hover:to-red-100 dark:hover:from-red-900/30 dark:hover:to-red-800/30 transition-all duration-200 border border-red-200 dark:border-red-800"
                   >
                     <LogOut className="w-5 h-5" />
                     Sign Out
@@ -208,11 +224,11 @@ function AppContent() {
             )}
             <Route path="*" element={
               <div className="text-center py-16">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-red-100 to-red-200 mb-4">
-                  <Home className="w-8 h-8 text-red-600" />
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-red-100 to-red-200 dark:from-red-900/30 dark:to-red-800/30 mb-4">
+                  <Home className="w-8 h-8 text-red-600 dark:text-red-400" />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-800 mb-2">Page Not Found</h2>
-                <p className="text-gray-600 mb-6">The page you're looking for doesn't exist.</p>
+                <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2">Page Not Found</h2>
+                <p className="text-gray-600 dark:text-gray-400 mb-6">The page you're looking for doesn't exist.</p>
                 <button
                   onClick={() => navigate('/dashboard')}
                   className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl font-medium hover:from-blue-700 hover:to-cyan-700 transition-all duration-200 shadow-lg hover:shadow-xl"
@@ -226,9 +242,9 @@ function AppContent() {
         </ErrorBoundary>
       </main>
 
-      <footer className="bg-gradient-to-r from-white via-gray-50 to-white border-t border-gray-200 mt-16 shadow-inner mb-16 md:mb-0">
+      <footer className="bg-gradient-to-r from-white via-gray-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 border-t border-gray-200 dark:border-gray-700 mt-16 shadow-inner mb-16 md:mb-0">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <p className="text-center text-gray-600 text-sm">
+          <p className="text-center text-gray-600 dark:text-gray-400 text-sm">
             <span className="font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">Mirror</span> <span className="text-xs">(ERP-CRM)</span> <span className="text-emerald-600 font-bold">by Dr. Chetan</span> - All data is securely stored and interconnected
           </p>
         </div>
@@ -245,10 +261,10 @@ function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 flex items-center justify-center transition-colors">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-gray-200 border-t-blue-600 mb-4"></div>
-          <p className="text-gray-700 font-medium text-lg">Loading...</p>
+          <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-gray-200 dark:border-gray-700 border-t-blue-600 mb-4"></div>
+          <p className="text-gray-700 dark:text-gray-200 font-medium text-lg">Loading...</p>
         </div>
       </div>
     );

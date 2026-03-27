@@ -45,8 +45,8 @@ export function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4 transition-colors">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md p-8">
         <div className="flex items-center justify-center mb-8">
           <div className="p-3 bg-blue-600 rounded-xl">
             {isForgotPassword ? (
@@ -59,10 +59,10 @@ export function Login() {
           </div>
         </div>
 
-        <h2 className="text-3xl font-bold text-center text-gray-900 mb-2">
+        <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-gray-100 mb-2">
           {isForgotPassword ? 'Reset Password' : isSignUp ? 'Create Account' : 'Welcome Back'}
         </h2>
-        <p className="text-center text-gray-600 mb-8">
+        <p className="text-center text-gray-600 dark:text-gray-300 mb-8">
           {isForgotPassword
             ? 'Enter your email to receive a password reset link'
             : isSignUp
@@ -85,7 +85,7 @@ export function Login() {
         <form onSubmit={handleSubmit} className="space-y-6">
           {isSignUp && !isForgotPassword && (
             <div>
-              <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Full Name
               </label>
               <input
@@ -94,14 +94,14 @@ export function Login() {
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
                 placeholder="John Doe"
               />
             </div>
           )}
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Email Address
             </label>
             <input
@@ -110,14 +110,14 @@ export function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+              className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
               placeholder="you@example.com"
             />
           </div>
 
           {!isForgotPassword && (
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Password
               </label>
               <div className="relative">
@@ -128,19 +128,19 @@ export function Login() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   minLength={6}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
                   placeholder="Enter your password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
               {isSignUp && (
-                <p className="mt-2 text-xs text-gray-500">Password must be at least 6 characters</p>
+                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">Password must be at least 6 characters</p>
               )}
             </div>
           )}
@@ -180,7 +180,7 @@ export function Login() {
           </button>
         </form>
 
-        <div className="mt-6 text-center text-sm text-gray-600">
+        <div className="mt-6 text-center text-sm text-gray-600 dark:text-gray-300">
           {isForgotPassword ? (
             <p>
               Remember your password?{' '}
@@ -191,7 +191,7 @@ export function Login() {
                   setError('');
                   setSuccessMessage('');
                 }}
-                className="text-blue-600 font-semibold hover:text-blue-700"
+                className="text-blue-600 dark:text-blue-400 font-semibold hover:text-blue-700 dark:hover:text-blue-300"
               >
                 Back to Sign In
               </button>
@@ -206,7 +206,7 @@ export function Login() {
                   setError('');
                   setSuccessMessage('');
                 }}
-                className="text-blue-600 font-semibold hover:text-blue-700"
+                className="text-blue-600 dark:text-blue-400 font-semibold hover:text-blue-700 dark:hover:text-blue-300"
               >
                 {isSignUp ? 'Sign In' : 'Sign Up'}
               </button>

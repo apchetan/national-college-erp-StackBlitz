@@ -60,17 +60,17 @@ export function ValidatedInput({
     }
   };
 
-  const baseInputClass = `w-full px-4 py-2 rounded-lg transition ${
+  const baseInputClass = `w-full px-4 py-2 rounded-lg transition dark:bg-gray-700 dark:text-white ${
     error
-      ? 'border-2 border-red-500 focus:ring-red-500 focus:border-red-500'
-      : 'border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+      ? 'border-2 border-red-500 dark:border-red-400 focus:ring-red-500 focus:border-red-500'
+      : 'border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
   } ${className}`;
 
   return (
     <div className="space-y-1">
-      <label className="block text-sm font-medium text-gray-700">
+      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
         {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
+        {required && <span className="text-red-500 dark:text-red-400 ml-1">*</span>}
       </label>
       <input
         {...props}
@@ -83,12 +83,12 @@ export function ValidatedInput({
         aria-describedby={error ? `${props.name}-error` : hint ? `${props.name}-hint` : undefined}
       />
       {hint && !error && (
-        <p className="text-xs text-gray-500" id={`${props.name}-hint`}>
+        <p className="text-xs text-gray-500 dark:text-gray-400" id={`${props.name}-hint`}>
           {hint}
         </p>
       )}
       {error && (
-        <p className="text-sm text-red-600 flex items-start gap-1" id={`${props.name}-error`}>
+        <p className="text-sm text-red-600 dark:text-red-400 flex items-start gap-1" id={`${props.name}-error`}>
           <span className="mt-0.5">⚠</span>
           <span>{error}</span>
         </p>
@@ -107,17 +107,17 @@ export function ValidatedTextarea({
   onFocus,
   ...props
 }: ValidatedTextareaProps) {
-  const baseTextareaClass = `w-full px-4 py-2 rounded-lg transition ${
+  const baseTextareaClass = `w-full px-4 py-2 rounded-lg transition dark:bg-gray-700 dark:text-white ${
     error
-      ? 'border-2 border-red-500 focus:ring-red-500 focus:border-red-500'
-      : 'border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+      ? 'border-2 border-red-500 dark:border-red-400 focus:ring-red-500 focus:border-red-500'
+      : 'border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
   } ${className}`;
 
   return (
     <div className="space-y-1">
-      <label className="block text-sm font-medium text-gray-700">
+      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
         {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
+        {required && <span className="text-red-500 dark:text-red-400 ml-1">*</span>}
       </label>
       <textarea
         {...props}
@@ -128,12 +128,12 @@ export function ValidatedTextarea({
         aria-describedby={error ? `${props.name}-error` : hint ? `${props.name}-hint` : undefined}
       />
       {hint && !error && (
-        <p className="text-xs text-gray-500" id={`${props.name}-hint`}>
+        <p className="text-xs text-gray-500 dark:text-gray-400" id={`${props.name}-hint`}>
           {hint}
         </p>
       )}
       {error && (
-        <p className="text-sm text-red-600 flex items-start gap-1" id={`${props.name}-error`}>
+        <p className="text-sm text-red-600 dark:text-red-400 flex items-start gap-1" id={`${props.name}-error`}>
           <span className="mt-0.5">⚠</span>
           <span>{error}</span>
         </p>
@@ -153,17 +153,17 @@ export function ValidatedSelect({
   onFocus,
   ...props
 }: ValidatedSelectProps) {
-  const baseSelectClass = `w-full px-4 py-2 rounded-lg transition ${
+  const baseSelectClass = `w-full px-4 py-2 rounded-lg transition dark:bg-gray-700 dark:text-white ${
     error
-      ? 'border-2 border-red-500 focus:ring-red-500 focus:border-red-500'
-      : 'border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+      ? 'border-2 border-red-500 dark:border-red-400 focus:ring-red-500 focus:border-red-500'
+      : 'border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
   } ${className}`;
 
   return (
     <div className="space-y-1">
-      <label className="block text-sm font-medium text-gray-700">
+      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
         {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
+        {required && <span className="text-red-500 dark:text-red-400 ml-1">*</span>}
       </label>
       <select
         {...props}
@@ -176,12 +176,12 @@ export function ValidatedSelect({
         {children}
       </select>
       {hint && !error && (
-        <p className="text-xs text-gray-500" id={`${props.name}-hint`}>
+        <p className="text-xs text-gray-500 dark:text-gray-400" id={`${props.name}-hint`}>
           {hint}
         </p>
       )}
       {error && (
-        <p className="text-sm text-red-600 flex items-start gap-1" id={`${props.name}-error`}>
+        <p className="text-sm text-red-600 dark:text-red-400 flex items-start gap-1" id={`${props.name}-error`}>
           <span className="mt-0.5">⚠</span>
           <span>{error}</span>
         </p>
