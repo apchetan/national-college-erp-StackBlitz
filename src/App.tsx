@@ -14,6 +14,8 @@ import { Login } from './components/Login';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { useAuth } from './contexts/AuthContext';
 import { MobileBottomNav } from './components/MobileBottomNav';
+import { OfflineBanner } from './components/OfflineBanner';
+import { InstallPrompt } from './components/InstallPrompt';
 import { LayoutDashboard, FileText, Calendar, GraduationCap, Menu, X, Shield, LogOut, User, ListChecks, Wallet, Headphones as HeadphonesIcon, ClipboardCheck, Truck, Home } from 'lucide-react';
 
 function AppContent() {
@@ -186,6 +188,8 @@ function AppContent() {
           )}
         </nav>
 
+      <OfflineBanner />
+
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-8">
         <ErrorBoundary>
           <Routes>
@@ -231,6 +235,7 @@ function AppContent() {
       </footer>
 
       <MobileBottomNav />
+      <InstallPrompt />
     </div>
   );
 }
