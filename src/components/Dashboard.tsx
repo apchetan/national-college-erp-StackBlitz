@@ -11,6 +11,8 @@ import { ConfirmModal } from './ConfirmModal';
 import { useAuth } from '../contexts/AuthContext';
 import { LoadingSpinner } from './LoadingSpinner';
 import { RefreshButton } from './RefreshButton';
+import { usePaginatedData } from '../hooks/usePaginatedData';
+import { Pagination } from './Pagination';
 
 interface ActivityItem {
   id: string;
@@ -45,10 +47,16 @@ export function Dashboard() {
   const { profile } = useAuth();
   const { addToast } = useToast();
   const [activeTab, setActiveTab] = useState<'overview' | 'contacts' | 'enquiries' | 'appointments' | 'admissions'>('overview');
-  const [contacts, setContacts] = useState<Contact[]>([]);
-  const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [admissions, setAdmissions] = useState<Admission[]>([]);
+
+  const contactsData = usePaginatedData<Contact>('contacts', 25, 'created_at', false);
+  const enquiriesData = usePaginatedData<Enquiry>('enquiries', 25, 'created_at', false);
+  const appointmentsData = usePaginatedData<Appointment>('appointments', 25, 'appointment_date', false);
+  const admissionsData = usePaginatedData<Admission>('admissions', 25, 'created_at', false);
+
+  const [recentContacts, setRecentContacts] = useState<Contact[]>([]);
+  const [recentEnquiries, setRecentEnquiries] = useState<Enquiry[]>([]);
+  const [recentAppointments, setRecentAppointments] = useState<Appointment[]>([]);
+  const [recentAdmissions, setRecentAdmissions] = useState<Admission[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -83,16 +91,16 @@ export function Dashboard() {
 
     try {
       const [contactsRes, enquiriesRes, appointmentsRes, admissionsRes] = await Promise.all([
-        supabase.from('contacts').select('*').order('created_at', { ascending: false }),
-        supabase.from('enquiries').select('*').order('created_at', { ascending: false }),
-        supabase.from('appointments').select('*').order('appointment_date', { ascending: false }),
-        supabase.from('admissions').select('*').order('created_at', { ascending: false }),
+        supabase.from('contacts').select('*').order('created_at', { ascending: false }).limit(50),
+        supabase.from('enquiries').select('*').order('created_at', { ascending: false }).limit(50),
+        supabase.from('appointments').select('*').order('appointment_date', { ascending: false }).limit(50),
+        supabase.from('admissions').select('*').order('created_at', { ascending: false }).limit(50),
       ]);
 
-      if (contactsRes.data) setContacts(contactsRes.data);
-      if (enquiriesRes.data) setEnquiries(enquiriesRes.data);
-      if (appointmentsRes.data) setAppointments(appointmentsRes.data);
-      if (admissionsRes.data) setAdmissions(admissionsRes.data);
+      if (contactsRes.data) setRecentContacts(contactsRes.data);
+      if (enquiriesRes.data) setRecentEnquiries(enquiriesRes.data);
+      if (appointmentsRes.data) setRecentAppointments(appointmentsRes.data);
+      if (admissionsRes.data) setRecentAdmissions(admissionsRes.data);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -103,6 +111,10 @@ export function Dashboard() {
 
   const handleRefresh = () => {
     fetchData(true);
+    contactsData.refresh();
+    enquiriesData.refresh();
+    appointmentsData.refresh();
+    admissionsData.refresh();
   };
 
   const getWeeklyCount = (items: Array<{ created_at: string }>) => {
@@ -114,38 +126,38 @@ export function Dashboard() {
   const stats = [
     {
       label: 'Total Contacts',
-      value: contacts.length,
+      value: contactsData.totalCount,
       icon: Users,
       gradient: 'from-blue-500 to-blue-600',
-      weeklyCount: getWeeklyCount(contacts)
+      weeklyCount: getWeeklyCount(recentContacts)
     },
     {
       label: 'Enquiries',
-      value: enquiries.length,
+      value: enquiriesData.totalCount,
       icon: MessageSquare,
       gradient: 'from-green-500 to-green-600',
-      weeklyCount: getWeeklyCount(enquiries)
+      weeklyCount: getWeeklyCount(recentEnquiries)
     },
     {
       label: 'Appointments',
-      value: appointments.length,
+      value: appointmentsData.totalCount,
       icon: Calendar,
       gradient: 'from-amber-500 to-amber-600',
-      weeklyCount: getWeeklyCount(appointments)
+      weeklyCount: getWeeklyCount(recentAppointments)
     },
     {
       label: 'Admissions',
-      value: admissions.length,
+      value: admissionsData.totalCount,
       icon: GraduationCap,
       gradient: 'from-rose-500 to-rose-600',
-      weeklyCount: getWeeklyCount(admissions)
+      weeklyCount: getWeeklyCount(recentAdmissions)
     },
   ];
 
   const mergeActivityFeed = (): ActivityItem[] => {
     const activities: ActivityItem[] = [];
 
-    contacts.forEach(contact => {
+    recentContacts.forEach(contact => {
       activities.push({
         id: contact.id,
         type: 'contact',
@@ -157,7 +169,7 @@ export function Dashboard() {
       });
     });
 
-    enquiries.forEach(enquiry => {
+    recentEnquiries.forEach(enquiry => {
       activities.push({
         id: enquiry.id,
         type: 'enquiry',
@@ -169,7 +181,7 @@ export function Dashboard() {
       });
     });
 
-    appointments.forEach(appointment => {
+    recentAppointments.forEach(appointment => {
       activities.push({
         id: appointment.id,
         type: 'appointment',
@@ -181,7 +193,7 @@ export function Dashboard() {
       });
     });
 
-    admissions.forEach(admission => {
+    recentAdmissions.forEach(admission => {
       activities.push({
         id: admission.id,
         type: 'admission',
@@ -225,6 +237,7 @@ export function Dashboard() {
           } else {
             addToast('Contact deleted successfully', 'success');
             fetchData();
+            contactsData.refresh();
           }
         } catch (error) {
           addToast('An unexpected error occurred while deleting the contact', 'error');
@@ -237,31 +250,31 @@ export function Dashboard() {
   const toggleSelectAll = (type: 'contacts' | 'enquiries' | 'appointments' | 'admissions') => {
     switch (type) {
       case 'contacts':
-        if (selectedContacts.length === contacts.length) {
+        if (selectedContacts.length === contactsData.data.length) {
           setSelectedContacts([]);
         } else {
-          setSelectedContacts(contacts.map(c => c.id));
+          setSelectedContacts(contactsData.data.map(c => c.id));
         }
         break;
       case 'enquiries':
-        if (selectedEnquiries.length === enquiries.length) {
+        if (selectedEnquiries.length === enquiriesData.data.length) {
           setSelectedEnquiries([]);
         } else {
-          setSelectedEnquiries(enquiries.map(e => e.id));
+          setSelectedEnquiries(enquiriesData.data.map(e => e.id));
         }
         break;
       case 'appointments':
-        if (selectedAppointments.length === appointments.length) {
+        if (selectedAppointments.length === appointmentsData.data.length) {
           setSelectedAppointments([]);
         } else {
-          setSelectedAppointments(appointments.map(a => a.id));
+          setSelectedAppointments(appointmentsData.data.map(a => a.id));
         }
         break;
       case 'admissions':
-        if (selectedAdmissions.length === admissions.length) {
+        if (selectedAdmissions.length === admissionsData.data.length) {
           setSelectedAdmissions([]);
         } else {
-          setSelectedAdmissions(admissions.map(a => a.id));
+          setSelectedAdmissions(admissionsData.data.map(a => a.id));
         }
         break;
     }
@@ -351,15 +364,19 @@ export function Dashboard() {
             switch (type) {
               case 'contacts':
                 setSelectedContacts([]);
+                contactsData.refresh();
                 break;
               case 'enquiries':
                 setSelectedEnquiries([]);
+                enquiriesData.refresh();
                 break;
               case 'appointments':
                 setSelectedAppointments([]);
+                appointmentsData.refresh();
                 break;
               case 'admissions':
                 setSelectedAdmissions([]);
+                admissionsData.refresh();
                 break;
             }
             fetchData();
@@ -609,7 +626,7 @@ export function Dashboard() {
                   <th className="px-6 py-3 text-left">
                     <input
                       type="checkbox"
-                      checked={contacts.length > 0 && selectedContacts.length === contacts.length}
+                      checked={contactsData.data.length > 0 && selectedContacts.length === contactsData.data.length}
                       onChange={() => toggleSelectAll('contacts')}
                       className="w-5 h-5 md:w-4 md:h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 touch-manipulation"
                     />
@@ -625,43 +642,65 @@ export function Dashboard() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {contacts.map((contact) => (
-                  <tr key={contact.id} className="hover:bg-gray-50 min-h-[48px] touch-manipulation">
-                    <td className="px-6 py-4">
-                      <input
-                        type="checkbox"
-                        checked={selectedContacts.includes(contact.id)}
-                        onChange={() => toggleSelectItem(contact.id, 'contacts')}
-                        className="w-5 h-5 md:w-4 md:h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 touch-manipulation"
-                      />
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <p className="font-medium text-gray-900">{contact.first_name} {contact.last_name}</p>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{contact.email}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{contact.phone || '-'}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{contact.company || '-'}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(contact.status)}`}>
-                        {contact.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{contact.source || '-'}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{formatDate(contact.created_at)}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <button
-                        onClick={() => handleDeleteContact(contact.id, `${contact.first_name} ${contact.last_name}`)}
-                        className="text-red-600 hover:text-red-800 hover:bg-red-50 p-2 rounded-lg transition"
-                        title="Delete contact"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                {contactsData.loading ? (
+                  <tr>
+                    <td colSpan={9} className="px-6 py-12 text-center">
+                      <LoadingSpinner />
                     </td>
                   </tr>
-                ))}
+                ) : contactsData.data.length === 0 ? (
+                  <tr>
+                    <td colSpan={9} className="px-6 py-12 text-center text-gray-500">
+                      No contacts found
+                    </td>
+                  </tr>
+                ) : (
+                  contactsData.data.map((contact) => (
+                    <tr key={contact.id} className="hover:bg-gray-50 min-h-[48px] touch-manipulation">
+                      <td className="px-6 py-4">
+                        <input
+                          type="checkbox"
+                          checked={selectedContacts.includes(contact.id)}
+                          onChange={() => toggleSelectItem(contact.id, 'contacts')}
+                          className="w-5 h-5 md:w-4 md:h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 touch-manipulation"
+                        />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <p className="font-medium text-gray-900">{contact.first_name} {contact.last_name}</p>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{contact.email}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{contact.phone || '-'}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{contact.company || '-'}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(contact.status)}`}>
+                          {contact.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{contact.source || '-'}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{formatDate(contact.created_at)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        <button
+                          onClick={() => handleDeleteContact(contact.id, `${contact.first_name} ${contact.last_name}`)}
+                          className="text-red-600 hover:text-red-800 hover:bg-red-50 p-2 rounded-lg transition"
+                          title="Delete contact"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
+          <Pagination
+            page={contactsData.page}
+            totalPages={contactsData.totalPages}
+            totalCount={contactsData.totalCount}
+            pageSize={25}
+            onPageChange={contactsData.goToPage}
+            loading={contactsData.loading}
+          />
         </div>
       )}
 
@@ -689,7 +728,7 @@ export function Dashboard() {
                   <th className="px-6 py-3 text-left">
                     <input
                       type="checkbox"
-                      checked={enquiries.length > 0 && selectedEnquiries.length === enquiries.length}
+                      checked={enquiriesData.data.length > 0 && selectedEnquiries.length === enquiriesData.data.length}
                       onChange={() => toggleSelectAll('enquiries')}
                       className="w-5 h-5 md:w-4 md:h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 touch-manipulation"
                     />
@@ -703,38 +742,60 @@ export function Dashboard() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {enquiries.map((enquiry) => (
-                  <tr key={enquiry.id} className="hover:bg-gray-50 min-h-[48px] touch-manipulation">
-                    <td className="px-6 py-4">
-                      <input
-                        type="checkbox"
-                        checked={selectedEnquiries.includes(enquiry.id)}
-                        onChange={() => toggleSelectItem(enquiry.id, 'enquiries')}
-                        className="w-5 h-5 md:w-4 md:h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 touch-manipulation"
-                      />
+                {enquiriesData.loading ? (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-12 text-center">
+                      <LoadingSpinner />
                     </td>
-                    <td className="px-6 py-4">
-                      <p className="font-medium text-gray-900">{enquiry.subject}</p>
-                      <p className="text-sm text-gray-600 mt-1 line-clamp-2">{enquiry.message}</p>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{enquiry.enquiry_type}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(enquiry.priority)}`}>
-                        {enquiry.priority}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(enquiry.status)}`}>
-                        {enquiry.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{enquiry.assigned_to || '-'}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{formatDate(enquiry.created_at)}</td>
                   </tr>
-                ))}
+                ) : enquiriesData.data.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
+                      No enquiries found
+                    </td>
+                  </tr>
+                ) : (
+                  enquiriesData.data.map((enquiry) => (
+                    <tr key={enquiry.id} className="hover:bg-gray-50 min-h-[48px] touch-manipulation">
+                      <td className="px-6 py-4">
+                        <input
+                          type="checkbox"
+                          checked={selectedEnquiries.includes(enquiry.id)}
+                          onChange={() => toggleSelectItem(enquiry.id, 'enquiries')}
+                          className="w-5 h-5 md:w-4 md:h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 touch-manipulation"
+                        />
+                      </td>
+                      <td className="px-6 py-4">
+                        <p className="font-medium text-gray-900">{enquiry.subject}</p>
+                        <p className="text-sm text-gray-600 mt-1 line-clamp-2">{enquiry.message}</p>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{enquiry.enquiry_type}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(enquiry.priority)}`}>
+                          {enquiry.priority}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(enquiry.status)}`}>
+                          {enquiry.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{enquiry.assigned_to || '-'}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{formatDate(enquiry.created_at)}</td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
+          <Pagination
+            page={enquiriesData.page}
+            totalPages={enquiriesData.totalPages}
+            totalCount={enquiriesData.totalCount}
+            pageSize={25}
+            onPageChange={enquiriesData.goToPage}
+            loading={enquiriesData.loading}
+          />
         </div>
       )}
 
@@ -762,7 +823,7 @@ export function Dashboard() {
                   <th className="px-6 py-3 text-left">
                     <input
                       type="checkbox"
-                      checked={appointments.length > 0 && selectedAppointments.length === appointments.length}
+                      checked={appointmentsData.data.length > 0 && selectedAppointments.length === appointmentsData.data.length}
                       onChange={() => toggleSelectAll('appointments')}
                       className="w-5 h-5 md:w-4 md:h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 touch-manipulation"
                     />
@@ -777,41 +838,63 @@ export function Dashboard() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {appointments.map((appointment) => (
-                  <tr key={appointment.id} className="hover:bg-gray-50 min-h-[48px] touch-manipulation">
-                    <td className="px-6 py-4">
-                      <input
-                        type="checkbox"
-                        checked={selectedAppointments.includes(appointment.id)}
-                        onChange={() => toggleSelectItem(appointment.id, 'appointments')}
-                        className="w-5 h-5 md:w-4 md:h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 touch-manipulation"
-                      />
+                {appointmentsData.loading ? (
+                  <tr>
+                    <td colSpan={8} className="px-6 py-12 text-center">
+                      <LoadingSpinner />
                     </td>
-                    <td className="px-6 py-4">
-                      <p className="font-medium text-gray-900">{appointment.title}</p>
-                      {appointment.description && (
-                        <p className="text-sm text-gray-600 mt-1 line-clamp-2">{appointment.description}</p>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{appointment.appointment_type}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                      {formatDateTime(appointment.appointment_date)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                      {appointment.duration_minutes} min
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(appointment.status)}`}>
-                        {appointment.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{appointment.location || '-'}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{appointment.assigned_to || '-'}</td>
                   </tr>
-                ))}
+                ) : appointmentsData.data.length === 0 ? (
+                  <tr>
+                    <td colSpan={8} className="px-6 py-12 text-center text-gray-500">
+                      No appointments found
+                    </td>
+                  </tr>
+                ) : (
+                  appointmentsData.data.map((appointment) => (
+                    <tr key={appointment.id} className="hover:bg-gray-50 min-h-[48px] touch-manipulation">
+                      <td className="px-6 py-4">
+                        <input
+                          type="checkbox"
+                          checked={selectedAppointments.includes(appointment.id)}
+                          onChange={() => toggleSelectItem(appointment.id, 'appointments')}
+                          className="w-5 h-5 md:w-4 md:h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 touch-manipulation"
+                        />
+                      </td>
+                      <td className="px-6 py-4">
+                        <p className="font-medium text-gray-900">{appointment.title}</p>
+                        {appointment.description && (
+                          <p className="text-sm text-gray-600 mt-1 line-clamp-2">{appointment.description}</p>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{appointment.appointment_type}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                        {formatDateTime(appointment.appointment_date)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                        {appointment.duration_minutes} min
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(appointment.status)}`}>
+                          {appointment.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-600">{appointment.location || '-'}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{appointment.assigned_to || '-'}</td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
+          <Pagination
+            page={appointmentsData.page}
+            totalPages={appointmentsData.totalPages}
+            totalCount={appointmentsData.totalCount}
+            pageSize={25}
+            onPageChange={appointmentsData.goToPage}
+            loading={appointmentsData.loading}
+          />
         </div>
       )}
 
@@ -839,7 +922,7 @@ export function Dashboard() {
                   <th className="px-6 py-3 text-left">
                     <input
                       type="checkbox"
-                      checked={admissions.length > 0 && selectedAdmissions.length === admissions.length}
+                      checked={admissionsData.data.length > 0 && selectedAdmissions.length === admissionsData.data.length}
                       onChange={() => toggleSelectAll('admissions')}
                       className="w-5 h-5 md:w-4 md:h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 touch-manipulation"
                     />
@@ -854,49 +937,71 @@ export function Dashboard() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {admissions.map((admission) => (
-                  <tr key={admission.id} className="hover:bg-gray-50 min-h-[48px] touch-manipulation">
-                    <td className="px-6 py-4">
-                      <input
-                        type="checkbox"
-                        checked={selectedAdmissions.includes(admission.id)}
-                        onChange={() => toggleSelectItem(admission.id, 'admissions')}
-                        className="w-5 h-5 md:w-4 md:h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 touch-manipulation"
-                      />
-                    </td>
-                    <td className="px-6 py-4">
-                      <p className="font-medium text-gray-900">{admission.program}</p>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                      {formatDate(admission.admission_date)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(admission.status)}`}>
-                        {admission.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
-                      {admission.qualification && admission.qualification.length > 0
-                        ? admission.qualification.join(', ')
-                        : '-'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{admission.experience_years} years</td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div>
-                        <p className="text-sm text-gray-900">${admission.amount_paid} / ${admission.amount}</p>
-                        <span className={`inline-block px-2 py-1 mt-1 rounded-full text-xs font-medium ${getStatusColor(admission.payment_status)}`}>
-                          {admission.payment_status}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                      {admission.documents_submitted ? '✓ Yes' : '✗ No'}
+                {admissionsData.loading ? (
+                  <tr>
+                    <td colSpan={8} className="px-6 py-12 text-center">
+                      <LoadingSpinner />
                     </td>
                   </tr>
-                ))}
+                ) : admissionsData.data.length === 0 ? (
+                  <tr>
+                    <td colSpan={8} className="px-6 py-12 text-center text-gray-500">
+                      No admissions found
+                    </td>
+                  </tr>
+                ) : (
+                  admissionsData.data.map((admission) => (
+                    <tr key={admission.id} className="hover:bg-gray-50 min-h-[48px] touch-manipulation">
+                      <td className="px-6 py-4">
+                        <input
+                          type="checkbox"
+                          checked={selectedAdmissions.includes(admission.id)}
+                          onChange={() => toggleSelectItem(admission.id, 'admissions')}
+                          className="w-5 h-5 md:w-4 md:h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 touch-manipulation"
+                        />
+                      </td>
+                      <td className="px-6 py-4">
+                        <p className="font-medium text-gray-900">{admission.program}</p>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                        {formatDate(admission.admission_date)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(admission.status)}`}>
+                          {admission.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-600">
+                        {admission.qualification && admission.qualification.length > 0
+                          ? admission.qualification.join(', ')
+                          : '-'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{admission.experience_years} years</td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div>
+                          <p className="text-sm text-gray-900">${admission.amount_paid} / ${admission.amount}</p>
+                          <span className={`inline-block px-2 py-1 mt-1 rounded-full text-xs font-medium ${getStatusColor(admission.payment_status)}`}>
+                            {admission.payment_status}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                        {admission.documents_submitted ? '✓ Yes' : '✗ No'}
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
+          <Pagination
+            page={admissionsData.page}
+            totalPages={admissionsData.totalPages}
+            totalCount={admissionsData.totalCount}
+            pageSize={25}
+            onPageChange={admissionsData.goToPage}
+            loading={admissionsData.loading}
+          />
         </div>
       )}
 

@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
 import { useStatusData } from '../hooks/useStatusData';
 import { StatusSearchBar } from './status/StatusSearchBar';
@@ -6,6 +7,7 @@ import { ContactReportSections } from './status/ContactReportSections';
 import { DeleteConfirmDialog } from './status/DeleteConfirmDialog';
 import { LoadingSpinner } from './LoadingSpinner';
 import { RefreshButton } from './RefreshButton';
+import { Pagination } from './Pagination';
 
 export function StatusSearch() {
   const {
@@ -33,7 +35,19 @@ export function StatusSearch() {
     generateReports
   } = useStatusData();
 
-  const reports = generateReports();
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 20;
+
+  const allReports = generateReports();
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, statusFilter]);
+
+  const totalPages = Math.ceil(allReports.length / pageSize);
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const reports = allReports.slice(startIndex, endIndex);
 
   const getStatusBadgeColor = (status: string) => {
     switch (status) {
@@ -66,33 +80,47 @@ export function StatusSearch() {
         setStatusFilter={setStatusFilter}
         showFilters={showFilters}
         setShowFilters={setShowFilters}
-        resultCount={reports.length}
+        resultCount={allReports.length}
       />
 
-      {reports.length > 0 ? (
-        <div className="space-y-6">
-          {reports.map((report) => (
-            <div key={report.contact.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-              <ContactCard
-                contact={report.contact}
-                getCreatorName={getCreatorName}
-                getStatusBadgeColor={getStatusBadgeColor}
-              />
-              <ContactReportSections
-                report={report}
-                getCreatorName={getCreatorName}
-                toggleSelection={toggleSelection}
-                selectedEnquiries={selectedEnquiries}
-                selectedAppointments={selectedAppointments}
-                selectedAdmissions={selectedAdmissions}
-                selectedStudentStatuses={selectedStudentStatuses}
-                selectAllForContact={selectAllForContact}
-                confirmDelete={confirmDelete}
-                getStatusBadgeColor={getStatusBadgeColor}
+      {allReports.length > 0 ? (
+        <>
+          <div className="space-y-6">
+            {reports.map((report) => (
+              <div key={report.contact.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <ContactCard
+                  contact={report.contact}
+                  getCreatorName={getCreatorName}
+                  getStatusBadgeColor={getStatusBadgeColor}
+                />
+                <ContactReportSections
+                  report={report}
+                  getCreatorName={getCreatorName}
+                  toggleSelection={toggleSelection}
+                  selectedEnquiries={selectedEnquiries}
+                  selectedAppointments={selectedAppointments}
+                  selectedAdmissions={selectedAdmissions}
+                  selectedStudentStatuses={selectedStudentStatuses}
+                  selectAllForContact={selectAllForContact}
+                  confirmDelete={confirmDelete}
+                  getStatusBadgeColor={getStatusBadgeColor}
+                />
+              </div>
+            ))}
+          </div>
+          {totalPages > 1 && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              <Pagination
+                page={currentPage}
+                totalPages={totalPages}
+                totalCount={allReports.length}
+                pageSize={pageSize}
+                onPageChange={setCurrentPage}
+                loading={false}
               />
             </div>
-          ))}
-        </div>
+          )}
+        </>
       ) : (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
           <Search className="w-12 h-12 text-gray-300 mx-auto mb-4" />
