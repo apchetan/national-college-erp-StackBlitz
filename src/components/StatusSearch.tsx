@@ -4,6 +4,8 @@ import { StatusSearchBar } from './status/StatusSearchBar';
 import { ContactCard } from './status/ContactCard';
 import { ContactReportSections } from './status/ContactReportSections';
 import { DeleteConfirmDialog } from './status/DeleteConfirmDialog';
+import { LoadingSpinner } from './LoadingSpinner';
+import { RefreshButton } from './RefreshButton';
 
 export function StatusSearch() {
   const {
@@ -14,6 +16,8 @@ export function StatusSearch() {
     showFilters,
     setShowFilters,
     loading,
+    refreshing,
+    handleRefresh,
     selectedEnquiries,
     selectedAppointments,
     selectedAdmissions,
@@ -46,18 +50,15 @@ export function StatusSearch() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-          <p className="text-gray-600">Loading data...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner variant="page" />;
   }
 
   return (
     <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-gray-900">Search Student Records</h1>
+        <RefreshButton onRefresh={handleRefresh} isRefreshing={refreshing} />
+      </div>
       <StatusSearchBar
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}

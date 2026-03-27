@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import { Wallet, AlertCircle, CheckCircle, ArrowLeft, Search, Upload, FileText, ExternalLink, CreditCard as Edit2, Save, X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { Contact, Admission, Payment } from '../types/interfaces';
+import { LoadingSpinner } from './LoadingSpinner';
 
 export function BalanceFeePayment() {
   const navigate = useNavigate();
@@ -890,8 +891,22 @@ export function BalanceFeePayment() {
                     disabled={loading || uploading}
                     className="w-full bg-green-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
                   >
-                    <Wallet className="w-5 h-5" />
-                    {uploading ? 'Uploading Receipt...' : loading ? 'Recording Payment...' : 'Record Payment'}
+                    {uploading ? (
+                      <>
+                        <LoadingSpinner variant="inline" />
+                        Uploading Receipt...
+                      </>
+                    ) : loading ? (
+                      <>
+                        <LoadingSpinner variant="inline" />
+                        Recording Payment...
+                      </>
+                    ) : (
+                      <>
+                        <Wallet className="w-5 h-5" />
+                        Record Payment
+                      </>
+                    )}
                   </button>
                 </div>
               </form>

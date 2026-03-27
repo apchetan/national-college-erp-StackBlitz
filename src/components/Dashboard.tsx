@@ -9,6 +9,8 @@ import { Contact, Enquiry, Appointment, Admission } from '../types/interfaces';
 import { useToast } from '../contexts/ToastContext';
 import { ConfirmModal } from './ConfirmModal';
 import { useAuth } from '../contexts/AuthContext';
+import { LoadingSpinner } from './LoadingSpinner';
+import { RefreshButton } from './RefreshButton';
 
 interface ActivityItem {
   id: string;
@@ -48,6 +50,7 @@ export function Dashboard() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [admissions, setAdmissions] = useState<Admission[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   const [selectedContacts, setSelectedContacts] = useState<string[]>([]);
   const [selectedEnquiries, setSelectedEnquiries] = useState<string[]>([]);
@@ -71,8 +74,13 @@ export function Dashboard() {
     fetchData();
   }, []);
 
-  const fetchData = async () => {
-    setLoading(true);
+  const fetchData = async (isRefresh = false) => {
+    if (isRefresh) {
+      setRefreshing(true);
+    } else {
+      setLoading(true);
+    }
+
     try {
       const [contactsRes, enquiriesRes, appointmentsRes, admissionsRes] = await Promise.all([
         supabase.from('contacts').select('*').order('created_at', { ascending: false }),
@@ -89,7 +97,12 @@ export function Dashboard() {
       console.error('Error fetching data:', error);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
+  };
+
+  const handleRefresh = () => {
+    fetchData(true);
   };
 
   const getWeeklyCount = (items: Array<{ created_at: string }>) => {
@@ -385,24 +398,19 @@ export function Dashboard() {
     return colors[status] || 'bg-gray-100 text-gray-800';
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Activity className="w-8 h-8 animate-spin text-blue-600" />
-      </div>
-    );
-  }
-
   return (
     <div className="max-w-7xl mx-auto">
       <div className="mb-8">
         <div className="flex items-center justify-between gap-3 mb-8">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-1">
-              Welcome back, {profile?.full_name || 'User'}!
-            </h1>
-            <p className="text-gray-500">Here's what's happening at National College today</p>
-            <p className="text-sm text-gray-400 mt-1">{getTodayDate()}</p>
+          <div className="flex items-center gap-3">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900 mb-1">
+                Welcome back, {profile?.full_name || 'User'}!
+              </h1>
+              <p className="text-gray-500">Here's what's happening at National College today</p>
+              <p className="text-sm text-gray-400 mt-1">{getTodayDate()}</p>
+            </div>
+            <RefreshButton onRefresh={handleRefresh} isRefreshing={refreshing} />
           </div>
           <button
             onClick={downloadEnquiryCSVTemplate}
@@ -476,25 +484,29 @@ export function Dashboard() {
       {activeTab === 'overview' && (
         <div className="space-y-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {stats.map((stat) => (
-              <div
-                key={stat.label}
-                className={`bg-gradient-to-br ${stat.gradient} rounded-2xl shadow-lg p-6 text-white transform hover:scale-105 transition`}
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="p-3 bg-white bg-opacity-20 rounded-lg">
-                    <stat.icon className="w-8 h-8" />
+            {loading ? (
+              <LoadingSpinner variant="skeleton" count={4} />
+            ) : (
+              stats.map((stat) => (
+                <div
+                  key={stat.label}
+                  className={`bg-gradient-to-br ${stat.gradient} rounded-2xl shadow-lg p-6 text-white transform hover:scale-105 transition`}
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="p-3 bg-white bg-opacity-20 rounded-lg">
+                      <stat.icon className="w-8 h-8" />
+                    </div>
+                    {stat.weeklyCount > 0 && (
+                      <span className="px-2 py-1 bg-green-500 text-white text-xs font-semibold rounded-full">
+                        +{stat.weeklyCount} this week
+                      </span>
+                    )}
                   </div>
-                  {stat.weeklyCount > 0 && (
-                    <span className="px-2 py-1 bg-green-500 text-white text-xs font-semibold rounded-full">
-                      +{stat.weeklyCount} this week
-                    </span>
-                  )}
+                  <p className="text-sm opacity-90 mb-1">{stat.label}</p>
+                  <p className="text-3xl font-bold">{stat.value}</p>
                 </div>
-                <p className="text-sm opacity-90 mb-1">{stat.label}</p>
-                <p className="text-3xl font-bold">{stat.value}</p>
-              </div>
-            ))}
+              ))
+            )}
           </div>
 
           <div className="bg-white rounded-xl shadow-md p-6">

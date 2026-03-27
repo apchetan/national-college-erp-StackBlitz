@@ -15,6 +15,7 @@ export function useStatusData() {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [selectedContact, setSelectedContact] = useState<string | null>(null);
   const [selectedEnquiries, setSelectedEnquiries] = useState<Set<string>>(new Set());
@@ -28,8 +29,12 @@ export function useStatusData() {
     fetchData();
   }, []);
 
-  async function fetchData() {
-    setLoading(true);
+  async function fetchData(isRefresh = false) {
+    if (isRefresh) {
+      setRefreshing(true);
+    } else {
+      setLoading(true);
+    }
     try {
       const [contactsResult, enquiriesResult, appointmentsResult, admissionsResult, studentStatusResult, paymentsResult, profilesResult] = await Promise.all([
         supabase.from('contacts').select('*').order('created_at', { ascending: false }),
@@ -86,8 +91,13 @@ export function useStatusData() {
       console.error('Error fetching data:', error);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   }
+
+  const handleRefresh = () => {
+    fetchData(true);
+  };
 
   const getCreatorName = (createdBy?: string): string => {
     if (!createdBy) return 'Unknown';
@@ -252,6 +262,8 @@ export function useStatusData() {
     showFilters,
     setShowFilters,
     loading,
+    refreshing,
+    handleRefresh,
     selectedEnquiries,
     selectedAppointments,
     selectedAdmissions,

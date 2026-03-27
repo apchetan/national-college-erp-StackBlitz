@@ -8,6 +8,7 @@ import { AdmissionPersonalSection } from './admission/AdmissionPersonalSection';
 import { AdmissionProgramSection } from './admission/AdmissionProgramSection';
 import { AdmissionPaymentSection } from './admission/AdmissionPaymentSection';
 import { useAdmissionForm } from '../hooks/useAdmissionForm';
+import { LoadingSpinner } from './LoadingSpinner';
 
 export function AdmissionForm() {
   const navigate = useNavigate();
@@ -207,8 +208,17 @@ export function AdmissionForm() {
               disabled={loading}
               className="w-full flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-amber-900 to-amber-800 text-white rounded-lg font-semibold text-lg hover:from-amber-800 hover:to-amber-700 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
             >
-              {loading ? 'Submitting Application...' : 'Submit Admission Application'}
-              <CheckCircle className="w-6 h-6" />
+              {loading ? (
+                <>
+                  <LoadingSpinner variant="inline" />
+                  Submitting Application...
+                </>
+              ) : (
+                <>
+                  Submit Admission Application
+                  <CheckCircle className="w-6 h-6" />
+                </>
+              )}
             </button>
           </form>
         </div>

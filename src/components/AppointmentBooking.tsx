@@ -8,6 +8,7 @@ import { AppointmentPersonalInfo } from './appointment/AppointmentPersonalInfo';
 import { AppointmentAcademicInfo } from './appointment/AppointmentAcademicInfo';
 import { AppointmentScheduling } from './appointment/AppointmentScheduling';
 import { useAppointmentForm } from '../hooks/useAppointmentForm';
+import { LoadingSpinner } from './LoadingSpinner';
 
 export function AppointmentBooking() {
   const navigate = useNavigate();
@@ -242,8 +243,17 @@ export function AppointmentBooking() {
               disabled={loading}
               className="w-full flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-900 to-blue-800 text-white rounded-lg font-semibold text-lg hover:from-blue-800 hover:to-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
             >
-              {loading ? 'Booking Appointment...' : 'Book Appointment'}
-              <CheckCircle className="w-6 h-6" />
+              {loading ? (
+                <>
+                  <LoadingSpinner variant="inline" />
+                  Booking Appointment...
+                </>
+              ) : (
+                <>
+                  Book Appointment
+                  <CheckCircle className="w-6 h-6" />
+                </>
+              )}
             </button>
           </form>
         </div>
