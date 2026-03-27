@@ -1,14 +1,46 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { Users, MessageSquare, Calendar, GraduationCap, Activity, TrendingUp, Download, Trash2 } from 'lucide-react';
+import { Users, MessageSquare, Calendar, GraduationCap, Activity, TrendingUp, Download, Trash2, Zap, FileText, Wallet } from 'lucide-react';
 import { downloadEnquiryCSVTemplate } from '../utils/csvTemplate';
 import { MasterSearch } from './MasterSearch';
 import { formatDate, formatDateTime } from '../utils/formatting';
 import { Contact, Enquiry, Appointment, Admission } from '../types/interfaces';
 import { useToast } from '../contexts/ToastContext';
 import { ConfirmModal } from './ConfirmModal';
+import { useAuth } from '../contexts/AuthContext';
+
+interface ActivityItem {
+  id: string;
+  type: 'contact' | 'enquiry' | 'appointment' | 'admission';
+  title: string;
+  subtitle?: string;
+  created_at: string;
+  color: string;
+  icon: typeof Users;
+}
+
+const formatRelativeTime = (dateString: string): string => {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+
+  if (diffMins < 1) return 'Just now';
+  if (diffMins < 60) return `${diffMins} minute${diffMins !== 1 ? 's' : ''} ago`;
+  if (diffHours < 24) return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+  if (diffDays === 1) return 'Yesterday';
+  if (diffDays < 7) return `${diffDays} days ago`;
+  if (diffDays < 14) return '1 week ago';
+  if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+  return formatDate(dateString);
+};
 
 export function Dashboard() {
+  const navigate = useNavigate();
+  const { profile } = useAuth();
   const { addToast } = useToast();
   const [activeTab, setActiveTab] = useState<'overview' | 'contacts' | 'enquiries' | 'appointments' | 'admissions'>('overview');
   const [contacts, setContacts] = useState<Contact[]>([]);
@@ -60,12 +92,105 @@ export function Dashboard() {
     }
   };
 
+  const getWeeklyCount = (items: Array<{ created_at: string }>) => {
+    const weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    return items.filter(item => new Date(item.created_at) > weekAgo).length;
+  };
+
   const stats = [
-    { label: 'Total Contacts', value: contacts.length, icon: Users, color: 'bg-blue-500' },
-    { label: 'Enquiries', value: enquiries.length, icon: MessageSquare, color: 'bg-green-500' },
-    { label: 'Appointments', value: appointments.length, icon: Calendar, color: 'bg-amber-500' },
-    { label: 'Admissions', value: admissions.length, icon: GraduationCap, color: 'bg-rose-500' },
+    {
+      label: 'Total Contacts',
+      value: contacts.length,
+      icon: Users,
+      gradient: 'from-blue-500 to-blue-600',
+      weeklyCount: getWeeklyCount(contacts)
+    },
+    {
+      label: 'Enquiries',
+      value: enquiries.length,
+      icon: MessageSquare,
+      gradient: 'from-green-500 to-green-600',
+      weeklyCount: getWeeklyCount(enquiries)
+    },
+    {
+      label: 'Appointments',
+      value: appointments.length,
+      icon: Calendar,
+      gradient: 'from-amber-500 to-amber-600',
+      weeklyCount: getWeeklyCount(appointments)
+    },
+    {
+      label: 'Admissions',
+      value: admissions.length,
+      icon: GraduationCap,
+      gradient: 'from-rose-500 to-rose-600',
+      weeklyCount: getWeeklyCount(admissions)
+    },
   ];
+
+  const mergeActivityFeed = (): ActivityItem[] => {
+    const activities: ActivityItem[] = [];
+
+    contacts.forEach(contact => {
+      activities.push({
+        id: contact.id,
+        type: 'contact',
+        title: `New contact: ${contact.first_name} ${contact.last_name}`,
+        subtitle: contact.email,
+        created_at: contact.created_at,
+        color: 'bg-blue-500',
+        icon: Users,
+      });
+    });
+
+    enquiries.forEach(enquiry => {
+      activities.push({
+        id: enquiry.id,
+        type: 'enquiry',
+        title: `Enquiry: ${enquiry.subject}`,
+        subtitle: enquiry.message?.substring(0, 60) + (enquiry.message?.length > 60 ? '...' : ''),
+        created_at: enquiry.created_at,
+        color: 'bg-green-500',
+        icon: MessageSquare,
+      });
+    });
+
+    appointments.forEach(appointment => {
+      activities.push({
+        id: appointment.id,
+        type: 'appointment',
+        title: `Appointment: ${appointment.title}`,
+        subtitle: `${formatDateTime(appointment.appointment_date)}`,
+        created_at: appointment.created_at,
+        color: 'bg-amber-500',
+        icon: Calendar,
+      });
+    });
+
+    admissions.forEach(admission => {
+      activities.push({
+        id: admission.id,
+        type: 'admission',
+        title: `Admission: ${admission.program}`,
+        subtitle: admission.specialisation || undefined,
+        created_at: admission.created_at,
+        color: 'bg-rose-500',
+        icon: GraduationCap,
+      });
+    });
+
+    return activities.sort((a, b) =>
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    ).slice(0, 15);
+  };
+
+  const getTodayDate = () => {
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const now = new Date();
+    return `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+  };
 
 
   const handleDeleteContact = async (contactId: string, contactName: string) => {
@@ -271,14 +396,13 @@ export function Dashboard() {
   return (
     <div className="max-w-7xl mx-auto">
       <div className="mb-8">
-        <div className="flex items-center justify-between gap-3 mb-6">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-blue-100 rounded-lg">
-              <TrendingUp className="w-6 h-6 text-blue-600" />
-            </div>
-            <div>
-              <p className="text-gray-600">Manage your contacts, enquiries, appointments, and admissions</p>
-            </div>
+        <div className="flex items-center justify-between gap-3 mb-8">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-1">
+              Welcome back, {profile?.full_name || 'User'}!
+            </h1>
+            <p className="text-gray-500">Here's what's happening at National College today</p>
+            <p className="text-sm text-gray-400 mt-1">{getTodayDate()}</p>
           </div>
           <button
             onClick={downloadEnquiryCSVTemplate}
@@ -291,22 +415,6 @@ export function Dashboard() {
 
         <div className="mb-8">
           <MasterSearch />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {stats.map((stat) => (
-            <div key={stat.label} className="bg-white rounded-xl shadow-md p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">{stat.label}</p>
-                  <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
-                </div>
-                <div className={`${stat.color} p-3 rounded-lg`}>
-                  <stat.icon className="w-6 h-6 text-white" />
-                </div>
-              </div>
-            </div>
-          ))}
         </div>
 
         <div className="bg-white rounded-xl shadow-md mb-6">
@@ -366,23 +474,101 @@ export function Dashboard() {
       </div>
 
       {activeTab === 'overview' && (
-        <div className="space-y-6">
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Recent Activity</h2>
-            <div className="space-y-4">
-              {enquiries.slice(0, 5).map((enquiry) => (
-                <div key={enquiry.id} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
-                  <MessageSquare className="w-5 h-5 text-blue-600 flex-shrink-0" />
-                  <div className="flex-1">
-                    <p className="font-medium text-gray-900">{enquiry.subject}</p>
-                    <p className="text-sm text-gray-600">{formatDateTime(enquiry.created_at)}</p>
+        <div className="space-y-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {stats.map((stat) => (
+              <div
+                key={stat.label}
+                className={`bg-gradient-to-br ${stat.gradient} rounded-2xl shadow-lg p-6 text-white transform hover:scale-105 transition`}
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="p-3 bg-white bg-opacity-20 rounded-lg">
+                    <stat.icon className="w-8 h-8" />
                   </div>
-                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(enquiry.status)}`}>
-                    {enquiry.status}
+                  {stat.weeklyCount > 0 && (
+                    <span className="px-2 py-1 bg-green-500 text-white text-xs font-semibold rounded-full">
+                      +{stat.weeklyCount} this week
+                    </span>
+                  )}
+                </div>
+                <p className="text-sm opacity-90 mb-1">{stat.label}</p>
+                <p className="text-3xl font-bold">{stat.value}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="bg-white rounded-xl shadow-md p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <Zap className="w-6 h-6 text-amber-600" />
+              <h2 className="text-xl font-bold text-gray-900">Quick Actions</h2>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <button
+                onClick={() => navigate('/enquiry')}
+                className="flex flex-col items-center gap-3 p-6 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition shadow-md"
+              >
+                <FileText className="w-8 h-8" />
+                <span className="font-bold">New Enquiry</span>
+              </button>
+              <button
+                onClick={() => navigate('/appointment')}
+                className="flex flex-col items-center gap-3 p-6 bg-gradient-to-br from-cyan-500 to-cyan-600 text-white rounded-xl hover:from-cyan-600 hover:to-cyan-700 transition shadow-md"
+              >
+                <Calendar className="w-8 h-8" />
+                <span className="font-bold">Book Appointment</span>
+              </button>
+              <button
+                onClick={() => navigate('/admission')}
+                className="flex flex-col items-center gap-3 p-6 bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-xl hover:from-orange-600 hover:to-orange-700 transition shadow-md"
+              >
+                <GraduationCap className="w-8 h-8" />
+                <span className="font-bold">New Admission</span>
+              </button>
+              <button
+                onClick={() => navigate('/fee-payment')}
+                className="flex flex-col items-center gap-3 p-6 bg-gradient-to-br from-teal-500 to-teal-600 text-white rounded-xl hover:from-teal-600 hover:to-teal-700 transition shadow-md"
+              >
+                <Wallet className="w-8 h-8" />
+                <span className="font-bold">Record Payment</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-md p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <Activity className="w-6 h-6 text-blue-600" />
+              <h2 className="text-xl font-bold text-gray-900">Recent Activity</h2>
+            </div>
+            <div className="space-y-1">
+              {mergeActivityFeed().map((activity, index) => (
+                <div
+                  key={activity.id}
+                  className="flex items-start gap-4 p-4 hover:bg-gray-50 rounded-lg transition cursor-pointer"
+                  onClick={() => setActiveTab(activity.type === 'contact' ? 'contacts' : activity.type === 'enquiry' ? 'enquiries' : activity.type === 'appointment' ? 'appointments' : 'admissions')}
+                >
+                  <div className="relative">
+                    <div className={`${activity.color} p-2 rounded-full`}>
+                      <activity.icon className="w-4 h-4 text-white" />
+                    </div>
+                    {index !== mergeActivityFeed().length - 1 && (
+                      <div className="absolute left-1/2 top-8 w-0.5 h-8 bg-gray-200 -ml-px" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-gray-900">{activity.title}</p>
+                    {activity.subtitle && (
+                      <p className="text-sm text-gray-600 mt-1 truncate">{activity.subtitle}</p>
+                    )}
+                  </div>
+                  <span className="text-sm text-gray-500 whitespace-nowrap">
+                    {formatRelativeTime(activity.created_at)}
                   </span>
                 </div>
               ))}
             </div>
+            {mergeActivityFeed().length === 0 && (
+              <p className="text-center text-gray-500 py-8">No recent activity</p>
+            )}
           </div>
         </div>
       )}
