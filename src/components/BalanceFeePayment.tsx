@@ -1,12 +1,12 @@
 import { useState, FormEvent, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { Wallet, AlertCircle, CheckCircle, ArrowLeft, Search, Upload, FileText, ExternalLink, CreditCard as Edit2, Save, X } from 'lucide-react';
-import { useNavigation } from '../App';
 import { useAuth } from '../contexts/AuthContext';
 import { Contact, Admission, Payment } from '../types/interfaces';
 
 export function BalanceFeePayment() {
-  const { setCurrentPage } = useNavigation();
+  const navigate = useNavigate();
   const { isAdmin } = useAuth();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -366,7 +366,7 @@ export function BalanceFeePayment() {
   return (
     <div className="max-w-4xl mx-auto">
       <button
-        onClick={() => setCurrentPage('dashboard')}
+        onClick={() => navigate('/dashboard')}
         className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 transition"
       >
         <ArrowLeft className="w-4 h-4" />

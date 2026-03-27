@@ -8,3 +8,8 @@ NODE_VERSION = "20"
 SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_ANON_KEY,VITE_SUPABASE_URL"
 VITE_SUPABASE_URL = "https://obqyndxmkgtshalmchot.supabase.co"
 VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9icXluZHhta2d0c2hhbG1jaG90Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMzg0MjUsImV4cCI6MjA4NzcxNDQyNX0.7otczh0QG-m9Ce7JLS5Xx6j5N-c4Ljlf5ChqBOtb3fY"
+
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200

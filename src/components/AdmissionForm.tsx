@@ -1,4 +1,5 @@
 import { useState, FormEvent, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import {
   Upload, CheckCircle, AlertCircle, ArrowLeft,
@@ -8,7 +9,6 @@ import { convertToDBFormat, cleanDateForForm } from '../utils/dateValidation';
 import { ContactSearch } from './ContactSearch';
 import { PROGRAMS, SPECIALISATIONS, INDIAN_STATES, EMPLOYMENT_STATUS, QUALIFICATIONS, generateYears } from '../constants/formOptions';
 import { validateEmail, validateMobile } from '../utils/validation';
-import { useNavigation } from '../App';
 import { Contact } from '../types/interfaces';
 
 interface FormData {
@@ -34,7 +34,7 @@ interface FormData {
 }
 
 export function AdmissionForm() {
-  const navigation = useNavigation();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
@@ -310,14 +310,14 @@ export function AdmissionForm() {
 
                 <div className="hidden md:flex items-center gap-2">
                   <button
-                    onClick={() => navigation.setCurrentPage('dashboard')}
+                    onClick={() => navigate('/dashboard')}
                     className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition text-gray-600 hover:bg-gray-100"
                   >
                     <LayoutDashboard className="w-4 h-4" />
                     Dashboard
                   </button>
                   <button
-                    onClick={() => navigation.setCurrentPage('enquiry')}
+                    onClick={() => navigate('/enquiry')}
                     className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition text-gray-600 hover:bg-gray-100"
                   >
                     <FileText className="w-4 h-4" />
@@ -331,7 +331,7 @@ export function AdmissionForm() {
               </div>
 
               <button
-                onClick={() => navigation.setCurrentPage('dashboard')}
+                onClick={() => navigate('/dashboard')}
                 className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition"
               >
                 <ArrowLeft className="w-4 h-4" />
@@ -387,7 +387,7 @@ export function AdmissionForm() {
               Submit Another Application
             </button>
             <button
-              onClick={() => navigation.setCurrentPage('dashboard')}
+              onClick={() => navigate('/dashboard')}
               className="px-8 py-3 bg-gray-200 text-gray-900 rounded-lg font-semibold hover:bg-gray-300 transition flex items-center gap-2"
             >
               <ArrowLeft className="w-5 h-5" />
@@ -418,14 +418,14 @@ export function AdmissionForm() {
 
               <div className="hidden md:flex items-center gap-2">
                 <button
-                  onClick={() => navigation.setCurrentPage('dashboard')}
+                  onClick={() => navigate('/dashboard')}
                   className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition text-gray-600 hover:bg-gray-100"
                 >
                   <LayoutDashboard className="w-4 h-4" />
                   Dashboard
                 </button>
                 <button
-                  onClick={() => navigation.setCurrentPage('enquiry')}
+                  onClick={() => navigate('/enquiry')}
                   className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition text-gray-600 hover:bg-gray-100"
                 >
                   <FileText className="w-4 h-4" />
@@ -439,7 +439,7 @@ export function AdmissionForm() {
             </div>
 
             <button
-              onClick={() => navigation.setCurrentPage('dashboard')}
+              onClick={() => navigate('/dashboard')}
               className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition"
             >
               <ArrowLeft className="w-4 h-4" />

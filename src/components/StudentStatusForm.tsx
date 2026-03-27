@@ -1,7 +1,7 @@
 import { useState, FormEvent, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { ClipboardCheck, AlertCircle, CheckCircle, ArrowLeft, Search } from 'lucide-react';
-import { useNavigation } from '../App';
 import { Contact, Admission } from '../types/interfaces';
 
 interface CourierEntry {
@@ -85,7 +85,7 @@ const NON_PHD_FIELDS = [
 ];
 
 export function StudentStatusForm() {
-  const { setCurrentPage } = useNavigation();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
@@ -353,7 +353,7 @@ export function StudentStatusForm() {
   return (
     <div className="max-w-4xl mx-auto">
       <button
-        onClick={() => setCurrentPage('dashboard')}
+        onClick={() => navigate('/dashboard')}
         className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 transition"
       >
         <ArrowLeft className="w-4 h-4" />

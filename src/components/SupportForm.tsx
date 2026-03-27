@@ -1,16 +1,16 @@
 import { useState, FormEvent, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { Mail, MessageSquare, AlertCircle, CheckCircle, ArrowLeft } from 'lucide-react';
 import { ContactSearch } from './ContactSearch';
 import { sanitizeDateValue, cleanDateForForm } from '../utils/dateValidation';
-import { useNavigation } from '../App';
 import { checkForDuplicates, PotentialDuplicate } from '../utils/duplicateDetection';
 import { DuplicateWarningModal } from './DuplicateWarningModal';
 import { CITIES, QUALIFICATIONS, SPECIALISATIONS } from '../constants/formOptions';
 import { Contact } from '../types/interfaces';
 
 export function SupportForm() {
-  const { setCurrentPage } = useNavigation();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
@@ -277,7 +277,7 @@ export function SupportForm() {
   return (
     <div className="max-w-3xl mx-auto">
       <button
-        onClick={() => setCurrentPage('dashboard')}
+        onClick={() => navigate('/dashboard')}
         className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 transition"
       >
         <ArrowLeft className="w-4 h-4" />
