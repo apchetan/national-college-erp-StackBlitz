@@ -11,6 +11,7 @@ import { Dashboard } from './components/Dashboard';
 import { AdminPanel } from './components/AdminPanel';
 import { StatusSearch } from './components/StatusSearch';
 import { Login } from './components/Login';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { useAuth } from './contexts/AuthContext';
 import { LayoutDashboard, FileText, Calendar, GraduationCap, Menu, X, Shield, LogOut, User, ListChecks, Wallet, Headphones as HeadphonesIcon, ClipboardCheck, Truck, Home } from 'lucide-react';
 
@@ -185,37 +186,39 @@ function AppContent() {
         </nav>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/enquiry" element={<EnquiryForm />} />
-          <Route path="/support" element={<SupportForm />} />
-          <Route path="/appointment" element={<AppointmentBooking />} />
-          <Route path="/admission" element={<AdmissionForm />} />
-          <Route path="/fee-payment" element={<BalanceFeePayment />} />
-          <Route path="/student-status" element={<StudentStatusForm />} />
-          <Route path="/courier-status" element={<CourierStatus />} />
-          <Route path="/status" element={<StatusSearch />} />
-          {(isAdmin || isSuperAdmin) && (
-            <Route path="/admin" element={<AdminPanel />} />
-          )}
-          <Route path="*" element={
-            <div className="text-center py-16">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-red-100 to-red-200 mb-4">
-                <Home className="w-8 h-8 text-red-600" />
+        <ErrorBoundary>
+          <Routes>
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/dashboard" element={<ErrorBoundary><Dashboard /></ErrorBoundary>} />
+            <Route path="/enquiry" element={<ErrorBoundary><EnquiryForm /></ErrorBoundary>} />
+            <Route path="/support" element={<ErrorBoundary><SupportForm /></ErrorBoundary>} />
+            <Route path="/appointment" element={<ErrorBoundary><AppointmentBooking /></ErrorBoundary>} />
+            <Route path="/admission" element={<ErrorBoundary><AdmissionForm /></ErrorBoundary>} />
+            <Route path="/fee-payment" element={<ErrorBoundary><BalanceFeePayment /></ErrorBoundary>} />
+            <Route path="/student-status" element={<ErrorBoundary><StudentStatusForm /></ErrorBoundary>} />
+            <Route path="/courier-status" element={<ErrorBoundary><CourierStatus /></ErrorBoundary>} />
+            <Route path="/status" element={<ErrorBoundary><StatusSearch /></ErrorBoundary>} />
+            {(isAdmin || isSuperAdmin) && (
+              <Route path="/admin" element={<ErrorBoundary><AdminPanel /></ErrorBoundary>} />
+            )}
+            <Route path="*" element={
+              <div className="text-center py-16">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-red-100 to-red-200 mb-4">
+                  <Home className="w-8 h-8 text-red-600" />
+                </div>
+                <h2 className="text-2xl font-bold text-gray-800 mb-2">Page Not Found</h2>
+                <p className="text-gray-600 mb-6">The page you're looking for doesn't exist.</p>
+                <button
+                  onClick={() => navigate('/dashboard')}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl font-medium hover:from-blue-700 hover:to-cyan-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+                >
+                  <Home className="w-4 h-4" />
+                  Go to Dashboard
+                </button>
               </div>
-              <h2 className="text-2xl font-bold text-gray-800 mb-2">Page Not Found</h2>
-              <p className="text-gray-600 mb-6">The page you're looking for doesn't exist.</p>
-              <button
-                onClick={() => navigate('/dashboard')}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl font-medium hover:from-blue-700 hover:to-cyan-700 transition-all duration-200 shadow-lg hover:shadow-xl"
-              >
-                <Home className="w-4 h-4" />
-                Go to Dashboard
-              </button>
-            </div>
-          } />
-        </Routes>
+            } />
+          </Routes>
+        </ErrorBoundary>
       </main>
 
       <footer className="bg-gradient-to-r from-white via-gray-50 to-white border-t border-gray-200 mt-16 shadow-inner">
