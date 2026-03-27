@@ -2,27 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { Users, Plus, CreditCard as Edit2, Trash2, CheckCircle, X, Shield, UserCog, Eye, EyeOff, AlertCircle, Key } from 'lucide-react';
-
-interface Profile {
-  id: string;
-  email: string;
-  full_name: string;
-  role: 'super_admin' | 'admin' | 'manager' | 'editor' | 'viewer';
-  is_active: boolean;
-  created_at: string;
-}
-
-interface Permission {
-  id?: string;
-  user_id: string;
-  resource: 'contacts' | 'enquiries' | 'appointments' | 'admissions' | 'payments' | 'support' | 'student_status' | 'all_forms';
-  can_view: boolean;
-  can_create: boolean;
-  can_edit: boolean;
-  can_delete: boolean;
-  can_export: boolean;
-  can_import: boolean;
-}
+import { Profile, Permission } from '../types/interfaces';
 
 export function EnhancedUserManagement() {
   const { isSuperAdmin, profile: currentProfile } = useAuth();

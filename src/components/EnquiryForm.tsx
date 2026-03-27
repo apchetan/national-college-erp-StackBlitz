@@ -7,20 +7,7 @@ import { useNavigation } from '../App';
 import { checkForDuplicates, PotentialDuplicate } from '../utils/duplicateDetection';
 import { DuplicateWarningModal } from './DuplicateWarningModal';
 import { CITIES, QUALIFICATIONS, SPECIALISATIONS, EMPLOYMENT_STATUS, generateYears } from '../constants/formOptions';
-
-interface Contact {
-  id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone: string | null;
-  mobile1: string | null;
-  mobile2: string | null;
-  date_of_birth: string | null;
-  city: string | null;
-  company: string | null;
-  source: string;
-}
+import { Contact } from '../types/interfaces';
 
 export function EnquiryForm() {
   const { setCurrentPage } = useNavigation();

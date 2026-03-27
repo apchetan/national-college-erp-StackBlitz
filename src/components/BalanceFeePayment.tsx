@@ -1,45 +1,9 @@
 import { useState, FormEvent, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Wallet, AlertCircle, CheckCircle, ArrowLeft, Search, Upload, FileText, ExternalLink, Edit2, Save, X } from 'lucide-react';
+import { Wallet, AlertCircle, CheckCircle, ArrowLeft, Search, Upload, FileText, ExternalLink, CreditCard as Edit2, Save, X } from 'lucide-react';
 import { useNavigation } from '../App';
 import { useAuth } from '../contexts/AuthContext';
-
-interface Contact {
-  id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone: string | null;
-  mobile1: string | null;
-  mobile2: string | null;
-  date_of_birth: string | null;
-  city: string | null;
-}
-
-interface Admission {
-  id: string;
-  contact_id: string;
-  program: string;
-  specialisation: string | null;
-  amount: number;
-  amount_paid: number;
-  status: string;
-  contacts: Contact;
-}
-
-interface Payment {
-  id: string;
-  admission_id: string;
-  amount: number;
-  payment_date: string;
-  payment_mode: string;
-  transaction_number: string | null;
-  notes: string | null;
-  receipt_file_url: string | null;
-  receipt_date: string | null;
-  balance_fee: number | null;
-  counselor: string | null;
-}
+import { Contact, Admission, Payment } from '../types/interfaces';
 
 export function BalanceFeePayment() {
   const { setCurrentPage } = useNavigation();

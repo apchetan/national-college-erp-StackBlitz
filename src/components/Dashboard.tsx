@@ -1,15 +1,10 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Users, MessageSquare, Calendar, GraduationCap, Activity, TrendingUp, Download, Trash2 } from 'lucide-react';
-import type { Database } from '../types/database';
 import { downloadEnquiryCSVTemplate } from '../utils/csvTemplate';
 import { MasterSearch } from './MasterSearch';
 import { formatDate, formatDateTime } from '../utils/formatting';
-
-type Contact = Database['public']['Tables']['contacts']['Row'];
-type Enquiry = Database['public']['Tables']['enquiries']['Row'];
-type Appointment = Database['public']['Tables']['appointments']['Row'];
-type Admission = Database['public']['Tables']['admissions']['Row'];
+import { Contact, Enquiry, Appointment, Admission } from '../types/interfaces';
 
 export function Dashboard() {
   const [activeTab, setActiveTab] = useState<'overview' | 'contacts' | 'enquiries' | 'appointments' | 'admissions'>('overview');

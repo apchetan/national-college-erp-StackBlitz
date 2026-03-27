@@ -5,18 +5,7 @@ import { ContactSearch } from './ContactSearch';
 import { MultiSelectDropdown } from './MultiSelectDropdown';
 import { sanitizeDateValue } from '../utils/dateValidation';
 import { useNavigation } from '../App';
-
-interface Contact {
-  id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone: string | null;
-  date_of_birth: string | null;
-  city: string | null;
-  company: string | null;
-  source: string;
-}
+import { Contact } from '../types/interfaces';
 
 interface CourierEntry {
   id: string;

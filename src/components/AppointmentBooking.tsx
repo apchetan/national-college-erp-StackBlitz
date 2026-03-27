@@ -9,6 +9,7 @@ import { ContactSearch } from './ContactSearch';
 import { PROGRAMS, SPECIALISATIONS, INDIAN_STATES, EMPLOYMENT_STATUS, QUALIFICATIONS, generateYears } from '../constants/formOptions';
 import { validateEmail, validateMobile } from '../utils/validation';
 import { useNavigation } from '../App';
+import { Contact } from '../types/interfaces';
 
 interface FormData {
   fullName: string;
@@ -28,18 +29,6 @@ interface FormData {
   appointmentType: string;
   preferredDate: string;
   timeSlot: string;
-}
-
-interface Contact {
-  id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone: string | null;
-  date_of_birth: string | null;
-  city: string | null;
-  company: string | null;
-  source: string;
 }
 
 export function AppointmentBooking() {

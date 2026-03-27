@@ -2,24 +2,7 @@ import { useState, FormEvent, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { ClipboardCheck, AlertCircle, CheckCircle, ArrowLeft, Search } from 'lucide-react';
 import { useNavigation } from '../App';
-
-interface Contact {
-  id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone: string | null;
-  date_of_birth: string | null;
-  city: string | null;
-}
-
-interface Admission {
-  id: string;
-  contact_id: string;
-  program: string;
-  specialisation: string | null;
-  contacts: Contact;
-}
+import { Contact, Admission } from '../types/interfaces';
 
 interface CourierEntry {
   id: string;
