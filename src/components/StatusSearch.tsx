@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 import { Search, Filter, User, Calendar, Phone, Mail, X, FileText, Briefcase, BookOpen, MapPin, DollarSign, Award, GraduationCap, Trash2, AlertTriangle, ClipboardCheck, CheckCircle, MessageSquare } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { Contact, Enquiry, Appointment, Admission, StudentStatus, Payment, Profile, ContactReport } from '../types/interfaces';
+import { useToast } from '../contexts/ToastContext';
 
 export function StatusSearch() {
+  const { addToast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [contacts, setContacts] = useState<Contact[]>([]);
@@ -196,7 +198,7 @@ export function StatusSearch() {
       setDeleteConfirm(null);
     } catch (error) {
       console.error('Error deleting entries:', error);
-      alert('Failed to delete entries. Please try again.');
+      addToast('Failed to delete entries. Please try again.', 'error');
     } finally {
       setDeleting(false);
     }

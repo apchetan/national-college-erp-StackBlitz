@@ -5,8 +5,11 @@ import { downloadEnquiryCSVTemplate } from '../utils/csvTemplate';
 import { MasterSearch } from './MasterSearch';
 import { formatDate, formatDateTime } from '../utils/formatting';
 import { Contact, Enquiry, Appointment, Admission } from '../types/interfaces';
+import { useToast } from '../contexts/ToastContext';
+import { ConfirmModal } from './ConfirmModal';
 
 export function Dashboard() {
+  const { addToast } = useToast();
   const [activeTab, setActiveTab] = useState<'overview' | 'contacts' | 'enquiries' | 'appointments' | 'admissions'>('overview');
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
@@ -19,6 +22,18 @@ export function Dashboard() {
   const [selectedAppointments, setSelectedAppointments] = useState<string[]>([]);
   const [selectedAdmissions, setSelectedAdmissions] = useState<string[]>([]);
   const [deleting, setDeleting] = useState(false);
+
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {}
+  });
 
   useEffect(() => {
     fetchData();
@@ -54,27 +69,31 @@ export function Dashboard() {
 
 
   const handleDeleteContact = async (contactId: string, contactName: string) => {
-    if (!confirm(`Are you sure you want to delete ${contactName}? This action cannot be undone.`)) {
-      return;
-    }
+    setConfirmModal({
+      isOpen: true,
+      title: 'Delete Contact',
+      message: `Are you sure you want to delete ${contactName}? This action cannot be undone.`,
+      onConfirm: async () => {
+        setConfirmModal({ isOpen: false, title: '', message: '', onConfirm: () => {} });
+        try {
+          const { error } = await supabase
+            .from('contacts')
+            .delete()
+            .eq('id', contactId);
 
-    try {
-      const { error } = await supabase
-        .from('contacts')
-        .delete()
-        .eq('id', contactId);
-
-      if (error) {
-        alert(`Error deleting contact: ${error.message}`);
-        console.error('Error deleting contact:', error);
-      } else {
-        alert('Contact deleted successfully');
-        fetchData();
+          if (error) {
+            addToast(`Error deleting contact: ${error.message}`, 'error');
+            console.error('Error deleting contact:', error);
+          } else {
+            addToast('Contact deleted successfully', 'success');
+            fetchData();
+          }
+        } catch (error) {
+          addToast('An unexpected error occurred while deleting the contact', 'error');
+          console.error('Error deleting contact:', error);
+        }
       }
-    } catch (error) {
-      alert('An unexpected error occurred while deleting the contact');
-      console.error('Error deleting contact:', error);
-    }
+    });
   };
 
   const toggleSelectAll = (type: 'contacts' | 'enquiries' | 'appointments' | 'admissions') => {
@@ -164,7 +183,7 @@ export function Dashboard() {
     }
 
     if (selectedIds.length === 0) {
-      alert(`Please select at least one ${itemName} to delete`);
+      addToast(`Please select at least one ${itemName} to delete`, 'warning');
       return;
     }
 
@@ -173,44 +192,48 @@ export function Dashboard() {
       ? `Are you sure you want to delete this ${itemName}?`
       : `Are you sure you want to delete ${count} ${itemName}s?`;
 
-    if (!confirm(`${confirmMessage}\n\nThis action cannot be undone.`)) {
-      return;
-    }
+    setConfirmModal({
+      isOpen: true,
+      title: `Delete ${itemName}${count === 1 ? '' : 's'}`,
+      message: `${confirmMessage}\n\nThis action cannot be undone.`,
+      onConfirm: async () => {
+        setConfirmModal({ isOpen: false, title: '', message: '', onConfirm: () => {} });
+        setDeleting(true);
+        try {
+          const { error } = await supabase
+            .from(tableName)
+            .delete()
+            .in('id', selectedIds);
 
-    setDeleting(true);
-    try {
-      const { error } = await supabase
-        .from(tableName)
-        .delete()
-        .in('id', selectedIds);
-
-      if (error) {
-        alert(`Error deleting ${itemName}s: ${error.message}`);
-        console.error(`Error deleting ${itemName}s:`, error);
-      } else {
-        alert(`Successfully deleted ${count} ${itemName}${count === 1 ? '' : 's'}`);
-        switch (type) {
-          case 'contacts':
-            setSelectedContacts([]);
-            break;
-          case 'enquiries':
-            setSelectedEnquiries([]);
-            break;
-          case 'appointments':
-            setSelectedAppointments([]);
-            break;
-          case 'admissions':
-            setSelectedAdmissions([]);
-            break;
+          if (error) {
+            addToast(`Error deleting: ${error.message}`, 'error');
+            console.error(`Error deleting ${itemName}s:`, error);
+          } else {
+            addToast(`Successfully deleted ${count} ${itemName}${count === 1 ? '' : 's'}`, 'success');
+            switch (type) {
+              case 'contacts':
+                setSelectedContacts([]);
+                break;
+              case 'enquiries':
+                setSelectedEnquiries([]);
+                break;
+              case 'appointments':
+                setSelectedAppointments([]);
+                break;
+              case 'admissions':
+                setSelectedAdmissions([]);
+                break;
+            }
+            fetchData();
+          }
+        } catch (error) {
+          addToast(`An unexpected error occurred while deleting ${itemName}s`, 'error');
+          console.error(`Error deleting ${itemName}s:`, error);
+        } finally {
+          setDeleting(false);
         }
-        fetchData();
       }
-    } catch (error) {
-      alert(`An unexpected error occurred while deleting ${itemName}s`);
-      console.error(`Error deleting ${itemName}s:`, error);
-    } finally {
-      setDeleting(false);
-    }
+    });
   };
 
   const getStatusColor = (status: string) => {
@@ -678,6 +701,15 @@ export function Dashboard() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        onConfirm={confirmModal.onConfirm}
+        onCancel={() => setConfirmModal({ isOpen: false, title: '', message: '', onConfirm: () => {} })}
+        variant="danger"
+      />
     </div>
   );
 }

@@ -3,6 +3,8 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App.tsx';
 import { AuthProvider } from './contexts/AuthContext';
+import { ToastProvider } from './contexts/ToastContext';
+import { ToastContainer } from './components/ToastContainer';
 import './index.css';
 
 window.onerror = (message, source, lineno, colno, error) => {
@@ -18,9 +20,12 @@ try {
   createRoot(document.getElementById('root')!).render(
     <StrictMode>
       <BrowserRouter>
-        <AuthProvider>
-          <App />
-        </AuthProvider>
+        <ToastProvider>
+          <ToastContainer />
+          <AuthProvider>
+            <App />
+          </AuthProvider>
+        </ToastProvider>
       </BrowserRouter>
     </StrictMode>
   );
