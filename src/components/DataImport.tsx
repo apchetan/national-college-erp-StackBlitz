@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { Upload, FileSpreadsheet, CheckCircle, AlertCircle, Download } from 'lucide-react';
-import { downloadEnquiryCSVTemplate, downloadStudentStatusCSVTemplate } from '../utils/csvTemplate';
+import { downloadEnquiryCSVTemplate } from '../utils/csvTemplate';
 import { sanitizeDateValue } from '../utils/dateValidation';
 import { checkForDuplicates } from '../utils/duplicateDetection';
 import { normalizeImportRow, validateMandatoryFields, isFieldMandatory, ImportWarning } from '../utils/importNormalization';
@@ -33,121 +33,61 @@ export function DataImport() {
     { id: 'enquiries', name: 'Enquiries', description: 'Import enquiry records' },
     { id: 'appointments', name: 'Appointments', description: 'Import appointment records' },
     { id: 'admissions', name: 'Admissions', description: 'Import admission records' },
-    { id: 'payments', name: 'Fee Payment Form', description: 'Import payment records' },
-    { id: 'student_status', name: 'Student Status', description: 'Import student status records' },
   ];
 
   const columnMapping: Record<string, string> = {
+    // Contacts columns
     'First Name': 'first_name',
     'Last Name': 'last_name',
     'Email Address': 'email',
+    'Email': 'email',
     'Phone Number': 'phone',
+    'Phone': 'phone',
     'Date of Birth (DD-MM-YYYY)': 'date_of_birth',
     'Date of Birth': 'date_of_birth',
     'DOB': 'date_of_birth',
     'City': 'city',
-    'Address': 'address',
-    'Gender': 'gender',
-    'Caller': 'caller',
     'Current Company/Organization': 'company',
     'Company': 'company',
     'How did you hear about us': 'source',
     'Source': 'source',
+    'Status': 'status',
+    'Notes': 'notes',
+    'Additional Notes': 'notes',
+
+    // Enquiries columns
     'Enquiry Type': 'enquiry_type',
     'Subject': 'subject',
     'Message': 'message',
     'Priority': 'priority',
-    'Annual Salary': 'annual_salary',
-    'Salary': 'salary',
-    'Annual Compensation': 'salary',
-    'Compensation': 'salary',
+    'Assigned To': 'assigned_to',
+    'Contact ID': 'contact_id',
+
+    // Appointments columns
+    'Title': 'title',
+    'Description': 'description',
+    'Appointment Date': 'appointment_date',
+    'Duration Minutes': 'duration_minutes',
+    'Duration': 'duration_minutes',
+    'Appointment Type': 'appointment_type',
+    'Location': 'location',
+
+    // Admissions columns
     'Course': 'program',
-    'Job Title': 'role',
-    'Role': 'role',
-    'Specialisation': 'specialisation',
-    'Previous Institution': 'previous_institution',
-    'Years of Experience': 'total_experience',
-    'Total Experience': 'total_experience',
-    'Experience': 'total_experience',
-    'Expirence': 'total_experience',
-    'Additional Notes': 'notes',
-    'Contact Email': 'contact_email',
     'Program': 'program',
-    'Status': 'status',
-    'Date of Application': 'date_of_application',
-    'Application Date': 'date_of_application',
-    'Industry': 'industry',
-    'UG Degree': 'ug_degree',
-    'UG Specialization': 'ug_specialization',
-    'UG University': 'ug_university',
-    'PG Degree': 'pg_degree',
-    'PG Specialization': 'pg_specialization',
-    'PG University': 'pg_university',
-    'Remark': 'remark',
-    'Remarks': 'remark',
-    'Courseware Exam Status': 'courseware_exam_status',
-    'Degree Status': 'degree_status',
-    'Degree Issued': 'degree_issued',
-    'Degree Courier Docket': 'degree_courier_docket',
-    'Enrolment No Status': 'enrolment_no_status',
-    'Enrolment No Value': 'enrolment_no_value',
-    'Exam Status': 'exam_status',
-    'LOR Status': 'lor_status',
-    'LOR Issued': 'lor_issued',
-    'LOR Courier Docket': 'lor_courier_docket',
-    'MS Hard Copy Status': 'ms_hard_copy_status',
-    'MS Hard Copy Issued': 'ms_hard_copy_issued',
-    'MS Hard Copy Courier Docket': 'ms_hard_copy_courier_docket',
-    'MS Hard Copy Courier Status': 'ms_hard_copy_courier_status',
-    'MS SCAN Status': 'ms_scan_status',
-    'MS SCAN Issued': 'ms_scan_issued',
-    'MS SCAN Courier Docket': 'ms_scan_courier_docket',
-    'Provisional Degree Status': 'provisional_degree_status',
-    'Provisional Degree Issued': 'provisional_degree_issued',
-    'Provisional Degree Courier Docket': 'provisional_degree_courier_docket',
-    'Provisional Degree Courier Status': 'provisional_degree_courier_status',
-    'Recommendation Letter Status': 'recommendation_letter_status',
-    'Recommendation Letter Issued': 'recommendation_letter_issued',
-    'Recommendation Letter Courier Docket': 'recommendation_letter_courier_docket',
-    'Result Status': 'result_status',
-    'Roll No Status': 'roll_no_status',
-    'University PhD Offer Letter Status': 'university_phd_offer_letter_status',
-    'University PhD Offer Letter Issued': 'university_phd_offer_letter_issued',
-    'University PhD Offer Letter Courier Docket': 'university_phd_offer_letter_courier_docket',
-    'University Visit Status': 'university_visit_status',
-    'University Visit1 Status': 'university_visit1_status',
-    'University Visit2 Status': 'university_visit2_status',
-    'University Visit3 Status': 'university_visit3_status',
-    'VIVA Status': 'viva_status',
-    'WES Status': 'wes_status',
-    'WES Issued': 'wes_issued',
-    'WES Courier Docket': 'wes_courier_docket',
-    'Admission ID': 'admission_id',
+    'Specialisation': 'specialisation',
+    'Specialization': 'specialisation',
+    'Previous Institution': 'previous_institution',
+    'Years of Experience': 'experience_years',
+    'Experience Years': 'experience_years',
+    'Total Experience': 'experience_years',
+    'Experience': 'experience_years',
+    'Qualification': 'qualification',
+    'Qualifications': 'qualification',
+    'Documents Submitted': 'documents_submitted',
+    'Payment Status': 'payment_status',
     'Amount': 'amount',
-    'Payment Date': 'payment_date',
-    'Payment Mode': 'payment_mode',
-    'Payment Method': 'payment_mode',
-    'Transaction Number': 'transaction_number',
-    'Transaction ID': 'transaction_number',
-    'Receipt URL': 'receipt_url',
-    'Receipt Date': 'receipt_date',
-    'Balance Fee': 'balance_fee',
-    'Counselor': 'counselor',
-    'Submission Date': 'submission_date',
     'Amount Paid': 'amount_paid',
-    'Mobile': 'mobile',
-    'Mobile1': 'mobile',
-    'Mobile2': 'mobile2',
-    'Email': 'email_id',
-    'Email ID': 'email_id',
-    'Receipt No': 'receipt_no',
-    'Receipt Number': 'receipt_no',
-    'Payment Type': 'payment_type',
-    'Bank': 'bank',
-    'UTR No': 'utr_nocheque_no__transanction_no',
-    'Cheque No': 'utr_nocheque_no__transanction_no',
-    'Transaction No': 'utr_nocheque_no__transanction_no',
-    'UTR/Cheque/Transaction No': 'utr_nocheque_no__transanction_no',
   };
 
   const mapColumnName = (header: string): string => {
@@ -161,33 +101,49 @@ export function DataImport() {
         'last_name',
         'email',
         'phone',
-        'date_of_birth',
-        'city',
-        'address',
-        'gender',
         'company',
-        'caller',
-        'source',
         'status',
-        'program',
-        'date_of_application',
-        'total_experience',
-        'role',
-        'industry',
-        'salary',
-        'ug_degree',
-        'ug_specialization',
-        'ug_university',
-        'pg_degree',
-        'pg_specialization',
-        'pg_university',
-        'remark'
+        'source',
+        'notes',
+        'date_of_birth',
+        'city'
       ],
-      enquiries: ['contact_id', 'subject', 'message', 'enquiry_type', 'priority', 'annual_salary', 'program', 'specialisation', 'previous_institution', 'experience_years', 'notes', 'status'],
-      appointments: ['contact_id', 'appointment_date', 'appointment_time', 'purpose', 'notes', 'status', 'attendance'],
-      admissions: ['contact_id', 'program', 'specialisation', 'admission_status', 'previous_institution', 'qualifications', 'notes', 'status'],
-      payments: ['admission_id', 'amount', 'payment_date', 'payment_mode', 'transaction_number', 'notes', 'receipt_url', 'receipt_date', 'balance_fee', 'counselor', 'submission_date', 'amount_paid', 'mobile', 'course', 'first_name', 'last_name', 'mobile2', 'email_id', 'receipt_no', 'payment_type', 'bank', 'utr_nocheque_no__transanction_no'],
-      student_status: ['contact_id', 'program', 'specialisation', 'courseware_exam_status', 'degree_status', 'degree_issued', 'degree_courier_docket', 'enrolment_no_status', 'enrolment_no_value', 'exam_status', 'lor_status', 'lor_issued', 'lor_courier_docket', 'ms_hard_copy_status', 'ms_hard_copy_issued', 'ms_hard_copy_courier_docket', 'ms_hard_copy_courier_status', 'ms_scan_status', 'ms_scan_issued', 'ms_scan_courier_docket', 'provisional_degree_status', 'provisional_degree_issued', 'provisional_degree_courier_docket', 'provisional_degree_courier_status', 'recommendation_letter_status', 'recommendation_letter_issued', 'recommendation_letter_courier_docket', 'result_status', 'roll_no_status', 'university_phd_offer_letter_status', 'university_phd_offer_letter_issued', 'university_phd_offer_letter_courier_docket', 'university_visit_status', 'university_visit1_status', 'university_visit2_status', 'university_visit3_status', 'viva_status', 'wes_status', 'wes_issued', 'wes_courier_docket', 'notes'],
+      enquiries: [
+        'contact_id',
+        'subject',
+        'message',
+        'enquiry_type',
+        'priority',
+        'status',
+        'assigned_to'
+      ],
+      appointments: [
+        'contact_id',
+        'title',
+        'description',
+        'appointment_date',
+        'duration_minutes',
+        'appointment_type',
+        'status',
+        'location',
+        'assigned_to'
+      ],
+      admissions: [
+        'contact_id',
+        'program',
+        'status',
+        'qualification',
+        'experience_years',
+        'previous_institution',
+        'documents_submitted',
+        'payment_status',
+        'amount',
+        'amount_paid',
+        'notes',
+        'specialisation'
+      ],
+      payments: [],
+      student_status: [],
     };
     return columnsByType[dataType] || [];
   };
@@ -410,8 +366,8 @@ export function DataImport() {
       });
 
       if (selectedType === 'enquiries') {
-        const contactFields = new Set(['first_name', 'last_name', 'email', 'phone', 'date_of_birth', 'city', 'address', 'gender', 'company', 'caller', 'source']);
-        const enquiryFields = new Set(['subject', 'message', 'enquiry_type', 'priority', 'annual_salary', 'program', 'specialisation', 'previous_institution', 'experience_years', 'notes']);
+        const contactFields = new Set(['first_name', 'last_name', 'email', 'phone', 'date_of_birth', 'city', 'company', 'source', 'notes']);
+        const enquiryFields = new Set(['subject', 'message', 'enquiry_type', 'priority', 'status', 'assigned_to']);
         let successCount = 0;
         const skipped: string[] = [];
 
@@ -459,7 +415,9 @@ export function DataImport() {
 
           if (contact && enquiryData.subject && enquiryData.message) {
             enquiryData.contact_id = contact.id;
-            enquiryData.status = 'new';
+            if (!enquiryData.status) {
+              enquiryData.status = 'new';
+            }
 
             const { error: enquiryError } = await supabase
               .from('enquiries')
@@ -473,93 +431,6 @@ export function DataImport() {
 
         setSkippedRecords(skipped);
         setSuccess(`Successfully imported ${successCount} enquiry records${skipped.length > 0 ? `. Skipped ${skipped.length} duplicate(s)` : ''}`);
-      } else if (selectedType === 'student_status') {
-        let successCount = 0;
-        const errors: string[] = [];
-
-        for (const row of cleanedData) {
-          const contactEmail = row.contact_email;
-
-          if (!contactEmail) {
-            errors.push('Missing contact email in one or more rows');
-            continue;
-          }
-
-          const { data: contact, error: contactError } = await supabase
-            .from('contacts')
-            .select('id')
-            .eq('email', contactEmail)
-            .maybeSingle();
-
-          if (contactError || !contact) {
-            errors.push(`Contact not found for email: ${contactEmail}`);
-            continue;
-          }
-
-          const statusData: any = {
-            contact_id: contact.id,
-            program: row.program,
-            specialisation: row.specialisation || null,
-            courseware_exam_status: row.courseware_exam_status || null,
-            degree_status: row.degree_status || null,
-            degree_issued: row.degree_issued === true || row.degree_issued === 'true',
-            degree_courier_docket: row.degree_courier_docket || null,
-            enrolment_no_status: row.enrolment_no_status || null,
-            enrolment_no_value: row.enrolment_no_value || null,
-            exam_status: row.exam_status || null,
-            lor_status: row.lor_status || null,
-            lor_issued: row.lor_issued === true || row.lor_issued === 'true',
-            lor_courier_docket: row.lor_courier_docket || null,
-            ms_hard_copy_status: row.ms_hard_copy_status || null,
-            ms_hard_copy_issued: row.ms_hard_copy_issued === true || row.ms_hard_copy_issued === 'true',
-            ms_hard_copy_courier_docket: row.ms_hard_copy_courier_docket || null,
-            ms_hard_copy_courier_status: row.ms_hard_copy_courier_status || null,
-            ms_scan_status: row.ms_scan_status || null,
-            ms_scan_issued: row.ms_scan_issued === true || row.ms_scan_issued === 'true',
-            ms_scan_courier_docket: row.ms_scan_courier_docket || null,
-            provisional_degree_status: row.provisional_degree_status || null,
-            provisional_degree_issued: row.provisional_degree_issued === true || row.provisional_degree_issued === 'true',
-            provisional_degree_courier_docket: row.provisional_degree_courier_docket || null,
-            provisional_degree_courier_status: row.provisional_degree_courier_status || null,
-            recommendation_letter_status: row.recommendation_letter_status || null,
-            recommendation_letter_issued: row.recommendation_letter_issued === true || row.recommendation_letter_issued === 'true',
-            recommendation_letter_courier_docket: row.recommendation_letter_courier_docket || null,
-            result_status: row.result_status || null,
-            roll_no_status: row.roll_no_status || null,
-            university_phd_offer_letter_status: row.university_phd_offer_letter_status || null,
-            university_phd_offer_letter_issued: row.university_phd_offer_letter_issued === true || row.university_phd_offer_letter_issued === 'true',
-            university_phd_offer_letter_courier_docket: row.university_phd_offer_letter_courier_docket || null,
-            university_visit_status: row.university_visit_status || null,
-            university_visit1_status: row.university_visit1_status || null,
-            university_visit2_status: row.university_visit2_status || null,
-            university_visit3_status: row.university_visit3_status || null,
-            viva_status: row.viva_status || null,
-            wes_status: row.wes_status || null,
-            wes_issued: row.wes_issued === true || row.wes_issued === 'true',
-            wes_courier_docket: row.wes_courier_docket || null,
-            notes: row.notes || null,
-          };
-
-          const { error: insertError } = await supabase
-            .from('student_status')
-            .insert(statusData);
-
-          if (insertError) {
-            errors.push(`Failed to import status for ${contactEmail}: ${insertError.message}`);
-            continue;
-          }
-
-          successCount++;
-        }
-
-        let message = `Successfully imported ${successCount} student status records`;
-        if (errors.length > 0) {
-          message += `\n\nErrors (${errors.length}):\n${errors.slice(0, 5).join('\n')}`;
-          if (errors.length > 5) {
-            message += `\n... and ${errors.length - 5} more errors`;
-          }
-        }
-        setSuccess(message);
       } else if (selectedType === 'contacts') {
         const allWarnings: ImportWarning[] = [];
         const rejectedRows: string[] = [];
@@ -603,10 +474,10 @@ export function DataImport() {
         const sanitizeDatesInRow = (row: any, dataType: DataType) => {
           const dateFields: Record<DataType, string[]> = {
             contacts: ['date_of_birth'],
-            enquiries: ['date_of_birth'],
+            enquiries: [],
             appointments: ['appointment_date'],
             admissions: [],
-            payments: ['payment_date'],
+            payments: [],
             student_status: [],
           };
 
@@ -716,13 +587,7 @@ export function DataImport() {
           <p className="text-sm text-gray-600">Upload CSV or JSON files to import data</p>
         </div>
         <button
-          onClick={() => {
-            if (selectedType === 'student_status') {
-              downloadStudentStatusCSVTemplate();
-            } else {
-              downloadEnquiryCSVTemplate();
-            }
-          }}
+          onClick={() => downloadEnquiryCSVTemplate()}
           className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium shadow-md"
         >
           <Download className="w-4 h-4" />
