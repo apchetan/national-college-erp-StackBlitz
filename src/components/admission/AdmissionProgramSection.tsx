@@ -1,5 +1,5 @@
 import { Briefcase } from 'lucide-react';
-import { PROGRAMS, QUALIFICATIONS, EMPLOYMENT_STATUS, generateYears } from '../../constants/formOptions';
+import { PROGRAMS, EMPLOYMENT_STATUS, generateYears, COUNSELORS, ACADEMIC_SPECIALISATIONS } from '../../constants/formOptions';
 
 interface FormData {
   fullName: string;
@@ -12,8 +12,8 @@ interface FormData {
   state: string;
   program: string;
   specialization: string;
+  counselor: string;
   highestQualification: string;
-  highestQualificationCourse: string;
   highestQualificationSpecialization: string;
   yearOfPassing: string;
   totalExperience: string;
@@ -27,18 +27,12 @@ interface AdmissionProgramSectionProps {
   formData: FormData;
   setFormData: (data: FormData) => void;
   getAvailableSpecialisations: () => string[];
-  handleHighestQualificationCourseChange: (course: string) => void;
-  shouldShowHighestQualificationSpecialisation: () => boolean;
-  getAvailableHighestQualificationSpecialisations: () => string[];
 }
 
 export function AdmissionProgramSection({
   formData,
   setFormData,
   getAvailableSpecialisations,
-  handleHighestQualificationCourseChange,
-  shouldShowHighestQualificationSpecialisation,
-  getAvailableHighestQualificationSpecialisations,
 }: AdmissionProgramSectionProps) {
   return (
     <>
@@ -64,28 +58,42 @@ export function AdmissionProgramSection({
               </select>
             </div>
 
-            {formData.program && getAvailableSpecialisations().length > 0 && (
-              <div>
-                <label htmlFor="specialization" className="block text-sm font-medium text-gray-700 mb-2">
-                  Specialization <span className="text-red-500">*</span>
-                </label>
-                <select
-                  id="specialization"
-                  disabled={!formData.program}
-                  value={formData.specialization}
-                  onChange={(e) => setFormData({ ...formData, specialization: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent transition disabled:bg-gray-100 disabled:cursor-not-allowed"
-                >
-                  <option value="">
-                    {formData.program ? 'Select specialization' : 'Select a course first'}
-                  </option>
-                  {getAvailableSpecialisations().map(spec => (
-                    <option key={spec} value={spec}>{spec}</option>
-                  ))}
-                </select>
-              </div>
-            )}
+            <div>
+              <label htmlFor="counselor" className="block text-sm font-medium text-gray-700 mb-2">
+                Counselor
+              </label>
+              <select
+                id="counselor"
+                value={formData.counselor}
+                onChange={(e) => setFormData({ ...formData, counselor: e.target.value })}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent transition"
+              >
+                <option value="">Select a counselor</option>
+                {COUNSELORS.map(c => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+            </div>
           </div>
+
+          {formData.program && getAvailableSpecialisations().length > 0 && (
+            <div>
+              <label htmlFor="specialization" className="block text-sm font-medium text-gray-700 mb-2">
+                Specialization <span className="text-red-500">*</span>
+              </label>
+              <select
+                id="specialization"
+                value={formData.specialization}
+                onChange={(e) => setFormData({ ...formData, specialization: e.target.value })}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent transition"
+              >
+                <option value="">Select specialization</option>
+                {getAvailableSpecialisations().map(spec => (
+                  <option key={spec} value={spec}>{spec}</option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
       </div>
 
@@ -97,32 +105,15 @@ export function AdmissionProgramSection({
           <h3 className="text-2xl font-bold text-gray-900">Educational & Professional Background</h3>
         </div>
 
-        <div>
-          <label htmlFor="highestQualification" className="block text-sm font-medium text-gray-700 mb-2">
-            Highest Qualification <span className="text-red-500">*</span>
-          </label>
-          <select
-            id="highestQualification"
-            value={formData.highestQualification}
-            onChange={(e) => setFormData({ ...formData, highestQualification: e.target.value })}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent transition"
-          >
-            <option value="">Select your highest qualification</option>
-            {QUALIFICATIONS.map(qual => (
-              <option key={qual} value={qual}>{qual}</option>
-            ))}
-          </select>
-        </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label htmlFor="highestQualificationCourse" className="block text-sm font-medium text-gray-700 mb-2">
-              Course
+            <label htmlFor="highestQualification" className="block text-sm font-medium text-gray-700 mb-2">
+              Highest Qualification <span className="text-red-500">*</span>
             </label>
             <select
-              id="highestQualificationCourse"
-              value={formData.highestQualificationCourse}
-              onChange={(e) => handleHighestQualificationCourseChange(e.target.value)}
+              id="highestQualification"
+              value={formData.highestQualification}
+              onChange={(e) => setFormData({ ...formData, highestQualification: e.target.value, highestQualificationSpecialization: '' })}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent transition"
             >
               <option value="">Select a course</option>
@@ -147,27 +138,22 @@ export function AdmissionProgramSection({
             </select>
           </div>
 
-          {shouldShowHighestQualificationSpecialisation() && (
-            <div>
-              <label htmlFor="highestQualificationSpecialization" className="block text-sm font-medium text-gray-700 mb-2">
-                Specialisation
-              </label>
-              <select
-                id="highestQualificationSpecialization"
-                disabled={!formData.highestQualificationCourse}
-                value={formData.highestQualificationSpecialization}
-                onChange={(e) => setFormData({ ...formData, highestQualificationSpecialization: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent transition disabled:bg-gray-100 disabled:cursor-not-allowed"
-              >
-                <option value="">
-                  {formData.highestQualificationCourse ? 'Select specialisation' : 'Select a course first'}
-                </option>
-                {getAvailableHighestQualificationSpecialisations().map((spec) => (
-                  <option key={spec} value={spec}>{spec}</option>
-                ))}
-              </select>
-            </div>
-          )}
+          <div>
+            <label htmlFor="highestQualificationSpecialization" className="block text-sm font-medium text-gray-700 mb-2">
+              Specialisation
+            </label>
+            <select
+              id="highestQualificationSpecialization"
+              value={formData.highestQualificationSpecialization}
+              onChange={(e) => setFormData({ ...formData, highestQualificationSpecialization: e.target.value })}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent transition"
+            >
+              <option value="">Select specialisation</option>
+              {ACADEMIC_SPECIALISATIONS.map(spec => (
+                <option key={spec} value={spec}>{spec}</option>
+              ))}
+            </select>
+          </div>
         </div>
 
         <div>

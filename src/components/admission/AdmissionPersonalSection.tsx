@@ -12,8 +12,8 @@ interface FormData {
   state: string;
   program: string;
   specialization: string;
+  counselor: string;
   highestQualification: string;
-  highestQualificationCourse: string;
   highestQualificationSpecialization: string;
   yearOfPassing: string;
   totalExperience: string;

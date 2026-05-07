@@ -15,8 +15,8 @@ interface FormData {
   state: string;
   program: string;
   specialization: string;
+  counselor: string;
   highestQualification: string;
-  highestQualificationCourse: string;
   highestQualificationSpecialization: string;
   yearOfPassing: string;
   totalExperience: string;
@@ -45,8 +45,8 @@ export function useAdmissionForm() {
     state: '',
     program: '',
     specialization: '',
+    counselor: '',
     highestQualification: '',
-    highestQualificationCourse: '',
     highestQualificationSpecialization: '',
     yearOfPassing: '',
     totalExperience: '',
@@ -203,6 +203,16 @@ export function useAdmissionForm() {
         contactId = contact!.id;
       }
 
+      const notesParts = [
+        `Highest Qualification: ${formData.highestQualification}`,
+        formData.highestQualificationSpecialization ? `Qualification Specialisation: ${formData.highestQualificationSpecialization}` : null,
+        `Year of Passing: ${formData.yearOfPassing}`,
+        `Total Experience: ${formData.totalExperience ? formData.totalExperience + ' years' : 'Not specified'}`,
+        `Employment: ${formData.employmentStatus}`,
+        `State: ${formData.state}`,
+        formData.counselor ? `Counselor: ${formData.counselor}` : null,
+      ].filter(Boolean).join('\n');
+
       const { error: admissionError } = await supabase
         .from('admissions')
         .insert({
@@ -217,7 +227,7 @@ export function useAdmissionForm() {
           amount: 0,
           amount_paid: 0,
           status: 'applied',
-          notes: `Qualification: ${formData.highestQualification}\nYear of Passing: ${formData.yearOfPassing}\nTotal Experience: ${formData.totalExperience ? formData.totalExperience + ' years' : 'Not specified'}\nEmployment: ${formData.employmentStatus}\nState: ${formData.state}`,
+          notes: notesParts,
         });
 
       if (admissionError) throw admissionError;
@@ -231,36 +241,6 @@ export function useAdmissionForm() {
     }
   };
 
-  const handleHighestQualificationCourseChange = (course: string) => {
-    setFormData(prev => ({
-      ...prev,
-      highestQualificationCourse: course,
-      highestQualificationSpecialization: '',
-    }));
-  };
-
-  const shouldShowHighestQualificationSpecialisation = () => {
-    const coursesWithSpecialisation = ['BA', 'MA', 'BSc', 'MSc', 'MBA', 'Diploma Engg.', 'BTech', 'MTech', 'PhD', 'Other', 'OTHER'];
-    return coursesWithSpecialisation.includes(formData.highestQualificationCourse);
-  };
-
-  const getAvailableHighestQualificationSpecialisations = () => {
-    if (formData.highestQualificationCourse === 'PhD') {
-      const allSpecs = new Set<string>();
-      const excludeSpecs = ['(General)CBZ', '(General)PCB', '(General)PCM', 'Artificial Intelligence'];
-
-      Object.values(specialisations).forEach(specs => {
-        specs.forEach(spec => {
-          if (!excludeSpecs.includes(spec)) {
-            allSpecs.add(spec);
-          }
-        });
-      });
-      allSpecs.add('Pharmacy');
-      return Array.from(allSpecs).sort();
-    }
-    return specialisations[formData.highestQualificationCourse] || specialisations['default'];
-  };
 
   const getAvailableSpecialisations = () => {
     if (!formData.program) return [];
@@ -296,8 +276,8 @@ export function useAdmissionForm() {
       state: '',
       program: '',
       specialization: '',
+      counselor: '',
       highestQualification: '',
-      highestQualificationCourse: '',
       highestQualificationSpecialization: '',
       yearOfPassing: '',
       totalExperience: '',
@@ -319,9 +299,6 @@ export function useAdmissionForm() {
     setSelectedContact,
     previousAdmissions,
     handleSubmit,
-    handleHighestQualificationCourseChange,
-    shouldShowHighestQualificationSpecialisation,
-    getAvailableHighestQualificationSpecialisations,
     getAvailableSpecialisations,
     resetForm,
   };

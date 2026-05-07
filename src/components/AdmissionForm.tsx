@@ -23,9 +23,6 @@ export function AdmissionForm() {
     setSelectedContact,
     previousAdmissions,
     handleSubmit,
-    handleHighestQualificationCourseChange,
-    shouldShowHighestQualificationSpecialisation,
-    getAvailableHighestQualificationSpecialisations,
     getAvailableSpecialisations,
     resetForm,
   } = useAdmissionForm();
@@ -202,9 +199,6 @@ export function AdmissionForm() {
                 formData={formData}
                 setFormData={setFormData}
                 getAvailableSpecialisations={getAvailableSpecialisations}
-                handleHighestQualificationCourseChange={handleHighestQualificationCourseChange}
-                shouldShowHighestQualificationSpecialisation={shouldShowHighestQualificationSpecialisation}
-                getAvailableHighestQualificationSpecialisations={getAvailableHighestQualificationSpecialisations}
               />
             </div>
 
