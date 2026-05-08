@@ -104,6 +104,21 @@ export function DataImport() {
     'Fee Remark': 'fee_remark',
     'Fee Remarks': 'fee_remark',
     'Payment Remark': 'fee_remark',
+    'Name': 'name',
+    'Student Name': 'name',
+    'Course': 'course',
+    'Session': 'session',
+    'Academic Session': 'session',
+    'Form Sent Date': 'form_sent_date',
+    'Form Date': 'form_sent_date',
+    'University': 'university',
+    'Total Fee': 'total_fee',
+    'Total Fees': 'total_fee',
+    'Fee Paid': 'fee_paid',
+    'Paid Amount': 'fee_paid',
+    'Fee Balance': 'fee_balance',
+    'Balance Fee': 'fee_balance',
+    'Remaining Fee': 'fee_balance',
   };
 
   const mapColumnName = (header: string): string => {
@@ -164,7 +179,15 @@ export function DataImport() {
         'mobile1',
         'mobile2',
         'email',
-        'fee_remark'
+        'fee_remark',
+        'name',
+        'course',
+        'session',
+        'form_sent_date',
+        'university',
+        'total_fee',
+        'fee_paid',
+        'fee_balance'
       ],
       payments: [],
       student_status: [],
