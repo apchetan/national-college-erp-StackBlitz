@@ -119,6 +119,11 @@ export function DataImport() {
     'Fee Balance': 'fee_balance',
     'Balance Fee': 'fee_balance',
     'Remaining Fee': 'fee_balance',
+    'Sem Year': 'sem_year',
+    'Sem_Year': 'sem_year',
+    'Semester Year': 'sem_year',
+    'Remark': 'remark',
+    'Remarks': 'remark',
   };
 
   const mapColumnName = (header: string): string => {
@@ -187,7 +192,9 @@ export function DataImport() {
         'university',
         'total_fee',
         'fee_paid',
-        'fee_balance'
+        'fee_balance',
+        'sem_year',
+        'remark'
       ],
       payments: [],
       student_status: [],
